@@ -1,0 +1,23 @@
+{
+  "name": "getting-started-auth-web",
+  "version": "1.0.0",
+  "description": "Getting started with Firebase Authentication on the web - Firebase Fundamentals",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "firebase": "^9.0.1"
+  },
+  "devDependencies": {
+    "css-loader": "^6.3.0",
+    "html-webpack-plugin": "^5.3.2",
+    "style-loader": "^3.3.0",
+    "webpack": "^5.51.1",
+    "webpack-cli": "^4.8.0"
+  }
+}
