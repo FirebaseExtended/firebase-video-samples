@@ -1,0 +1,111 @@
+/*
+ Copyright 2022 Google LLC
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      https://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ */
+
+.painting {
+  --ease-elastic-1: cubic-bezier(.5, .75, .75, 1.25);
+  --ease-elastic-2: cubic-bezier(.5, 1, .75, 1.25);
+  --ease-elastic-3: cubic-bezier(.5, 1.25, .75, 1.25);
+  --ease-elastic-4: cubic-bezier(.5, 1.5, .75, 1.25);
+  --ease-elastic-5: cubic-bezier(.5, 1.75, .75, 1.25);
+  position: relative;
+  background-color: var(--color-4);
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.circleGroup {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.cornerLeft {
+  position: absolute;
+  left: 64px;
+  top: 64px;
+  pointer-events: none;
+}
+
+.cornerRight {
+  position: absolute;
+  right: 64px;
+  top: 64px;
+  pointer-events: none;
+}
+
+.circleGroup > svg:hover circle:nth-child(1) {
+  animation: bounceUp 1800ms var(--ease-elastic-4) infinite;
+}
+
+.circleGroup > svg:hover circle:nth-child(2) {
+  animation: bounceUpHigher 1800ms 150ms var(--ease-elastic-3) infinite;
+}
+
+.circleGroup > svg:hover circle:nth-child(3) {
+  animation: bounceUpHigherer 1800ms 300ms var(--ease-elastic-2) infinite;
+}
+
+.circleGroup > svg:hover circle:nth-child(4) {
+  animation: bounceUpHighest 1800ms 450ms var(--ease-elastic-1) infinite;
+}
+
+.circleGroup > svg circle:first-child {
+  fill: var(--color-2);
+}
+
+.circleGroup > svg circle:nth-child(2) {
+  fill: var(--color-3);
+}
+
+.circleGroup > svg circle:nth-child(3) {
+  fill: var(--color-4);
+}
+
+.circleGroup > svg circle:nth-child(4) {
+  fill: var(--color-5);
+}
+
+@keyframes bounceUp {
+  50% {
+    transform: translateY(-80px);
+  }
+}
+
+@keyframes bounceUpHigher {
+  50% {
+    transform: translateY(-90px);
+  }
+}
+
+@keyframes bounceUpHigherer {
+  50% {
+    transform: translateY(-100px);
+  }
+}
+
+@keyframes bounceUpHighest {
+  50% {
+    transform: translateY(-110px);
+  }
+}
+
+@media(max-width: 980px) {
+  .painting {
+    display: none;
+  }
+}

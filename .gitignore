@@ -26,3 +26,9 @@ Icon
 Network Trash Folder
 Temporary Items
 .apdisk
+
+# No node_module folders
+node_modules
+
+# Ignore all Firebase debug logs
+*-debug.log

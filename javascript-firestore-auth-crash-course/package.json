@@ -1,0 +1,22 @@
+{
+  "name": "firebase-zero-to-60",
+  "private": true,
+  "version": "0.0.0",
+  "scripts": {
+    "dev": "concurrently npm:firebase vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "firebase": "firebase emulators:start --only auth,firestore,hosting --import=./offline-seed --export-on-exit --project calmban-dev"
+  },
+  "dependencies": {
+    "firebase": "^9.6.10",
+    "preact": "^10.5.15",
+    "preact-router": "^4.0.1"
+  },
+  "devDependencies": {
+    "@preact/preset-vite": "^2.1.5",
+    "concurrently": "^7.1.0",
+    "firebase-tools": "^10.5.0",
+    "vite": "^2.9.0"
+  }
+}
