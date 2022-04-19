@@ -1,6 +1,6 @@
 # Firebase JavaScript Crash Course: Firestore and Auth
 
-This is the source code used in this video: [Firebase JavaScript Crash Course: Firestore and Auth]().
+This is the source code used in this video: [Firebase JavaScript Crash Course: Firestore and Auth](https://youtu.be/knk5Fjrpde0).
 
 ## Prerequisites
 
