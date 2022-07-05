@@ -32,3 +32,11 @@ node_modules
 
 # Ignore all Firebase debug logs
 *-debug.log
+
+### Xcode ###
+## User settings
+xcuserdata/
+
+## Xcode 8 and earlier
+*.xcscmblueprint
+*.xccheckout
