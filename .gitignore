@@ -32,3 +32,4 @@ node_modules
 
 # Ignore all Firebase debug logs
 *-debug.log
+GoogleService-Info.plist
