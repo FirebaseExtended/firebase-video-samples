@@ -34,7 +34,7 @@ struct FavouritesApp: App {
   @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
   var body: some Scene {
     WindowGroup {
-      NavigationView {
+      NavigationStack {
         AuthenticatedView {
           Image(systemName: "number.circle.fill")
             .resizable()

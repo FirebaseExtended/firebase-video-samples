@@ -70,7 +70,7 @@ struct FavouriteNumberView: View {
 
 struct FavouriteNumberView_Previews: PreviewProvider {
   static var previews: some View {
-    NavigationView {
+    NavigationStack {
       FavouriteNumberView()
     }
   }
