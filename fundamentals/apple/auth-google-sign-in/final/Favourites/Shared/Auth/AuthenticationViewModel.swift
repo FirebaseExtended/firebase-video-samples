@@ -20,6 +20,8 @@
 import Foundation
 import FirebaseCore
 import FirebaseAuth
+import GoogleSignIn
+import GoogleSignInSwift
 
 enum AuthenticationState {
   case unauthenticated
@@ -93,8 +95,6 @@ class AuthenticationViewModel: ObservableObject {
   }
 }
 
-// MARK: - Sign in with Email and Password
-
 extension AuthenticationViewModel {
   func signInWithEmailPassword() async -> Bool {
     authenticationState = .authenticating
@@ -146,9 +146,36 @@ extension AuthenticationViewModel {
   }
 }
 
-// MARK: - Google Sign-In
-
 extension AuthenticationViewModel {
   func signInWithGoogle() {
+    guard let clientID = FirebaseApp.app()?.options.clientID else { return }
+    let config = GIDConfiguration(clientID: clientID)
+
+    guard let viewController = UIApplication.shared.windows.first?.rootViewController else { return }
+
+    Task {
+      do {
+        GIDSignIn.sharedInstance.configuration = config
+        let user = try await GIDSignIn.sharedInstance.signIn(withPresenting: viewController)
+
+        let authentication = user.authentication
+        guard let idToken = authentication.idToken else { return }
+
+        let credential = GoogleAuthProvider.credential(withIDToken: idToken,
+                                                       accessToken: authentication.accessToken)
+
+        let result = try await Auth.auth().signIn(with: credential)
+        let firebaseUser = result.user
+        print(firebaseUser.email)
+      }
+      catch {
+        print(error.localizedDescription)
+        self.errorMessage = error.localizedDescription
+      }
+    }
+
+    GIDSignIn.sharedInstance.signIn(withPresenting: viewController) { user, error in
+
+    }
   }
 }
