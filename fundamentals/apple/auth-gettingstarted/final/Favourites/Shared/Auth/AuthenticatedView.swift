@@ -65,8 +65,6 @@ struct AuthenticatedView<Content, Unauthenticated>: View where Content: View, Un
         AuthenticationView()
           .environmentObject(viewModel)
       }
-//    case .authenticating:
-//      Text("Logging in, please wait...")
     case .authenticated:
       VStack {
         content()
