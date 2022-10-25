@@ -37,17 +37,17 @@ enum AuthenticationFlow {
 
 @MainActor
 class AuthenticationViewModel: ObservableObject {
-  @Published var email: String = ""
-  @Published var password: String = ""
-  @Published var confirmPassword: String = ""
+  @Published var email = ""
+  @Published var password = ""
+  @Published var confirmPassword = ""
 
   @Published var flow: AuthenticationFlow = .login
 
-  @Published var isValid: Bool  = false
+  @Published var isValid = false
   @Published var authenticationState: AuthenticationState = .unauthenticated
-  @Published var errorMessage: String = ""
+  @Published var errorMessage = ""
   @Published var user: User?
-  @Published var displayName: String = ""
+  @Published var displayName = ""
 
   private var currentNonce: String?
 
@@ -88,7 +88,9 @@ class AuthenticationViewModel: ObservableObject {
       try await Task.sleep(nanoseconds: 1_000_000_000)
       print("Done")
     }
-    catch { }
+    catch {
+      print(error.localizedDescription)
+    }
   }
 
   func reset() {
@@ -198,7 +200,10 @@ extension AuthenticationViewModel {
   }
 
   func updateDisplayName(for user: User, with appleIDCredential: ASAuthorizationAppleIDCredential, force: Bool = false) async {
-    if let currentDisplayName = Auth.auth().currentUser?.displayName, currentDisplayName.isEmpty {
+    if let currentDisplayName = Auth.auth().currentUser?.displayName, !currentDisplayName.isEmpty {
+      // current user is non-empty, don't overwrite it
+    }
+    else {
       let changeRequest = user.createProfileChangeRequest()
       changeRequest.displayName = appleIDCredential.displayName()
       do {
