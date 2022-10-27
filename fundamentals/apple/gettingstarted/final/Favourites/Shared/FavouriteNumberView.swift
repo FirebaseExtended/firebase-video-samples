@@ -1,15 +1,15 @@
 //
-//  FavouriteNumberView.swift
-//  Shared
+// FavouriteNumberView.swift
+// Shared
 //
-//  Created by Peter Friese on 05.07.22.
-//  Copyright © 2021 Google LLC. All rights reserved.
+// Created by Peter Friese on 05.07.22.
+// Copyright © 2022 Google LLC.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//      http://www.apache.org/licenses/LICENSE-2.0
+//     http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,7 +23,7 @@ import FirebaseAnalytics
 import FirebaseAnalyticsSwift
 
 class FavouriteNumberViewModel: ObservableObject {
-  @Published var favouriteNumber: Int = 42
+  @Published var favouriteNumber = 42
 
   private var defaults = UserDefaults.standard
   private let favouriteNumberKey = "favouriteNumber"
