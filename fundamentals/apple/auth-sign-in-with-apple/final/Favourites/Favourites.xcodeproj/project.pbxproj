@@ -7,8 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		8806C3DA2879F599001CA800 /* FirebaseSignInWithAppleButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8806C3D92879F599001CA800 /* FirebaseSignInWithAppleButton.swift */; };
-		8806C3DB2879F599001CA800 /* FirebaseSignInWithAppleButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8806C3D92879F599001CA800 /* FirebaseSignInWithAppleButton.swift */; };
 		883886D828784AF8008F3FA0 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 883886D728784AF8008F3FA0 /* FirebaseAnalytics */; };
 		883886DA28784AF8008F3FA0 /* FirebaseAnalyticsSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 883886D928784AF8008F3FA0 /* FirebaseAnalyticsSwift */; };
 		883886DC28784AF8008F3FA0 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 883886DB28784AF8008F3FA0 /* FirebaseAuth */; };
@@ -38,7 +36,6 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		8806C3D92879F599001CA800 /* FirebaseSignInWithAppleButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseSignInWithAppleButton.swift; sourceTree = "<group>"; };
 		880E6DFC28786A2F0029EB8F /* Favourites (iOS).entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Favourites (iOS).entitlements"; sourceTree = "<group>"; };
 		883E5C1D2874A3F2005F7B2D /* AuthenticationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticationViewModel.swift; sourceTree = "<group>"; };
 		885F876B2875A4C10085336A /* UserProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileView.swift; sourceTree = "<group>"; };
@@ -95,7 +92,6 @@
 				88C7954F2874845A00F9F37B /* LoginView.swift */,
 				88C795512874845A00F9F37B /* SignupView.swift */,
 				885F876B2875A4C10085336A /* UserProfileView.swift */,
-				8806C3D92879F599001CA800 /* FirebaseSignInWithAppleButton.swift */,
 			);
 			path = Auth;
 			sourceTree = "<group>";
@@ -256,7 +252,6 @@
 				88C795522874845A00F9F37B /* LoginView.swift in Sources */,
 				88FC9F7C28734A8100A83D18 /* FavouriteNumberView.swift in Sources */,
 				883E5C1E2874A3F2005F7B2D /* AuthenticationViewModel.swift in Sources */,
-				8806C3DA2879F599001CA800 /* FirebaseSignInWithAppleButton.swift in Sources */,
 				885F876C2875A4C10085336A /* UserProfileView.swift in Sources */,
 				88C795542874845A00F9F37B /* AuthenticationView.swift in Sources */,
 				88FC9F7A28734A8100A83D18 /* FavouritesApp.swift in Sources */,
@@ -272,7 +267,6 @@
 				88C795532874845A00F9F37B /* LoginView.swift in Sources */,
 				88FC9F7D28734A8100A83D18 /* FavouriteNumberView.swift in Sources */,
 				883E5C1F2874A3F2005F7B2D /* AuthenticationViewModel.swift in Sources */,
-				8806C3DB2879F599001CA800 /* FirebaseSignInWithAppleButton.swift in Sources */,
 				885F876D2875A4C10085336A /* UserProfileView.swift in Sources */,
 				88C795552874845A00F9F37B /* AuthenticationView.swift in Sources */,
 				88FC9F7B28734A8100A83D18 /* FavouritesApp.swift in Sources */,
