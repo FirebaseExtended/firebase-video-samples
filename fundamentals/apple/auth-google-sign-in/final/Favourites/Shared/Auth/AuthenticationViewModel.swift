@@ -146,36 +146,50 @@ extension AuthenticationViewModel {
   }
 }
 
+extension UIApplication {
+  var currentKeyWindow: UIWindow? {
+    UIApplication.shared.connectedScenes
+      .compactMap { ($0 as? UIWindowScene)?.keyWindow }
+      .first
+  }
+
+  var rootViewController: UIViewController? {
+    currentKeyWindow?.rootViewController
+  }
+}
+
 extension AuthenticationViewModel {
   func signInWithGoogle() {
-    guard let clientID = FirebaseApp.app()?.options.clientID else { return }
-    let config = GIDConfiguration(clientID: clientID)
+    guard let clientID = FirebaseApp.app()?.options.clientID else {
+      fatalError("No client ID found in Firebase configuration")
+    }
+//    let config = GIDConfiguration(clientID: clientID)
+//    GIDSignIn.sharedInstance.configuration = config
 
-    guard let viewController = UIApplication.shared.windows.first?.rootViewController else { return }
+    guard let viewController = UIApplication.shared.rootViewController else {
+      print("There is no root view controller!")
+      return
+    }
 
     Task {
       do {
-        GIDSignIn.sharedInstance.configuration = config
         let user = try await GIDSignIn.sharedInstance.signIn(withPresenting: viewController)
 
-        let authentication = user.authentication
+        let authentication = user.user
         guard let idToken = authentication.idToken else { return }
+        let accessToken = authentication.accessToken
 
-        let credential = GoogleAuthProvider.credential(withIDToken: idToken,
-                                                       accessToken: authentication.accessToken)
+        let credential = GoogleAuthProvider.credential(withIDToken: idToken.tokenString,
+                                      accessToken: accessToken.tokenString)
 
         let result = try await Auth.auth().signIn(with: credential)
         let firebaseUser = result.user
-        print(firebaseUser.email)
+        print("User \(firebaseUser.uid) signed in with email \(firebaseUser.email ?? "unknown")")
       }
       catch {
         print(error.localizedDescription)
         self.errorMessage = error.localizedDescription
       }
-    }
-
-    GIDSignIn.sharedInstance.signIn(withPresenting: viewController) { user, error in
-
     }
   }
 }
