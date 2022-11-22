@@ -149,6 +149,7 @@ extension AuthenticationViewModel {
 // MARK: - Google Sign-In
 
 extension AuthenticationViewModel {
-  func signInWithGoogle() {
+  func signInWithGoogle() async -> Bool {
+    return false  // replace this with the implementation
   }
 }

@@ -28,6 +28,7 @@ private enum FocusableField: Hashable {
 
 struct LoginView: View {
   @EnvironmentObject var viewModel: AuthenticationViewModel
+  @Environment(\.colorScheme) var colorScheme
   @Environment(\.dismiss) var dismiss
 
   @FocusState private var focus: FocusableField?
@@ -41,7 +42,11 @@ struct LoginView: View {
   }
 
   private func signInWithGoogle() {
-    viewModel.signInWithGoogle()
+    Task {
+      if await viewModel.signInWithGoogle() == true {
+        dismiss()
+      }
+    }
   }
 
   var body: some View {
@@ -113,7 +118,7 @@ struct LoginView: View {
         VStack { Divider() }
       }
 
-      Button(action: { self.signInWithGoogle() }) {
+      Button(action: signInWithGoogle) {
         Text("Sign in with Google")
           .padding(.vertical, 8)
           .frame(maxWidth: .infinity)
@@ -122,9 +127,8 @@ struct LoginView: View {
               .frame(width: 30, alignment: .center)
           }
       }
-      .foregroundColor(.black)
+      .foregroundColor(colorScheme == .dark ? .white : .black)
       .buttonStyle(.bordered)
-
 
       HStack {
         Text("Don't have an account yet?")
