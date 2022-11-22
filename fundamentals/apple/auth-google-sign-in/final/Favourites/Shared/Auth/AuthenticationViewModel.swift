@@ -1,15 +1,15 @@
 //
-//  AuthenticationViewModel.swift
-//  Favourites
+// AuthenticationViewModel.swift
+// Favourites
 //
-//  Created by Peter Friese on 08.07.2022
-//  Copyright © 2021 Google LLC. All rights reserved.
+// Created by Peter Friese on 08.07.2022
+// Copyright © 2021 Google LLC. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//      http://www.apache.org/licenses/LICENSE-2.0
+//     http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -146,25 +146,13 @@ extension AuthenticationViewModel {
   }
 }
 
-extension UIApplication {
-  var currentKeyWindow: UIWindow? {
-    UIApplication.shared.connectedScenes
-      .compactMap { ($0 as? UIWindowScene)?.keyWindow }
-      .first
-  }
-
-  var rootViewController: UIViewController? {
-    currentKeyWindow?.rootViewController
-  }
-}
-
 extension AuthenticationViewModel {
   func signInWithGoogle() {
     guard let clientID = FirebaseApp.app()?.options.clientID else {
       fatalError("No client ID found in Firebase configuration")
     }
-//    let config = GIDConfiguration(clientID: clientID)
-//    GIDSignIn.sharedInstance.configuration = config
+    let config = GIDConfiguration(clientID: clientID)
+    GIDSignIn.sharedInstance.configuration = config
 
     guard let viewController = UIApplication.shared.rootViewController else {
       print("There is no root view controller!")
