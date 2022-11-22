@@ -3,7 +3,7 @@
 // Favourites
 //
 // Created by Peter Friese on 08.07.2022
-// Copyright © 2022 Google LLC. All rights reserved.
+// Copyright © 2022 Google LLC.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
