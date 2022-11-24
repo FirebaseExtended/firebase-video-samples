@@ -82,13 +82,13 @@ class FavouriteViewModel: ObservableObject {
 
   func saveFavourite() {
     do {
-      if let documentId = favourite.documentId {
+      if let documentId = favourite.id {
         try db.collection("favourites").document(documentId).setData(from: favourite)
       }
       else {
         let documentReference = try db.collection("favourites").addDocument(from: favourite)
         print(favourite)
-        favourite.documentId = documentReference.documentID
+        favourite.id = documentReference.documentID
       }
     }
     catch {

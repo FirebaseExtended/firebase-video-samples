@@ -26,18 +26,19 @@ import FirebaseFirestoreSwift
 
 struct MyFavourite: Codable {
   var isPublic: Bool
-
+  
   var number: Int
   var color: String
   var movie: String
   var food: String
   var city: String
+  var userId: String
 }
 
 
 class Introduction: ObservableObject {
   var db = Firestore.firestore()
-
+  
   func demo() {
     createDocument()
     updateDocument()
@@ -48,13 +49,13 @@ class Introduction: ObservableObject {
     createDocumentCodable()
     fetchDocumentCodable()
   }
-
+  
 }
 
 extension Introduction {
   func createDocumentCodable() {
-    let favourite = MyFavourite(isPublic: true, number: 42, color: "#ffca28", movie: "Titanic", food: "Currywurst", city: "Berlin")
-
+    let favourite = MyFavourite(isPublic: true, number: 42, color: "#ffca28", movie: "Titanic", food: "Currywurst", city: "Berlin", userId: "peterfriese")
+    
     do {
       try db.document("favourites/peterfriese").setData(from: favourite)
     }
@@ -62,7 +63,7 @@ extension Introduction {
       print(error.localizedDescription)
     }
   }
-
+  
   func fetchDocumentCodable() {
     Task {
       do {
@@ -83,32 +84,36 @@ extension Introduction {
       "color": "#ffffff",
       "movie": "Back to the Future",
       "food": "Sushi",
-      "city": "London"
+      "city": "London",
+      "isPublic": true,
+      "userId": "peterfriese"
     ])
   }
-
+  
   func updateDocument() {
     db.collection("favourites").document("peterfriese").setData([
       "city": "Hamburg"
     ], merge: true)
   }
-
+  
   func updateDocument2() {
     db.collection("favourites").document("peterfriese").updateData([
       "food": "Pizza"
     ])
   }
-
+  
   func addDocument() {
     db.collection("favourites").addDocument(data: [
       "number": 17,
       "color": "#efefefe",
       "movie": "The Matrix",
-      "food": "Pizza",
-      "city": "New York City"
+      "food": "Broccoli",
+      "city": "Cupertino",
+      "isPublic": true,
+      "userId": "sjobs"
     ])
   }
-
+  
   func addDocumentAsync() {
     Task {
       do {
@@ -116,8 +121,10 @@ extension Introduction {
           "number": 23,
           "color": "#aaaaaa",
           "movie": "The man from UNCLE",
-          "food": "Pasta",
-          "city": "Sydney"
+          "food": "Hering",
+          "city": "Gothenburg",
+          "isPublic": true,
+          "userId": "alicia"
         ])
         print("Document added with ID \(ref.documentID)")
       }
@@ -126,20 +133,21 @@ extension Introduction {
       }
     }
   }
-
+  
   func fetchDocument() {
     db.document("favourites/peterfriese").getDocument { documentSnapshot, error in
       if let documentSnapshot, documentSnapshot.exists {
         if let data = documentSnapshot.data() {
           print(data)
           let favourite = MyFavourite(isPublic: data["isPublic"] as? Bool ?? false,
-                                    number: data["number"] as? Int ?? 0,
-                                    color: data["color"] as? String ?? "",
-                                    movie: data["movie"] as? String ?? "",
-                                    food: data["food"] as? String ?? "",
-                                    city: data["city"] as? String ?? "")
+                                      number: data["number"] as? Int ?? 0,
+                                      color: data["color"] as? String ?? "",
+                                      movie: data["movie"] as? String ?? "",
+                                      food: data["food"] as? String ?? "",
+                                      city: data["city"] as? String ?? "",
+                                      userId: data["userId"] as? String ?? "")
           print("Decoded manually: \(favourite)")
-
+          
         }
       }
     }

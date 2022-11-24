@@ -22,8 +22,8 @@ import SwiftUI
 import FirebaseFirestore
 import FirebaseFirestoreSwift
 
-struct Favourite: Codable {
-  @DocumentID var documentId: String?
+struct Favourite: Codable, Identifiable {
+  @DocumentID var id: String?
   var isPublic: Bool
 
   var number: Int

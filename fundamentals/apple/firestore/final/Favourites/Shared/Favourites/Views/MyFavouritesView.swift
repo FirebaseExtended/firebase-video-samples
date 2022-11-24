@@ -70,6 +70,9 @@ struct MyFavouritesView: View {
       .task {
         viewModel.fetchFavourite()
       }
+      .onDisappear {
+        viewModel.saveFavourite()
+      }
       .listStyle(.plain)
       .toolbar {
         Button(action: { presentingProfileScreen.toggle() }) {

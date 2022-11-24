@@ -38,6 +38,7 @@ class FavouritesListViewModel: ObservableObject {
   func subscribe() {
     if listenerRegistration == nil {
       listenerRegistration = db.collection("favourites")
+        .whereField("isPublic", isEqualTo: true)
         .addSnapshotListener { [weak self] (querySnapshot, error) in
           guard let documents = querySnapshot?.documents else {
             self?.errorMessage = "No documents in 'favourites' collection"
@@ -75,11 +76,26 @@ class FavouritesListViewModel: ObservableObject {
 
 
 struct FavouritesListView: View {
+  @StateObject var viewModel = FavouritesListViewModel()
+
   var body: some View {
-    List(0 ..< 5) { item in
-      Text("Hello, World!")
+    NavigationStack {
+      List(viewModel.favourites) { item in
+        VStack(alignment: .leading) {
+          Text("Number: \(item.number)")
+          Text("Food: \(item.food)")
+          Text("Movie: \(item.movie)")
+          Text("City: \(item.city)")
+        }
+      }
+      .navigationTitle("All Favourites")
+      .onAppear {
+        viewModel.subscribe()
+      }
+      .onDisappear {
+        viewModel.unsubscribe()
+      }
     }
-    .navigationTitle("All Favourites")
   }
 }
 
