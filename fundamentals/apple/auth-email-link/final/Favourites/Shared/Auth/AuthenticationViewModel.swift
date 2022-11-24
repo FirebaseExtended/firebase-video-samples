@@ -19,6 +19,7 @@
 
 import Foundation
 import FirebaseAuth
+import SwiftUI
 
 enum AuthenticationState {
   case unauthenticated
@@ -36,25 +37,9 @@ enum EmailLinkStatus {
   case pending
 }
 
-//struct EmailLinkFlow {
-//  var email: String? {
-//    set {
-//      UserDefaults.standard.set(newValue, forKey: "email-link")
-//    }
-//    get {
-//      let email = UserDefaults.standard.string(forKey: "email-link") ?? nil
-//      print(email)
-//      return email
-//    }
-//  }
-//
-//  var isActive: Bool {
-//    self.email != nil
-//  }
-//}
-
 @MainActor
 class AuthenticationViewModel: ObservableObject {
+  @AppStorage("email-link") var emailLink: String?
   @Published var email = ""
 
   @Published var flow: AuthenticationFlow = .login
@@ -65,13 +50,8 @@ class AuthenticationViewModel: ObservableObject {
   @Published var user: User?
   @Published var displayName = ""
 
-  @Published var emailLinkStatus = EmailLinkStatus.none
-
-//  @Published var emailLinkFlow = EmailLinkFlow()
-
   init() {
     registerAuthStateHandler()
-    retrieveEmailLinkDetails()
 
     $email
       .map { email in
@@ -111,7 +91,7 @@ class AuthenticationViewModel: ObservableObject {
   func reset() {
     flow = .login
     email = ""
-    resetEmailLinkDetails()
+    emailLink = nil
   }
 }
 
@@ -125,7 +105,7 @@ extension AuthenticationViewModel {
 
     do {
       try await Auth.auth().sendSignInLink(toEmail: email, actionCodeSettings: actionCodeSettings)
-      storeEmailLinkDetails()
+      emailLink = email
     }
     catch {
       print(error.localizedDescription)
@@ -133,24 +113,8 @@ extension AuthenticationViewModel {
     }
   }
 
-  func storeEmailLinkDetails() {
-    UserDefaults.standard.set(email, forKey: "email-link")
-    emailLinkStatus = .pending
-  }
-
-  func resetEmailLinkDetails() {
-    UserDefaults.standard.removeObject(forKey: "email-link")
-    emailLinkStatus = .none
-  }
-
-  func retrieveEmailLinkDetails() {
-    if let emailLink = UserDefaults.standard.string(forKey: "email-link") {
-      email = emailLink
-      emailLinkStatus = .pending
-    }
-    else {
-      emailLinkStatus = .none
-    }
+  var emailLinkStatus: EmailLinkStatus {
+    emailLink == nil ? .none : .pending
   }
 
   func handleSignInLink(_ url: URL) async {
@@ -160,7 +124,7 @@ extension AuthenticationViewModel {
         let result = try await Auth.auth().signIn(withEmail: email, link: link)
         let user = result.user
         print("User \(user.uid) signed in with email \(user.email ?? "(unknown)"). The email is \(user.isEmailVerified ? "" : "NOT") verified")
-        emailLinkStatus = .none
+        emailLink = nil
       }
       catch {
         print(error.localizedDescription)
