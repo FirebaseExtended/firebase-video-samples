@@ -70,14 +70,22 @@ struct AuthenticatedView<Content, Unauthenticated>: View where Content: View, Un
         if let unauthenticated {
           unauthenticated
         }
+        if !viewModel.errorMessage.isEmpty {
+          VStack {
+            Text(viewModel.errorMessage)
+              .foregroundColor(Color(UIColor.systemRed))
+          }
+        }
         if viewModel.emailLinkStatus == .none {
           Text("You need to be logged in to use this app.")
           loginButton("Log in")
         }
         else  {
           Text("Check your email!")
-          Text("To confirm your email address, tap the button in the email we sent to **\(viewModel.email)**.")
-            .font(.footnote)
+          if let emailLink = viewModel.emailLink {
+            Text("To confirm your email address, tap the button in the email we sent to **\(emailLink)**.")
+              .font(.footnote)
+          }
           HStack {
             VStack { Divider() }
             Text("or")

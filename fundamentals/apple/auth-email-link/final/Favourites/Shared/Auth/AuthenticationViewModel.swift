@@ -92,6 +92,7 @@ class AuthenticationViewModel: ObservableObject {
     flow = .login
     email = ""
     emailLink = nil
+    errorMessage = ""
   }
 }
 
@@ -119,6 +120,10 @@ extension AuthenticationViewModel {
 
   func handleSignInLink(_ url: URL) async {
     let link = url.absoluteString
+    guard let email = emailLink else {
+      errorMessage = "Invalid email address. Most likely, the link you used has expired. Try signing in again."
+      return
+    }
     if Auth.auth().isSignIn(withEmailLink: link) {
       do {
         let result = try await Auth.auth().signIn(withEmail: email, link: link)
