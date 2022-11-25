@@ -67,7 +67,7 @@ struct MyFavouritesView: View {
         .buttonStyle(.blue)
         .listRowInsets(EdgeInsets())
       }
-      .task {
+      .onAppear {
         viewModel.fetchFavourite()
       }
       .onDisappear {

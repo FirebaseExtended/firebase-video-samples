@@ -23,12 +23,10 @@ import FirebaseCore
 import FirebaseAuth
 
 class AppDelegate: NSObject, UIApplicationDelegate {
-
   func application(_ application: UIApplication,
                    didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
     FirebaseApp.configure()
 //   Auth.auth().useEmulator(withHost:"localhost", port:9099)
-
     return true
   }
 }
@@ -36,7 +34,9 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 @main
 struct FavouritesApp: App {
   @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
+
   @StateObject var introduction = Introduction()
+
   var body: some Scene {
     WindowGroup {
       NavigationView {
@@ -57,7 +57,7 @@ struct FavouritesApp: App {
           RootContentView()
         }
       }
-      .onAppear() {
+      .onAppear {
         introduction.demo()
       }
     }

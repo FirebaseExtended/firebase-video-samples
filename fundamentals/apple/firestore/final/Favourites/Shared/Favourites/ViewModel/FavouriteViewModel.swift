@@ -35,13 +35,6 @@ class FavouriteViewModel: ObservableObject {
   init() {
     registerAuthStateHandler()
 
-//    $favourite
-//      .sink { favourite in
-//        print("Value updated: \(favourite)")
-//        self.saveFavourite()
-//      }
-//      .store(in: &cancellables)
-
     $user
       .compactMap { $0 }
       .sink { user in
@@ -56,6 +49,7 @@ class FavouriteViewModel: ObservableObject {
     if authStateHandler == nil {
       authStateHandler = Auth.auth().addStateDidChangeListener { auth, user in
         self.user = user
+        self.fetchFavourite()
       }
     }
   }

@@ -24,6 +24,8 @@ import FirebaseCore
 import FirebaseFirestore
 import FirebaseFirestoreSwift
 
+import LoremSwiftum
+
 struct MyFavourite: Codable {
   var isPublic: Bool
   
@@ -104,13 +106,13 @@ extension Introduction {
   
   func addDocument() {
     db.collection("favourites").addDocument(data: [
-      "number": 17,
-      "color": "#efefefe",
-      "movie": "The Matrix",
-      "food": "Broccoli",
-      "city": "Cupertino",
+      "number": MyFavourite.randomNumber(),
+      "color": MyFavourite.randomColor().toHex ?? "#fefefe",
+      "movie": MyFavourite.randomMovie(),
+      "food": MyFavourite.randomFood(),
+      "city": MyFavourite.randomCity(),
       "isPublic": true,
-      "userId": "sjobs"
+      "userId": MyFavourite.randomUserID()
     ])
   }
   
@@ -118,13 +120,13 @@ extension Introduction {
     Task {
       do {
         let ref = try await db.collection("favourites").addDocument(data: [
-          "number": 23,
-          "color": "#aaaaaa",
-          "movie": "The man from UNCLE",
-          "food": "Hering",
-          "city": "Gothenburg",
+          "number": MyFavourite.randomNumber(),
+          "color": MyFavourite.randomColor().toHex ?? "#fefefe",
+          "movie": MyFavourite.randomMovie(),
+          "food": MyFavourite.randomFood(),
+          "city": MyFavourite.randomCity(),
           "isPublic": true,
-          "userId": "alicia"
+          "userId": MyFavourite.randomUserID()
         ])
         print("Document added with ID \(ref.documentID)")
       }
@@ -151,5 +153,40 @@ extension Introduction {
         }
       }
     }
+  }
+}
+
+extension MyFavourite {
+  static func randomNumber() -> Int {
+    Int.random(in: 1...100)
+  }
+
+  static func randomColor() -> Color {
+    Color(UIColor(
+      red: .random(in: 0...1),
+      green: .random(in: 0...1),
+      blue: .random(in: 0...1),
+      alpha: 1.0
+    ))
+  }
+
+  static func randomMovie() -> String {
+    Lorem.title
+  }
+
+  static var sampleFood = ["Pizza", "Pasta", "Sushi", "Burger", "Fried Green Asparagus"]
+  static func randomFood() -> String {
+    let index = Int.random(in: 0..<sampleFood.count)
+    return sampleFood[index]
+  }
+
+  static var sampleCities = ["London", "New York City", "Hamburg", "San Francisco", "Sydney"]
+  static func randomCity() -> String {
+    let index = Int.random(in: 0..<sampleCities.count)
+    return sampleCities[index]
+  }
+
+  static func randomUserID() -> String {
+    Lorem.fullName.replacingOccurrences(of: " ", with: "").lowercased()
   }
 }
