@@ -101,8 +101,8 @@ class AuthenticationViewModel: ObservableObject {
 extension AuthenticationViewModel {
   func sendSignInLink() async {
     let actionCodeSettings = ActionCodeSettings()
-    actionCodeSettings.url = URL(string: "https://favourites.page.link/email-link-login")
     actionCodeSettings.handleCodeInApp = true
+    actionCodeSettings.url = URL(string: "https://favourites.page.link/email-link-login")
 
     do {
       try await Auth.auth().sendSignInLink(toEmail: email, actionCodeSettings: actionCodeSettings)
@@ -119,11 +119,11 @@ extension AuthenticationViewModel {
   }
 
   func handleSignInLink(_ url: URL) async {
-    let link = url.absoluteString
     guard let email = emailLink else {
       errorMessage = "Invalid email address. Most likely, the link you used has expired. Try signing in again."
       return
     }
+    let link = url.absoluteString
     if Auth.auth().isSignIn(withEmailLink: link) {
       do {
         let result = try await Auth.auth().signIn(withEmail: email, link: link)

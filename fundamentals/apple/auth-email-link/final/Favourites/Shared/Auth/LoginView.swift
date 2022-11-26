@@ -23,7 +23,6 @@ import FirebaseAnalyticsSwift
 
 private enum FocusableField: Hashable {
   case email
-  case password
 }
 
 struct LoginView: View {
@@ -53,12 +52,12 @@ struct LoginView: View {
       HStack {
         Image(systemName: "at")
         TextField("Email", text: $viewModel.email)
+          .keyboardType(.emailAddress)
           .textInputAutocapitalization(.never)
           .disableAutocorrection(true)
           .focused($focus, equals: .email)
-          .submitLabel(.next)
           .onSubmit {
-            self.focus = .password
+            signInWithEmailLink()
           }
       }
       .padding(.vertical, 6)
