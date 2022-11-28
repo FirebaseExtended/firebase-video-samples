@@ -3,14 +3,14 @@
 <plist version="1.0">
 <dict>
 	<key>COPYRIGHT</key>
-	<string>Copyright © 2021 Google LLC. All rights reserved.</string>
+	<string>Copyright © 2021 Google LLC.</string>
 	<key>FILEHEADER</key>
 	<string>
-//  ___FILENAME___
-//  ___PACKAGENAME___
+// ___FILENAME___
+// ___PACKAGENAME___
 //
-//  Created by ___FULLUSERNAME___ on ___DATE___.
-//  ___COPYRIGHT___
+// Created by ___FULLUSERNAME___ on ___DATE___.
+// ___COPYRIGHT___
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
 // you may not use this file except in compliance with the License.
