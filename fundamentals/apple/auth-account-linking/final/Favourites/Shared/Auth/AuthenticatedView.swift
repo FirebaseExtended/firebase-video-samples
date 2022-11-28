@@ -69,9 +69,18 @@ struct AuthenticatedView<Content, Unauthenticated>: View where Content: View, Un
     case .authenticated:
       VStack {
         content()
-        Text("You're logged in as \(viewModel.displayName).")
-        Button("Tap here to view your profile") {
-          presentingProfileScreen.toggle()
+        if viewModel.isGuestUser {
+          Text("You are using the app as a guest user (UID: \(viewModel.user?.uid ?? "unknown")).")
+          Button("Tap here to log in") {
+            viewModel.reset()
+            presentingLoginScreen.toggle()
+          }
+        }
+        else {
+          Text("You're logged in as \(viewModel.displayName).")
+          Button("Tap here to view your profile") {
+            presentingProfileScreen.toggle()
+          }
         }
       }
       .onReceive(NotificationCenter.default.publisher(for: ASAuthorizationAppleIDProvider.credentialRevokedNotification)) { event in
@@ -86,6 +95,11 @@ struct AuthenticatedView<Content, Unauthenticated>: View where Content: View, Un
             .environmentObject(viewModel)
         }
       }
+      .sheet(isPresented: $presentingLoginScreen) {
+        AuthenticationView()
+          .environmentObject(viewModel)
+      }
+
     }
   }
 }
