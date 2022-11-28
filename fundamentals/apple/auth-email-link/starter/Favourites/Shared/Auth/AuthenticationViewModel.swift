@@ -19,6 +19,7 @@
 
 import Foundation
 import FirebaseAuth
+import SwiftUI
 
 enum AuthenticationState {
   case unauthenticated
@@ -31,11 +32,15 @@ enum AuthenticationFlow {
   case signUp
 }
 
+enum EmailLinkStatus {
+  case none
+  case pending
+}
+
 @MainActor
 class AuthenticationViewModel: ObservableObject {
+  @AppStorage("email-link") var emailLink: String?
   @Published var email = ""
-  @Published var password = ""
-  @Published var confirmPassword = ""
 
   @Published var flow: AuthenticationFlow = .login
 
@@ -45,17 +50,29 @@ class AuthenticationViewModel: ObservableObject {
   @Published var user: User?
   @Published var displayName = ""
 
+  @Published var isGuestUser = false
+  @Published var isVerified = false
+
   init() {
     registerAuthStateHandler()
 
-    $flow
-      .combineLatest($email, $password, $confirmPassword)
-      .map { flow, email, password, confirmPassword in
-        flow == .login
-          ? !(email.isEmpty || password.isEmpty)
-          : !(email.isEmpty || password.isEmpty || confirmPassword.isEmpty)
+    $email
+      .map { email in
+        !email.isEmpty
       }
       .assign(to: &$isValid)
+
+    $user
+      .compactMap { user in
+        user?.isAnonymous
+      }
+      .assign(to: &$isGuestUser)
+
+    $user
+      .compactMap { user in
+        user?.isEmailVerified
+      }
+      .assign(to: &$isVerified)
   }
 
   private var authStateHandler: AuthStateDidChangeListenerHandle?
@@ -89,40 +106,22 @@ class AuthenticationViewModel: ObservableObject {
   func reset() {
     flow = .login
     email = ""
-    password = ""
-    confirmPassword = ""
+    emailLink = nil
+    errorMessage = ""
   }
 }
 
 // MARK: - Email and Password Authentication
 
 extension AuthenticationViewModel {
-  func signInWithEmailPassword() async -> Bool {
-    authenticationState = .authenticating
-    do {
-      try await Auth.auth().signIn(withEmail: self.email, password: self.password)
-      return true
-    }
-    catch  {
-      print(error)
-      errorMessage = error.localizedDescription
-      authenticationState = .unauthenticated
-      return false
-    }
+  func sendSignInLink() async {
   }
 
-  func signUpWithEmailPassword() async -> Bool {
-    authenticationState = .authenticating
-    do  {
-      try await Auth.auth().createUser(withEmail: email, password: password)
-      return true
-    }
-    catch {
-      print(error)
-      errorMessage = error.localizedDescription
-      authenticationState = .unauthenticated
-      return false
-    }
+  var emailLinkStatus: EmailLinkStatus {
+    emailLink == nil ? .none : .pending
+  }
+
+  func handleSignInLink(_ url: URL) async {
   }
 
   func signOut() {

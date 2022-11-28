@@ -31,21 +31,38 @@ struct AuthenticatedView<Content, Unauthenticated>: View where Content: View, Un
   @StateObject private var viewModel = AuthenticationViewModel()
   @State private var presentingLoginScreen = false
   @State private var presentingProfileScreen = false
-
+  
   var unauthenticated: Unauthenticated?
   @ViewBuilder var content: () -> Content
-
+  
   public init(unauthenticated: Unauthenticated?, @ViewBuilder content: @escaping () -> Content) {
     self.unauthenticated = unauthenticated
     self.content = content
   }
-
+  
   public init(@ViewBuilder unauthenticated: @escaping () -> Unauthenticated, @ViewBuilder content: @escaping () -> Content) {
     self.unauthenticated = unauthenticated()
     self.content = content
   }
-
-
+  
+  private func handleSignInLink(url: URL) {
+    Task {
+      await viewModel.handleSignInLink(url)
+    }
+  }
+  
+  func loginButton(_ title: String) -> some View {
+    Button {
+      viewModel.reset()
+      presentingLoginScreen.toggle()
+    } label: {
+      Text(title)
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 8)
+    }
+    .buttonStyle(.bordered)
+  }
+  
   var body: some View {
     switch viewModel.authenticationState {
     case .unauthenticated, .authenticating:
@@ -53,14 +70,33 @@ struct AuthenticatedView<Content, Unauthenticated>: View where Content: View, Un
         if let unauthenticated {
           unauthenticated
         }
-        else {
-          Text("You're not logged in.")
+        if !viewModel.errorMessage.isEmpty {
+          VStack {
+            Text(viewModel.errorMessage)
+              .foregroundColor(Color(UIColor.systemRed))
+          }
         }
-        Button("Tap here to log in") {
-          viewModel.reset()
-          presentingLoginScreen.toggle()
+        if viewModel.emailLinkStatus == .none {
+          Text("You need to be logged in to use this app.")
+          loginButton("Log in")
+        }
+        else  {
+          Text("Check your email!")
+            .padding(.top, 16)
+            .padding(.bottom, 6)
+          if let emailLink = viewModel.emailLink {
+            Text("To confirm your email address, tap the magic link in the email we sent to **\(emailLink)**.")
+              .font(.footnote)
+          }
+          HStack {
+            VStack { Divider() }
+            Text("or")
+            VStack { Divider() }
+          }
+          loginButton("Log in a different way")
         }
       }
+      .padding(.horizontal, 16)
       .sheet(isPresented: $presentingLoginScreen) {
         AuthenticationView()
           .environmentObject(viewModel)

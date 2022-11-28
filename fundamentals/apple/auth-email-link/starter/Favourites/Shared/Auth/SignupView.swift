@@ -35,9 +35,6 @@ struct SignupView: View {
 
   private func signUpWithEmailPassword() {
     Task {
-      if await viewModel.signUpWithEmailPassword() == true {
-        dismiss()
-      }
     }
   }
 
@@ -67,31 +64,31 @@ struct SignupView: View {
       .background(Divider(), alignment: .bottom)
       .padding(.bottom, 4)
 
-      HStack {
-        Image(systemName: "lock")
-        SecureField("Password", text: $viewModel.password)
-          .focused($focus, equals: .password)
-          .submitLabel(.next)
-          .onSubmit {
-            self.focus = .confirmPassword
-          }
-      }
-      .padding(.vertical, 6)
-      .background(Divider(), alignment: .bottom)
-      .padding(.bottom, 8)
-
-      HStack {
-        Image(systemName: "lock")
-        SecureField("Confirm password", text: $viewModel.confirmPassword)
-          .focused($focus, equals: .confirmPassword)
-          .submitLabel(.go)
-          .onSubmit {
-            signUpWithEmailPassword()
-          }
-      }
-      .padding(.vertical, 6)
-      .background(Divider(), alignment: .bottom)
-      .padding(.bottom, 8)
+//      HStack {
+//        Image(systemName: "lock")
+//        SecureField("Password", text: $viewModel.password)
+//          .focused($focus, equals: .password)
+//          .submitLabel(.next)
+//          .onSubmit {
+//            self.focus = .confirmPassword
+//          }
+//      }
+//      .padding(.vertical, 6)
+//      .background(Divider(), alignment: .bottom)
+//      .padding(.bottom, 8)
+//
+//      HStack {
+//        Image(systemName: "lock")
+//        SecureField("Confirm password", text: $viewModel.confirmPassword)
+//          .focused($focus, equals: .confirmPassword)
+//          .submitLabel(.go)
+//          .onSubmit {
+//            signUpWithEmailPassword()
+//          }
+//      }
+//      .padding(.vertical, 6)
+//      .background(Divider(), alignment: .bottom)
+//      .padding(.bottom, 8)
 
 
       if !viewModel.errorMessage.isEmpty {

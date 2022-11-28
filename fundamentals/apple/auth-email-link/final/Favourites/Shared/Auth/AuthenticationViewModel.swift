@@ -111,7 +111,7 @@ class AuthenticationViewModel: ObservableObject {
   }
 }
 
-// MARK: - Email and Password Authentication
+// MARK: - Email and Link Authentication
 
 extension AuthenticationViewModel {
   func sendSignInLink() async {
