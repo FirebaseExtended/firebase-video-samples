@@ -50,6 +50,9 @@ class AuthenticationViewModel: ObservableObject {
   @Published var user: User?
   @Published var displayName = ""
 
+  @Published var isGuestUser = false
+  @Published var isVerified = false
+
   init() {
     registerAuthStateHandler()
 
@@ -58,6 +61,18 @@ class AuthenticationViewModel: ObservableObject {
         !email.isEmpty
       }
       .assign(to: &$isValid)
+
+    $user
+      .compactMap { user in
+        user?.isAnonymous
+      }
+      .assign(to: &$isGuestUser)
+
+    $user
+      .compactMap { user in
+        user?.isEmailVerified
+      }
+      .assign(to: &$isVerified)
   }
 
   private var authStateHandler: AuthStateDidChangeListenerHandle?
