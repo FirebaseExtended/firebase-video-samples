@@ -82,8 +82,10 @@ struct AuthenticatedView<Content, Unauthenticated>: View where Content: View, Un
         }
         else  {
           Text("Check your email!")
+            .padding(.top, 16)
+            .padding(.bottom, 6)
           if let emailLink = viewModel.emailLink {
-            Text("To confirm your email address, tap the button in the email we sent to **\(emailLink)**.")
+            Text("To confirm your email address, tap the magic link in the email we sent to **\(emailLink)**.")
               .font(.footnote)
           }
           HStack {
