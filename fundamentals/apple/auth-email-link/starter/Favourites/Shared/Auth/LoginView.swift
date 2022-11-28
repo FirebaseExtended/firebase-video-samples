@@ -23,7 +23,6 @@ import FirebaseAnalyticsSwift
 
 private enum FocusableField: Hashable {
   case email
-  case password
 }
 
 struct LoginView: View {
@@ -32,11 +31,10 @@ struct LoginView: View {
 
   @FocusState private var focus: FocusableField?
 
-  private func signInWithEmailPassword() {
+  private func signInWithEmailLink() {
     Task {
-      if await viewModel.signInWithEmailPassword() == true {
-        dismiss()
-      }
+      await viewModel.sendSignInLink()
+      dismiss()
     }
   }
 
@@ -54,30 +52,17 @@ struct LoginView: View {
       HStack {
         Image(systemName: "at")
         TextField("Email", text: $viewModel.email)
+          .keyboardType(.emailAddress)
           .textInputAutocapitalization(.never)
           .disableAutocorrection(true)
           .focused($focus, equals: .email)
-          .submitLabel(.next)
           .onSubmit {
-            self.focus = .password
+            signInWithEmailLink()
           }
       }
       .padding(.vertical, 6)
       .background(Divider(), alignment: .bottom)
       .padding(.bottom, 4)
-
-      HStack {
-        Image(systemName: "lock")
-        SecureField("Password", text: $viewModel.password)
-          .focused($focus, equals: .password)
-          .submitLabel(.go)
-          .onSubmit {
-            signInWithEmailPassword()
-          }
-      }
-      .padding(.vertical, 6)
-      .background(Divider(), alignment: .bottom)
-      .padding(.bottom, 8)
 
       if !viewModel.errorMessage.isEmpty {
         VStack {
@@ -86,7 +71,7 @@ struct LoginView: View {
         }
       }
 
-      Button(action: signInWithEmailPassword) {
+      Button(action: signInWithEmailLink) {
         if viewModel.authenticationState != .authenticating {
           Text("Login")
             .padding(.vertical, 8)
@@ -102,16 +87,6 @@ struct LoginView: View {
       .disabled(!viewModel.isValid)
       .frame(maxWidth: .infinity)
       .buttonStyle(.borderedProminent)
-
-      HStack {
-        Text("Don't have an account yet?")
-        Button(action: { viewModel.switchFlow() }) {
-          Text("Sign up")
-            .fontWeight(.semibold)
-            .foregroundColor(.blue)
-        }
-      }
-      .padding([.top, .bottom], 50)
 
     }
     .listStyle(.plain)

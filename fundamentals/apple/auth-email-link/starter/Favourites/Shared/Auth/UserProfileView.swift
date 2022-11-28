@@ -60,7 +60,31 @@ struct UserProfileView: View {
       }
       .listRowBackground(Color(UIColor.systemGroupedBackground))
       Section("Email") {
-        Text(viewModel.displayName)
+        VStack(alignment: .leading) {
+          Text("Email")
+            .font(.caption)
+          Text(viewModel.displayName)
+        }
+        VStack(alignment: .leading) {
+          Text("UID")
+            .font(.caption)
+          Text(viewModel.user?.uid ?? "(unknown)")
+        }
+        VStack(alignment: .leading) {
+          Text("Provider")
+            .font(.caption)
+          Text(viewModel.user?.providerData[0].providerID ?? "(unknown)")
+        }
+        VStack(alignment: .leading) {
+          Text("Anonymous / Guest user")
+            .font(.caption)
+          Text(viewModel.isGuestUser ? "Yes" : "No")
+        }
+        VStack(alignment: .leading) {
+          Text("Verified")
+            .font(.caption)
+          Text(viewModel.isVerified ? "Yes" : "No")
+        }
       }
       Section {
         Button(role: .cancel, action: signOut) {
