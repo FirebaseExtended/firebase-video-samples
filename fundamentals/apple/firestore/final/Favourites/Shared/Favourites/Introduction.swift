@@ -154,6 +154,45 @@ extension Introduction {
       }
     }
   }
+
+  func fetchDocumentAsync() {
+    Task {
+      do {
+        let snapshot = try await db.document("favourites/peterfriese").getDocument()
+        if let data = snapshot.data() {
+          print(data)
+          let favourite = MyFavourite(isPublic: data["isPublic"] as? Bool ?? false,
+                                      number: data["number"] as? Int ?? 0,
+                                      color: data["color"] as? String ?? "",
+                                      movie: data["movie"] as? String ?? "",
+                                      food: data["food"] as? String ?? "",
+                                      city: data["city"] as? String ?? "",
+                                      userId: data["userId"] as? String ?? "")
+          print("Decoded manually: \(favourite)")
+        }
+      }
+      catch {
+        print(error.localizedDescription)
+      }
+    }
+  }
+
+  func fetchDocumentCodableAsync() {
+    Task {
+      do {
+        let favourite = try await db.document("favourites/peterfriese").getDocument(as: MyFavourite.self)
+        print("Decoded manually: \(favourite)")
+      }
+      catch {
+        print(error.localizedDescription)
+      }
+    }
+  }
+
+  func countFavrourites() {
+    db.collection("favourites").count
+  }
+
 }
 
 extension MyFavourite {
