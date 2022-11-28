@@ -18,7 +18,11 @@
 // limitations under the License.
 
 import Foundation
+import Combine
+import FirebaseCore
 import FirebaseAuth
+import GoogleSignIn
+import GoogleSignInSwift
 
 // For Sign in with Apple
 import AuthenticationServices
@@ -49,7 +53,11 @@ class AuthenticationViewModel: ObservableObject {
   @Published var user: User?
   @Published var displayName = ""
 
+  @Published var isGuestUser = false
+  @Published var isVerified = false
+
   private var currentNonce: String?
+  private var cancellables = Set<AnyCancellable>()
 
   init() {
     registerAuthStateHandler()
@@ -63,6 +71,34 @@ class AuthenticationViewModel: ObservableObject {
         : !(email.isEmpty || password.isEmpty || confirmPassword.isEmpty)
       }
       .assign(to: &$isValid)
+
+    $user
+      .compactMap { user in
+        user?.isAnonymous
+      }
+      .assign(to: &$isGuestUser)
+
+    $user
+      .compactMap { user in
+        user?.isEmailVerified
+      }
+      .assign(to: &$isVerified)
+    
+    $user
+      .sink { user in
+        if user == nil {
+          self.signIn()
+        }
+      }
+      .store(in: &cancellables)
+
+    $user
+      .compactMap { user in
+        user?.displayName ?? user?.email ?? ""
+      }
+      .assign(to: &$displayName)
+
+    signIn()
   }
 
   private var authStateHandler: AuthStateDidChangeListenerHandle?
@@ -101,13 +137,64 @@ class AuthenticationViewModel: ObservableObject {
   }
 }
 
+// MARK: - Sign in anonymously
+
+extension AuthenticationViewModel {
+  func signIn() {
+    if Auth.auth().currentUser == nil {
+      print("Nobody is signed in. Trying to sign in anonymously.")
+      Task {
+        do {
+          try await Auth.auth().signInAnonymously()
+          errorMessage = ""
+        }
+        catch {
+          print(error.localizedDescription)
+          errorMessage = error.localizedDescription
+        }
+      }
+    }
+    else {
+      print("Someone is signed in")
+      if let user = Auth.auth().currentUser {
+        print(user.uid)
+      }
+    }
+  }
+}
+
 // MARK: - Email and Password Authentication
 
 extension AuthenticationViewModel {
+  func linkWithEmailPassword() async -> Bool {
+    authenticationState = .authenticating
+    do {
+      let credential = EmailAuthProvider.credential(withEmail: email, password: password)
+      if let user {
+        let result = try await user.link(with: credential)
+        self.user = result.user
+        authenticationState = .authenticated
+        return true
+      }
+      else {
+        errorMessage = "No user was signed in. This should not happen."
+        authenticationState = .unauthenticated
+        return false
+      }
+    }
+    catch  {
+      print(error)
+      errorMessage = error.localizedDescription
+      authenticationState = .unauthenticated
+      return false
+    }
+  }
+
   func signInWithEmailPassword() async -> Bool {
     authenticationState = .authenticating
     do {
-      try await Auth.auth().signIn(withEmail: self.email, password: self.password)
+      let result = try await Auth.auth().signIn(withEmail: self.email, password: self.password)
+      dumpUser(result.user)
       return true
     }
     catch  {
@@ -154,6 +241,51 @@ extension AuthenticationViewModel {
   }
 }
 
+// MARK: Google Sign-In
+
+enum AuthenticationError: Error {
+  case tokenError(message: String)
+}
+
+extension AuthenticationViewModel {
+  func signInWithGoogle() async -> Bool {
+    guard let clientID = FirebaseApp.app()?.options.clientID else {
+      fatalError("No client ID found in Firebase configuration")
+    }
+    let config = GIDConfiguration(clientID: clientID)
+    GIDSignIn.sharedInstance.configuration = config
+
+    guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+          let window = windowScene.windows.first,
+          let rootViewController = window.rootViewController else {
+      print("There is no root view controller!")
+      return false
+    }
+
+      do {
+        let userAuthentication = try await GIDSignIn.sharedInstance.signIn(withPresenting: rootViewController)
+
+        let user = userAuthentication.user
+        guard let idToken = user.idToken else { throw AuthenticationError.tokenError(message: "ID token missing") }
+        let accessToken = user.accessToken
+
+        let credential = GoogleAuthProvider.credential(withIDToken: idToken.tokenString,
+                                                       accessToken: accessToken.tokenString)
+
+        let result = try await Auth.auth().signIn(with: credential)
+        let firebaseUser = result.user
+        dumpUser(firebaseUser)
+        print("User \(firebaseUser.uid) signed in with email \(firebaseUser.email ?? "unknown")")
+        return true
+      }
+      catch {
+        print(error.localizedDescription)
+        self.errorMessage = error.localizedDescription
+        return false
+      }
+  }
+}
+
 // MARK: Sign in with Apple
 
 extension AuthenticationViewModel {
@@ -189,6 +321,7 @@ extension AuthenticationViewModel {
         Task {
           do {
             let result = try await Auth.auth().signIn(with: credential)
+            dumpUser(result.user)
             await updateDisplayName(for: result.user, with: appleIDCredential)
           }
           catch {
@@ -293,4 +426,11 @@ private func sha256(_ input: String) -> String {
   }.joined()
 
   return hashString
+}
+
+
+private func dumpUser(_ user: User) {
+  print(user.email)
+  print(user.isEmailVerified)
+  print(user.providerID)
 }

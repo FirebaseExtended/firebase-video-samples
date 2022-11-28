@@ -42,6 +42,14 @@ struct LoginView: View {
     }
   }
 
+  private func signInWithGoogle() {
+    Task {
+      if await viewModel.signInWithGoogle() == true {
+        dismiss()
+      }
+    }
+  }
+
   var body: some View {
     VStack {
       Image("Login")
@@ -110,7 +118,19 @@ struct LoginView: View {
         Text("or")
         VStack { Divider() }
       }
-      
+
+      Button(action: signInWithGoogle) {
+        Text("Sign in with Google")
+          .padding(.vertical, 8)
+          .frame(maxWidth: .infinity)
+          .background(alignment: .leading) {
+            Image("Google")
+              .frame(width: 30, alignment: .center)
+          }
+      }
+      .foregroundColor(colorScheme == .dark ? .white : .black)
+      .buttonStyle(.bordered)
+
       SignInWithAppleButton(.signIn) { request in
         viewModel.handleSignInWithAppleRequest(request)
       } onCompletion: { result in
