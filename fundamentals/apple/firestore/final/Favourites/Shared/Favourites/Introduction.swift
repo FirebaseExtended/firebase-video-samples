@@ -55,31 +55,6 @@ class Introduction: ObservableObject {
 }
 
 extension Introduction {
-  func createDocumentCodable() {
-    let favourite = MyFavourite(isPublic: true, number: 42, color: "#ffca28", movie: "Titanic", food: "Currywurst", city: "Berlin", userId: "peterfriese")
-    
-    do {
-      try db.document("favourites/peterfriese").setData(from: favourite)
-    }
-    catch {
-      print(error.localizedDescription)
-    }
-  }
-  
-  func fetchDocumentCodable() {
-    Task {
-      do {
-        let favourite = try await db.document("favourites/peterfriese").getDocument(as: Favourite.self)
-        print("Fetched and decoded favourite \(favourite)")
-      }
-      catch {
-        print(error)
-      }
-    }
-  }
-}
-
-extension Introduction {
   func createDocument() {
     db.document("favourites/peterfriese").setData([
       "number": 42,
@@ -138,7 +113,10 @@ extension Introduction {
   
   func fetchDocument() {
     db.document("favourites/peterfriese").getDocument { documentSnapshot, error in
-      if let documentSnapshot, documentSnapshot.exists {
+      if let error {
+        print("Error getting document: \(error.localizedDescription)")
+      }
+      else if let documentSnapshot, documentSnapshot.exists {
         if let data = documentSnapshot.data() {
           print(data)
           let favourite = MyFavourite(isPublic: data["isPublic"] as? Bool ?? false,
@@ -149,8 +127,9 @@ extension Introduction {
                                       city: data["city"] as? String ?? "",
                                       userId: data["userId"] as? String ?? "")
           print("Decoded manually: \(favourite)")
-          
         }
+      } else {
+        print("Document doesn't exist")
       }
     }
   }
@@ -158,8 +137,8 @@ extension Introduction {
   func fetchDocumentAsync() {
     Task {
       do {
-        let snapshot = try await db.document("favourites/peterfriese").getDocument()
-        if let data = snapshot.data() {
+        let documentSnapshot = try await db.document("favourites/peterfriese").getDocument()
+        if let data = documentSnapshot.data() {
           print(data)
           let favourite = MyFavourite(isPublic: data["isPublic"] as? Bool ?? false,
                                       number: data["number"] as? Int ?? 0,
@@ -173,6 +152,36 @@ extension Introduction {
       }
       catch {
         print(error.localizedDescription)
+      }
+    }
+  }
+
+  func countFavrourites() {
+    db.collection("favourites").count
+  }
+
+}
+
+extension Introduction {
+  func createDocumentCodable() {
+    let favourite = MyFavourite(isPublic: true, number: 42, color: "#ffca28", movie: "Titanic", food: "Currywurst", city: "Berlin", userId: "peterfriese")
+
+    do {
+      try db.document("favourites/peterfriese").setData(from: favourite)
+    }
+    catch {
+      print(error.localizedDescription)
+    }
+  }
+
+  func fetchDocumentCodable() {
+    Task {
+      do {
+        let favourite = try await db.document("favourites/peterfriese").getDocument(as: Favourite.self)
+        print("Fetched and decoded favourite \(favourite)")
+      }
+      catch {
+        print(error)
       }
     }
   }
@@ -187,10 +196,6 @@ extension Introduction {
         print(error.localizedDescription)
       }
     }
-  }
-
-  func countFavrourites() {
-    db.collection("favourites").count
   }
 
 }
