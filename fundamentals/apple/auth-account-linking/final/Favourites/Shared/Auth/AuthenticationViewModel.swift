@@ -177,9 +177,7 @@ extension AuthenticationViewModel {
         return true
       }
       else {
-        errorMessage = "No user was signed in. This should not happen."
-        authenticationState = .unauthenticated
-        return false
+        fatalError("No user was signed in. This should not happen.")
       }
     }
     catch  {
