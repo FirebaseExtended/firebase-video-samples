@@ -84,13 +84,14 @@ class AuthenticationViewModel: ObservableObject {
       }
       .assign(to: &$isVerified)
     
-    $user
-      .sink { user in
-        if user == nil {
-          self.signIn()
-        }
-      }
-      .store(in: &cancellables)
+//    $user
+//      .print()
+//      .sink { user in
+//        if user == nil {
+//          self.signIn()
+//        }
+//      }
+//      .store(in: &cancellables)
 
     $user
       .compactMap { user in
@@ -220,6 +221,7 @@ extension AuthenticationViewModel {
   func signOut() {
     do {
       try Auth.auth().signOut()
+      signIn()
     }
     catch {
       print(error)

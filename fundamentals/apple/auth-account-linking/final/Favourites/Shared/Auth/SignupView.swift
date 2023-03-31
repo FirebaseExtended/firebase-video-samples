@@ -38,10 +38,6 @@ struct SignupView: View {
       if await viewModel.linkWithEmailPassword() == true {
         dismiss()
       }
-
-//      if await viewModel.signUpWithEmailPassword() == true {
-//        dismiss()
-//      }
     }
   }
 

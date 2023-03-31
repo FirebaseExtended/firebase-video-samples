@@ -22,26 +22,6 @@ import Combine
 import FirebaseAnalytics
 import FirebaseAnalyticsSwift
 
-class FavouriteNumberViewModel: ObservableObject {
-  @Published var favouriteNumber = 42
-
-  private var defaults = UserDefaults.standard
-  private let favouriteNumberKey = "favouriteNumber"
-  private var cancellables = Set<AnyCancellable>()
-
-  init() {
-    if let number = defaults.object(forKey: favouriteNumberKey) as? Int {
-      favouriteNumber = number
-    }
-    $favouriteNumber
-      .sink { number in
-        self.defaults.set(number, forKey: self.favouriteNumberKey)
-        Analytics.logEvent("stepper", parameters: ["value" : number])
-      }
-      .store(in: &cancellables)
-  }
-}
-
 struct FavouriteNumberView: View {
   @StateObject var viewModel = FavouriteNumberViewModel()
   var body: some View {
@@ -50,8 +30,10 @@ struct FavouriteNumberView: View {
         .font(.title)
         .multilineTextAlignment(.center)
       Spacer()
-      Stepper(value: $viewModel.favouriteNumber, in: 0...100) {
-        Text("\(viewModel.favouriteNumber)")
+      Stepper(value: $viewModel.favourite.number, in: 0...100) {
+        Text("\(viewModel.favourite.number)")
+      } onEditingChanged: { changed in
+        viewModel.saveFavourite()
       }
     }
     .frame(maxHeight: 150)
@@ -64,6 +46,12 @@ struct FavouriteNumberView: View {
     .padding()
     .shadow(radius: 8)
     .navigationTitle("Favourite Number")
+    .onAppear {
+      viewModel.fetchFavourite()
+    }
+    .onDisappear {
+      viewModel.saveFavourite()
+    }
     .analyticsScreen(name: "\(FavouriteNumberView.self)")
   }
 }
