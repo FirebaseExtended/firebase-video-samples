@@ -315,9 +315,9 @@ extension AuthenticationViewModel {
           return
         }
 
-        let credential = OAuthProvider.credential(withProviderID: "apple.com",
-                                                  idToken: idTokenString,
-                                                  rawNonce: nonce)
+        let credential = OAuthProvider.appleCredential(withIDToken: idTokenString,
+                                                       rawNonce: nonce, fullName:
+                                                        appleIDCredential.fullName)
         Task {
           do {
             let result = try await Auth.auth().signIn(with: credential)
