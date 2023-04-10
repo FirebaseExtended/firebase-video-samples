@@ -20,12 +20,20 @@
 import SwiftUI
 import Firebase
 import FirebaseCore
+import FirebaseRemoteConfig
+import FirebaseRemoteConfigSwift
 
 class AppDelegate: NSObject, UIApplicationDelegate {
 
   func application(_ application: UIApplication,
                    didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
     FirebaseApp.configure()
+
+    let remoteConfig = RemoteConfig.remoteConfig()
+    let settings = RemoteConfigSettings()
+    settings.minimumFetchInterval = 0
+    remoteConfig.configSettings = settings
+
     Analytics.setAnalyticsCollectionEnabled(true)
     return true
   }
@@ -34,6 +42,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 @main
 struct FavouritesApp: App {
   @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
+
   var body: some Scene {
     WindowGroup {
       NavigationView {

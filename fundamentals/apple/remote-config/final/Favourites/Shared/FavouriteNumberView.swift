@@ -21,10 +21,11 @@ import SwiftUI
 import Combine
 import FirebaseAnalytics
 import FirebaseAnalyticsSwift
+import FirebaseRemoteConfig
+import FirebaseRemoteConfigSwift
 
 class FavouriteNumberViewModel: ObservableObject {
   @Published var favouriteNumber = 42
-
   private var defaults = UserDefaults.standard
   private let favouriteNumberKey = "favouriteNumber"
   private var cancellables = Set<AnyCancellable>()
@@ -40,31 +41,88 @@ class FavouriteNumberViewModel: ObservableObject {
       }
       .store(in: &cancellables)
   }
+
+  func feelingLucky() {
+    favouriteNumber = Int.random(in: 0..<100)
+  }
+}
+
+struct ShadowConfiguration: Codable {
+  var colorValue: String
+  var offsetX: CGFloat
+  var offsetY: CGFloat
+  var radius: CGFloat
+}
+
+extension ShadowConfiguration {
+  var color: Color {
+    return Color(hex: colorValue)
+  }
+  static var `default` = ShadowConfiguration(colorValue: "#123456", offsetX: 4, offsetY: 4, radius: 8)
 }
 
 struct FavouriteNumberView: View {
   @StateObject var viewModel = FavouriteNumberViewModel()
+  @RemoteConfigProperty(key: "enable_feeling_lucky",
+                        fallback: false) var isFeelingLuckyEnabled
+
+  @RemoteConfigProperty(key: "cardColor",
+                        fallback: "#ff2d55") var cardColor
+
+  @RemoteConfigProperty(key: "cardShadow",
+                        fallback: .default) var cardShadow: ShadowConfiguration
+
+  @RemoteConfigProperty(key: "maxValue",
+                        fallback: 100) var maxValue
+
+  @RemoteConfigProperty(key: "minValue",
+                        fallback: 0) var minValue
+
   var body: some View {
     VStack {
       Text("What's your favourite number?")
         .font(.title)
         .multilineTextAlignment(.center)
       Spacer()
-      Stepper(value: $viewModel.favouriteNumber, in: 0...100) {
+      Stepper(value: $viewModel.favouriteNumber, in: minValue...maxValue) {
         Text("\(viewModel.favouriteNumber)")
+      }
+      if isFeelingLuckyEnabled {
+        Button(action: viewModel.feelingLucky) {
+          Text("I'm feeling lucky")
+        }
       }
     }
     .frame(maxHeight: 150)
     .foregroundColor(.white)
     .padding()
     #if os(iOS)
-    .background(Color(UIColor.systemPink))
+    .background(Color(hex: cardColor))
     #endif
     .clipShape(RoundedRectangle(cornerRadius: 16))
     .padding()
-    .shadow(radius: 8)
+    .shadow(color: cardShadow.color, radius: cardShadow.radius, x: cardShadow.offsetX, y: cardShadow.offsetY)
     .navigationTitle("Favourite Number")
     .analyticsScreen(name: "\(FavouriteNumberView.self)")
+    .onAppear {
+      Task {
+        do {
+          try await RemoteConfig.remoteConfig().fetchAndActivate()
+        }
+        catch {
+          print(error.localizedDescription)
+        }
+      }
+    }
+    .onAppear() {
+      RemoteConfig.remoteConfig().addOnConfigUpdateListener { configurationUpdate, error in
+        guard let _ = configurationUpdate, error == nil else {
+          print(error?.localizedDescription)
+          return
+        }
+        RemoteConfig.remoteConfig().activate()
+      }
+    }
   }
 }
 
