@@ -156,10 +156,6 @@ extension Introduction {
     }
   }
 
-  func countFavrourites() {
-    db.collection("favourites").count
-  }
-
 }
 
 extension Introduction {
