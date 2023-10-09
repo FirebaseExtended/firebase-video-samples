@@ -9,7 +9,7 @@
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//    http://www.apache.org/licenses/LICENSE-2.0
+//      http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -98,6 +98,7 @@ class AuthenticationViewModel: ObservableObject {
     email = ""
     password = ""
     confirmPassword = ""
+    errorMessage = ""
   }
 }
 
@@ -147,11 +148,11 @@ extension AuthenticationViewModel {
     guard let lastSignInDate = user.metadata.lastSignInDate else { return false }
     let needsReauth = !lastSignInDate.isWithinPast(minutes: 5)
 
-    let needsTokenRevocation = user.providerData.contains(where: { $0.providerID == "apple.com" })
+    let needsTokenRevocation = user.providerData.contains { $0.providerID == "apple.com" }
 
     do {
       if needsReauth || needsTokenRevocation {
-        let signInWithApple = SignInWithAppleMate()
+        let signInWithApple = SignInWithApple()
         let appleIDCredential = try await signInWithApple()
 
         guard let appleIDToken = appleIDCredential.identityToken else {
@@ -180,6 +181,7 @@ extension AuthenticationViewModel {
       }
 
       try await user.delete()
+      errorMessage = ""
       return true
     }
     catch {
@@ -189,7 +191,7 @@ extension AuthenticationViewModel {
     }
   }
 
-  func deleteAccount_() async -> Bool {
+  func deleteAccountWithRevocationHelper() async -> Bool {
     do {
       // add code to find out if the user is connected to SiwA
       try await TokenRevocationHelper().revokeToken()
@@ -214,7 +216,7 @@ extension Date {
 
 // MARK: - Sign in with Apple
 
-class SignInWithAppleMate: NSObject, ASAuthorizationControllerDelegate {
+class SignInWithApple: NSObject, ASAuthorizationControllerDelegate {
 
   private var continuation : CheckedContinuation<ASAuthorizationAppleIDCredential, Error>?
 
@@ -304,36 +306,17 @@ extension AuthenticationViewModel {
           return
         }
 
-        let credential = OAuthProvider.credential(withProviderID: "apple.com",
-                                                  idToken: idTokenString,
-                                                  rawNonce: nonce)
+        let credential = OAuthProvider.appleCredential(withIDToken: idTokenString,
+                                                       rawNonce: nonce,
+                                                       fullName: appleIDCredential.fullName)
         Task {
           do {
-            let result = try await Auth.auth().signIn(with: credential)
-            await updateDisplayName(for: result.user, with: appleIDCredential)
+            let _ = try await Auth.auth().signIn(with: credential)
           }
           catch {
             print("Error authenticating: \(error.localizedDescription)")
           }
         }
-      }
-    }
-  }
-
-  func updateDisplayName(for user: User, with appleIDCredential: ASAuthorizationAppleIDCredential, force: Bool = false) async {
-    if let currentDisplayName = Auth.auth().currentUser?.displayName, !currentDisplayName.isEmpty {
-      // current user is non-empty, don't overwrite it
-    }
-    else {
-      let changeRequest = user.createProfileChangeRequest()
-      changeRequest.displayName = appleIDCredential.displayName()
-      do {
-        try await changeRequest.commitChanges()
-        self.displayName = Auth.auth().currentUser?.displayName ?? ""
-      }
-      catch {
-        print("Unable to update the user's displayname: \(error.localizedDescription)")
-        errorMessage = error.localizedDescription
       }
     }
   }

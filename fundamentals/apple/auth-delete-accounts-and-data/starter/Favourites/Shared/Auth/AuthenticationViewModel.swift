@@ -9,7 +9,7 @@
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//     http://www.apache.org/licenses/LICENSE-2.0
+//      http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -98,6 +98,7 @@ class AuthenticationViewModel: ObservableObject {
     email = ""
     password = ""
     confirmPassword = ""
+    errorMessage = ""
   }
 }
 
@@ -143,18 +144,49 @@ extension AuthenticationViewModel {
   }
 
   func deleteAccount() async -> Bool {
-    do {
-      try await user?.delete()
-      return true
-    }
-    catch {
-      errorMessage = error.localizedDescription
-      return false
-    }
+    return false
+  }
+
+}
+
+extension Date {
+  func isWithinPast(minutes: Int) -> Bool {
+    let now = Date.now
+    let timeAgo = Date.now.addingTimeInterval(-1 * TimeInterval(60 * minutes))
+    let range = timeAgo...now
+    return range.contains(self)
   }
 }
 
-// MARK: Sign in with Apple
+// MARK: - Sign in with Apple
+
+class SignInWithApple: NSObject, ASAuthorizationControllerDelegate {
+
+  private var continuation : CheckedContinuation<ASAuthorizationAppleIDCredential, Error>?
+
+  func callAsFunction() async throws -> ASAuthorizationAppleIDCredential {
+    return try await withCheckedThrowingContinuation { continuation in
+      self.continuation = continuation
+      let appleIDProvider = ASAuthorizationAppleIDProvider()
+      let request = appleIDProvider.createRequest()
+      request.requestedScopes = [.fullName, .email]
+
+      let authorizationController = ASAuthorizationController(authorizationRequests: [request])
+      authorizationController.delegate = self
+      authorizationController.performRequests()
+    }
+  }
+
+  func authorizationController(controller: ASAuthorizationController, didCompleteWithAuthorization authorization: ASAuthorization) {
+    if case let appleIDCredential as ASAuthorizationAppleIDCredential = authorization.credential {
+      continuation?.resume(returning: appleIDCredential)
+    }
+  }
+
+  func authorizationController(controller: ASAuthorizationController, didCompleteWithError error: Error) {
+    continuation?.resume(throwing: error)
+  }
+}
 
 extension AuthenticationViewModel {
 
@@ -183,36 +215,17 @@ extension AuthenticationViewModel {
           return
         }
 
-        let credential = OAuthProvider.credential(withProviderID: "apple.com",
-                                                  idToken: idTokenString,
-                                                  rawNonce: nonce)
+        let credential = OAuthProvider.appleCredential(withIDToken: idTokenString,
+                                                       rawNonce: nonce,
+                                                       fullName: appleIDCredential.fullName)
         Task {
           do {
-            let result = try await Auth.auth().signIn(with: credential)
-            await updateDisplayName(for: result.user, with: appleIDCredential)
+            let _ = try await Auth.auth().signIn(with: credential)
           }
           catch {
             print("Error authenticating: \(error.localizedDescription)")
           }
         }
-      }
-    }
-  }
-
-  func updateDisplayName(for user: User, with appleIDCredential: ASAuthorizationAppleIDCredential, force: Bool = false) async {
-    if let currentDisplayName = Auth.auth().currentUser?.displayName, !currentDisplayName.isEmpty {
-      // current user is non-empty, don't overwrite it
-    }
-    else {
-      let changeRequest = user.createProfileChangeRequest()
-      changeRequest.displayName = appleIDCredential.displayName()
-      do {
-        try await changeRequest.commitChanges()
-        self.displayName = Auth.auth().currentUser?.displayName ?? ""
-      }
-      catch {
-        print("Unable to update the user's displayname: \(error.localizedDescription)")
-        errorMessage = error.localizedDescription
       }
     }
   }

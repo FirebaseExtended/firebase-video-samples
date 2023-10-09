@@ -9,7 +9,7 @@
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//    http://www.apache.org/licenses/LICENSE-2.0
+//      http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -31,7 +31,6 @@ extension AuthenticatedView where Unauthenticated == EmptyView {
 struct AuthenticatedView<Content, Unauthenticated>: View where Content: View, Unauthenticated: View {
   @StateObject private var viewModel = AuthenticationViewModel()
   @State private var presentingLoginScreen = false
-//  @State private var presentingProfileScreen = false
 
   var unauthenticated: Unauthenticated?
   @ViewBuilder var content: () -> Content
@@ -70,10 +69,6 @@ struct AuthenticatedView<Content, Unauthenticated>: View where Content: View, Un
       VStack {
         content()
           .environmentObject(viewModel)
-//        Text("You're logged in as \(viewModel.displayName).")
-//        Button("Tap here to view your profile") {
-//          presentingProfileScreen.toggle()
-//        }
       }
       .onReceive(NotificationCenter.default.publisher(for: ASAuthorizationAppleIDProvider.credentialRevokedNotification)) { event in
         viewModel.signOut()
@@ -81,12 +76,6 @@ struct AuthenticatedView<Content, Unauthenticated>: View where Content: View, Un
           print(info)
         }
       }
-//      .sheet(isPresented: $presentingProfileScreen) {
-//        NavigationView {
-//          UserProfileView()
-//            .environmentObject(viewModel)
-//        }
-//      }
     }
   }
 }
