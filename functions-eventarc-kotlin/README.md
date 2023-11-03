@@ -1,16 +1,12 @@
 # Reacting to Firestore changes with Google Cloud Functions and EventArc
 
-This is the source code used in this video: [Reacting to Firestore changes with Google Cloud Functions and EventArc](https://www.youtube.com/watch?v=xvFZjo5PgG0) <!-- TODO(thatfiredev): replace this once the video is out -->
+This is the source code used in this video: [Reacting to Firestore changes with Cloud Functions and Eventarc]( https://youtu.be/0PK53ndn3Lc)
 
 ## Prerequisites
 
 - Java 17
 - Maven
 - Install the gcloud CLI
-
-## How to setup the local environment
-
-TODO(thatfiredev)
 
 ## How to deploy to Cloud Run
 
