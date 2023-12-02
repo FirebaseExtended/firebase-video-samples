@@ -19,7 +19,24 @@
 
 import Foundation
 import SwiftUI
+import FirebaseFirestore
 import LoremSwiftum
+
+class Introduction: ObservableObject {
+  var db = Firestore.firestore()
+
+  func demo() {
+    // Uncomment the following lines to run the demos
+//    createDocument()
+//    updateDocument()
+//    updateDocument2()
+//    addDocument()
+//    addDocumentAsync()
+//    fetchDocument()
+//    createDocumentCodable()
+//    fetchDocumentCodable()
+  }
+}
 
 extension MyFavourite {
   static func randomNumber() -> Int {
