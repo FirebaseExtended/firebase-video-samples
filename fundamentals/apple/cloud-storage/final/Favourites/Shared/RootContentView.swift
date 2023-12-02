@@ -30,9 +30,9 @@ struct RootContentView: View {
         .tabItem {
           Label("All Favourites", systemImage: "wand.and.stars")
         }
-      FavouritesListView2()
+      VideoView()
         .tabItem {
-          Label("All Favourites 2", systemImage: "wand.and.stars")
+          Label("Video", systemImage: "movieclapper")
         }
     }
   }

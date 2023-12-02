@@ -19,6 +19,7 @@
 
 import SwiftUI
 import Combine
+import PhotosUI
 //import FirebaseAnalytics
 //import FirebaseAnalyticsSwift
 
@@ -26,6 +27,9 @@ struct MyFavouritesView: View {
   @StateObject var viewModel = FavouriteViewModel()
   @ObservedObject private var authenticationViewModel = AuthenticationViewModel()
   @State private var presentingProfileScreen = false
+
+  @State private var selectedPhoto: PhotosPickerItem?
+  @State private var image: Image? = Image(systemName: "photo.artframe")
 
   var body: some View {
     NavigationStack {
@@ -40,6 +44,47 @@ struct MyFavouritesView: View {
           ColorPicker(selection: $viewModel.favourite.color) {
             Text("\(viewModel.favourite.color.toHex ?? "")")
           }
+        }
+
+        Section("What's your favourite animal?") {
+//          AsyncImage(url: viewModel.favourite.animalImageURL) { phase in
+//            if let image = phase.image {
+//              image
+//                .resizable()
+//            } else if phase.error != nil {
+//              Color.red
+//            } else {
+//              Image(systemName: "photo.artframe")
+//                .resizable()
+//            }
+//          }
+//          .aspectRatio(contentMode: .fit)
+//          .frame(maxWidth: .infinity, alignment: .center)
+//          .cornerRadius(8.0)
+
+          image?
+            .resizable()
+            .aspectRatio(contentMode: .fit)
+            .frame(maxWidth: .infinity, alignment: .center)
+            .cornerRadius(8.0)
+
+          if let progress = viewModel.progress {
+            ProgressView(value: progress, total: 1) {
+              Text("Uploading...")
+            } currentValueLabel: {
+              Text(progress.formatted(.percent.precision(.fractionLength(0))))
+            }
+          }
+          PhotosPicker("Select your favourite animal", selection: $selectedPhoto, matching: .images)
+        }
+        .task(id: selectedPhoto) {
+//          image = try? await selectedPhoto?.loadTransferable(type: Image.self)
+          viewModel.imageData = try? await selectedPhoto?.loadTransferable(type: Data.self)
+          if let imageData = viewModel.imageData, let uiImage = UIImage(data: imageData) {
+            image = Image(uiImage: uiImage)
+          }
+
+          await viewModel.storeFavouriteImage()
         }
 
         Section("What's your favourite movie?") {
@@ -69,6 +114,11 @@ struct MyFavouritesView: View {
       }
       .onAppear {
         viewModel.fetchFavourite()
+      }
+      .onChange(of: viewModel.imageData) {
+        if let imageData = viewModel.imageData, let uiImage = UIImage(data: imageData) {
+          image = Image(uiImage: uiImage)
+        }
       }
       .onDisappear {
         viewModel.saveFavourite()

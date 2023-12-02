@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		8838315D2AE711EF0078CCDD /* VideoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8838315C2AE711EF0078CCDD /* VideoView.swift */; };
 		883E5C1E2874A3F2005F7B2D /* AuthenticationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 883E5C1D2874A3F2005F7B2D /* AuthenticationViewModel.swift */; };
 		883E5C1F2874A3F2005F7B2D /* AuthenticationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 883E5C1D2874A3F2005F7B2D /* AuthenticationViewModel.swift */; };
 		885F876C2875A4C10085336A /* UserProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 885F876B2875A4C10085336A /* UserProfileView.swift */; };
@@ -22,6 +23,7 @@
 		88BCCEAA2AE162DE001A6AE2 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 88BCCEA92AE162DE001A6AE2 /* FirebaseAuth */; };
 		88BCCEAC2AE162DE001A6AE2 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 88BCCEAB2AE162DE001A6AE2 /* FirebaseFirestore */; };
 		88BCCEAE2AE162DE001A6AE2 /* FirebaseFirestoreSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 88BCCEAD2AE162DE001A6AE2 /* FirebaseFirestoreSwift */; };
+		88BCCEB12AE16990001A6AE2 /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 88BCCEB02AE16990001A6AE2 /* FirebaseStorage */; };
 		88C795522874845A00F9F37B /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88C7954F2874845A00F9F37B /* LoginView.swift */; };
 		88C795532874845A00F9F37B /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88C7954F2874845A00F9F37B /* LoginView.swift */; };
 		88C795542874845A00F9F37B /* AuthenticationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88C795502874845A00F9F37B /* AuthenticationView.swift */; };
@@ -43,6 +45,7 @@
 
 /* Begin PBXFileReference section */
 		880E6DFC28786A2F0029EB8F /* Favourites (iOS).entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Favourites (iOS).entitlements"; sourceTree = "<group>"; };
+		8838315C2AE711EF0078CCDD /* VideoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoView.swift; sourceTree = "<group>"; };
 		883E5C1D2874A3F2005F7B2D /* AuthenticationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticationViewModel.swift; sourceTree = "<group>"; };
 		885F876B2875A4C10085336A /* UserProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileView.swift; sourceTree = "<group>"; };
 		88618BD4292FDC4B00B02C2C /* FavouriteViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavouriteViewModel.swift; sourceTree = "<group>"; };
@@ -73,6 +76,7 @@
 				88618BE62930C1CC00B02C2C /* LoremSwiftum in Frameworks */,
 				88BCCEAA2AE162DE001A6AE2 /* FirebaseAuth in Frameworks */,
 				88BCCEAC2AE162DE001A6AE2 /* FirebaseFirestore in Frameworks */,
+				88BCCEB12AE16990001A6AE2 /* FirebaseStorage in Frameworks */,
 				88BCCEAE2AE162DE001A6AE2 /* FirebaseFirestoreSwift in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -121,8 +125,16 @@
 				88FC9F6B28734A8000A83D18 /* MyFavouritesView.swift */,
 				88618BDD292FEC0200B02C2C /* FavouritesListView.swift */,
 				88618BE22930B8D300B02C2C /* FavouritesListView2.swift */,
+				8838315C2AE711EF0078CCDD /* VideoView.swift */,
 			);
 			path = Views;
+			sourceTree = "<group>";
+		};
+		88BCCEAF2AE16990001A6AE2 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 		88C7954E2874845A00F9F37B /* Auth */ = {
@@ -145,6 +157,7 @@
 				88FC9F6928734A8000A83D18 /* Shared */,
 				88FC9F7828734A8100A83D18 /* macOS */,
 				88FC9F7228734A8100A83D18 /* Products */,
+				88BCCEAF2AE16990001A6AE2 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -199,6 +212,7 @@
 				88BCCEA92AE162DE001A6AE2 /* FirebaseAuth */,
 				88BCCEAB2AE162DE001A6AE2 /* FirebaseFirestore */,
 				88BCCEAD2AE162DE001A6AE2 /* FirebaseFirestoreSwift */,
+				88BCCEB02AE16990001A6AE2 /* FirebaseStorage */,
 			);
 			productName = "Favourites (iOS)";
 			productReference = 88FC9F7128734A8100A83D18 /* Favourites.app */;
@@ -300,6 +314,7 @@
 				88FC9F7A28734A8100A83D18 /* FavouritesApp.swift in Sources */,
 				88618BE32930B8D300B02C2C /* FavouritesListView2.swift in Sources */,
 				88C79559287485B100F9F37B /* AuthenticatedView.swift in Sources */,
+				8838315D2AE711EF0078CCDD /* VideoView.swift in Sources */,
 				88618BDC292FDE0A00B02C2C /* Color+Codable.swift in Sources */,
 				88C795562874845A00F9F37B /* SignupView.swift in Sources */,
 				88618BDE292FEC0200B02C2C /* FavouritesListView.swift in Sources */,
@@ -452,7 +467,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -483,7 +498,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -630,6 +645,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 88BCCEA82AE162DE001A6AE2 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseFirestoreSwift;
+		};
+		88BCCEB02AE16990001A6AE2 /* FirebaseStorage */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 88BCCEA82AE162DE001A6AE2 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseStorage;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

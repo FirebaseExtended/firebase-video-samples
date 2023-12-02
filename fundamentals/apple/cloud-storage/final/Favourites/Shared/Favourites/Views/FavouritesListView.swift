@@ -81,11 +81,29 @@ struct FavouritesListView: View {
   var body: some View {
     NavigationStack {
       List(viewModel.favourites) { item in
-        VStack(alignment: .leading) {
-          Text("Number: \(item.number)")
-          Text("Food: \(item.food)")
-          Text("Movie: \(item.movie)")
-          Text("City: \(item.city)")
+        HStack(alignment: .top) {
+          VStack(alignment: .leading) {
+            Text("Number: \(item.number)")
+            Text("Food: \(item.food)")
+            Text("Movie: \(item.movie)")
+            Text("City: \(item.city)")
+          }
+          if let imageURL = item.animalImageURL {
+            Spacer()
+            AsyncImage(url: imageURL) { phase in
+              if let image = phase.image {
+                image
+                  .resizable()
+                  .aspectRatio(contentMode: .fill)
+              } else if phase.error != nil {
+                Color.red.frame(width: 128, height: 128)
+              } else {
+                ProgressView()
+              }
+            }
+            .frame(width: 128, height: 128, alignment: .center)
+            .cornerRadius(8.0)
+          }
         }
       }
       .navigationTitle("All Favourites")

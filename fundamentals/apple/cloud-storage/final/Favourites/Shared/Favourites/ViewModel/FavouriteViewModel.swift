@@ -19,13 +19,19 @@
 
 import Foundation
 import SwiftUI
+import PhotosUI
 import Combine
 import FirebaseAuth
 import FirebaseFirestore
 import FirebaseFirestoreSwift
+import FirebaseStorage
+import AVKit
 
+@MainActor
 class FavouriteViewModel: ObservableObject {
   @Published var favourite = Favourite.empty
+  @Published var imageData: Data?
+  @Published var progress: Double?
 
   @Published private var user: User?
   private var db = Firestore.firestore()
@@ -53,6 +59,7 @@ class FavouriteViewModel: ObservableObject {
     }
   }
 
+  @MainActor
   func fetchFavourite() {
     guard let uid = Auth.auth().currentUser?.uid else { return }
 
@@ -61,9 +68,8 @@ class FavouriteViewModel: ObservableObject {
         let querySnapshot = try await db.collection("favourites").whereField("userId", isEqualTo: uid).limit(to: 1).getDocuments()
         if !querySnapshot.isEmpty {
           if let favourite = try querySnapshot.documents.first?.data(as: Favourite.self) {
-            await MainActor.run {
               self.favourite = favourite
-            }
+            await loadFavouriteImage()
           }
         }
       }
@@ -88,4 +94,45 @@ class FavouriteViewModel: ObservableObject {
       print(error.localizedDescription)
     }
   }
+
+  func storeFavouriteImage() async {
+    guard let imageId = favourite.id else { return }
+    let imageReference = Storage.storage().reference(withPath: "favourites/\(imageId).png")
+
+    let metaData = StorageMetadata()
+    metaData.contentType = "image/png"
+
+    guard let imageData else { return }
+
+    do {
+      let resultMetaData = try await imageReference.putDataAsync(imageData, metadata: metaData) { progress in
+        if let progress {
+          self.progress = progress.fractionCompleted
+          if progress.isFinished {
+            self.progress = nil
+          }
+        }
+      }
+      print("Upload finished. Metadata: \(resultMetaData)")
+      favourite.animalImageURL = try await imageReference.downloadURL()
+      saveFavourite()
+    }
+    catch {
+      print("An error ocurred while uploading: \(error.localizedDescription)")
+    }
+  }
+
+  func loadFavouriteImage() async {
+    guard let imageId = favourite.id else { return }
+    let imageReference = Storage.storage().reference(withPath: "favourites/\(imageId).png")
+
+    do {
+      imageData = try await imageReference.data(maxSize: 4 * 1024 * 1024)
+    }
+    catch {
+      print("Error while downloading image: \(error.localizedDescription)")
+    }
+  }
+
 }
+

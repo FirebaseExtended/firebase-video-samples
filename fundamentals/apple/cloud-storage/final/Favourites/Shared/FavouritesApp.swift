@@ -58,7 +58,7 @@ struct FavouritesApp: App {
         }
       }
       .onAppear {
-        introduction.demo()
+//        introduction.demo()
       }
     }
   }

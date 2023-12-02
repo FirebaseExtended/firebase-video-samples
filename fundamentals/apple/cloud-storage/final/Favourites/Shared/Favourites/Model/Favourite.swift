@@ -31,6 +31,8 @@ struct Favourite: Codable, Identifiable {
   var movie: String
   var food: String
   var city: String
+  var animalImageURL: URL?
+  var videoURL: URL?
 
   var userId: String
 }
