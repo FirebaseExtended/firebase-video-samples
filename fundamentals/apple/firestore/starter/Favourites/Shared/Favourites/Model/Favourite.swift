@@ -19,6 +19,7 @@
 
 import Foundation
 import SwiftUI
+
 import FirebaseFirestore
 import FirebaseFirestoreSwift
 
@@ -37,6 +38,12 @@ struct Favourite: Codable, Identifiable {
 
 extension Favourite {
   static var empty: Favourite {
-    Favourite(isPublic: false, number: 7, color: .pink, movie: "", food: "", city: "", userId: "")
+    Favourite(isPublic: false, 
+              number: 7,
+              color: .pink,
+              movie: "",
+              food: "",
+              city: "", 
+              userId: "")
   }
 }

@@ -22,5 +22,4 @@ extension Introduction {
 
   func fetchDocumentAsync() {
   }
-
 }

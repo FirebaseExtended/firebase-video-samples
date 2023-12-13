@@ -21,11 +21,8 @@ import SwiftUI
 import FirebaseFirestore
 import FirebaseFirestoreSwift
 
-
 struct FavouritesListView2: View {
-  @FirestoreQuery(collectionPath: "favourites") var favourites: [Favourite]
-
-  @State var searchTerm = ""
+  var favourites: [Favourite]
 
   var body: some View {
     NavigationStack {
@@ -37,24 +34,13 @@ struct FavouritesListView2: View {
           Text("City: \(item.city)")
         }
       }
-      .searchable(text: $searchTerm)
-      .onChange(of: searchTerm) { newValue in
-        if newValue.isEmpty {
-          $favourites.predicates = []
-        }
-        else {
-          $favourites.predicates = [
-            .whereField("number", isEqualTo: Int(searchTerm))
-          ]
-        }
-      }
       .navigationTitle("All Favourites")
     }
   }
 }
 
-struct FavouritesListView2_Previews: PreviewProvider {
-  static var previews: some View {
-    FavouritesListView2()
-  }
-}
+//struct FavouritesListView2_Previews: PreviewProvider {
+//  static var previews: some View {
+//    FavouritesListView2()
+//  }
+//}

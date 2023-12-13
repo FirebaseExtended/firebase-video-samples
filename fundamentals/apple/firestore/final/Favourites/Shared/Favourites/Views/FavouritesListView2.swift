@@ -23,7 +23,11 @@ import FirebaseFirestoreSwift
 
 
 struct FavouritesListView2: View {
-  @FirestoreQuery(collectionPath: "favourites") var favourites: [Favourite]
+  @FirestoreQuery(collectionPath: "favourites", predicates: [
+    .where("isPublic", isEqualTo: true)
+  ])
+  var favourites: [Favourite]
+
 
   @State var searchTerm = ""
 

@@ -56,61 +56,8 @@ class FavouriteViewModel: ObservableObject {
   }
 
   func fetchFavourite() {
-    guard let uid = user?.uid else { return }
-    Task {
-      do {
-        self.favourite  = try await db.collection("favourites").document(uid).getDocument(as: Favourite.self)
-      }
-      catch {
-        print(error.localizedDescription)
-      }
-    }
   }
 
   func saveFavourite() {
-    guard let documentId = user?.uid else { return }
-
-    do {
-      try db.collection("favourites").document(documentId).setData(from: favourite)
-    }
-    catch {
-      print(error.localizedDescription)
-    }
   }
-
-//  func fetchFavourite2() {
-//    guard let uid = user?.uid else { return }
-//
-//    Task {
-//      do {
-//        let querySnapshot = try await db.collection("favourites").whereField("userId", isEqualTo: uid).limit(to: 1).getDocuments()
-//        if !querySnapshot.isEmpty {
-//          if let favourite = try querySnapshot.documents.first?.data(as: Favourite.self) {
-//            await MainActor.run {
-//              self.favourite = favourite
-//            }
-//          }
-//        }
-//      }
-//      catch {
-//        print(error.localizedDescription)
-//      }
-//    }
-//  }
-//
-//  func saveFavourite2() {
-//    do {
-//      if let documentId = favourite.id {
-//        try db.collection("favourites").document(documentId).setData(from: favourite)
-//      }
-//      else {
-//        let documentReference = try db.collection("favourites").addDocument(from: favourite)
-//        print(favourite)
-//        favourite.id = documentReference.documentID
-//      }
-//    }
-//    catch {
-//      print(error.localizedDescription)
-//    }
-//  }
 }

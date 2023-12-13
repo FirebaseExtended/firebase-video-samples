@@ -1,8 +1,9 @@
 import Foundation
 import FirebaseCore
 import FirebaseFirestore
+import FirebaseFirestoreSwift
 
-struct MyFavourite {
+struct MyFavourite: Codable {
   var isPublic: Bool
 
   var number: Int

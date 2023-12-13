@@ -26,15 +26,12 @@ class Introduction: ObservableObject {
   var db = Firestore.firestore()
 
   func demo() {
-    // Uncomment the following lines to run the demos
-//    createDocument()
-//    updateDocument()
-//    updateDocument2()
-//    addDocument()
-//    addDocumentAsync()
-//    fetchDocument()
-//    createDocumentCodable()
-//    fetchDocumentCodable()
+    createDocument()
+    updateDocument()
+    updateDocument2()
+    addDocumentAsync()
+    fetchDocument()
+    createDocumentCodable()
   }
 }
 
