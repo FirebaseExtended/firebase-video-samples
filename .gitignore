@@ -49,8 +49,6 @@ GoogleService-Info.plist
 *.aar
 *.zip
 .gradle
-/build
-/captures
 .externalNativeBuild
 .cxx
 .vscode
