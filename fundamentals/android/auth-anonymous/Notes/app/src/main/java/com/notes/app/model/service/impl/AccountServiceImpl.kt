@@ -1,8 +1,8 @@
 package com.notes.app.model.service.impl
 
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
+import com.google.firebase.auth.auth
+import com.google.firebase.Firebase
 import com.notes.app.model.User
 import com.notes.app.model.service.AccountService
 import kotlinx.coroutines.channels.awaitClose

@@ -1,9 +1,9 @@
 package com.notes.app.model.service.impl
 
-import com.google.firebase.firestore.ktx.dataObjects
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.firestore.ktx.toObject
-import com.google.firebase.ktx.Firebase
+import com.google.firebase.firestore.dataObjects
+import com.google.firebase.firestore.firestore
+import com.google.firebase.firestore.toObject
+import com.google.firebase.Firebase
 import com.notes.app.model.Note
 import com.notes.app.model.service.AccountService
 import com.notes.app.model.service.StorageService
