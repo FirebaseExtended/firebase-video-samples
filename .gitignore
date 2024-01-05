@@ -61,6 +61,5 @@ GoogleService-Info.plist
 .settings
 .classpath
 google-services.json
-.idea/
-.idea/*
+.idea
 local.properties
