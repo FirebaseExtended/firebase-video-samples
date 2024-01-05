@@ -49,7 +49,6 @@ GoogleService-Info.plist
 *.aar
 *.zip
 .gradle
-.DS_Store
 /build
 /captures
 .externalNativeBuild
