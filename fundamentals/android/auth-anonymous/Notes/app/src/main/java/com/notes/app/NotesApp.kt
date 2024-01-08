@@ -14,6 +14,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.notes.app.screens.account_center.AccountCenterScreen
 import com.notes.app.screens.note.NoteScreen
 import com.notes.app.screens.notes_list.NotesListScreen
 import com.notes.app.screens.sign_in.SignInScreen
@@ -76,5 +77,9 @@ fun NavGraphBuilder.notesGraph(appState: NotesAppState) {
     
     composable(SPLASH_SCREEN) {
         SplashScreen(openAndPopUp = { route, popUp -> appState.navigateAndPopUp(route, popUp) })
+    }
+
+    composable(ACCOUNT_CENTER_SCREEN) {
+        AccountCenterScreen(restartApp = { route -> appState.clearAndNavigate(route) })
     }
 }

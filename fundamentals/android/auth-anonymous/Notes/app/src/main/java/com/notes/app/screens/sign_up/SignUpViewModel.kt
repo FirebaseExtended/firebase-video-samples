@@ -42,7 +42,7 @@ class SignUpViewModel @Inject constructor(
                 throw Exception("Passwords do not match")
             }
 
-            accountService.signUp(_email.value, _password.value)
+            accountService.linkAccount(_email.value, _password.value)
             openAndPopUp(NOTES_LIST_SCREEN, SIGN_UP_SCREEN)
         }
     }

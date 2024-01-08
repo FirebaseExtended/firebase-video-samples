@@ -1,5 +1,6 @@
 package com.notes.app.screens.notes_list
 
+import com.notes.app.ACCOUNT_CENTER_SCREEN
 import com.notes.app.NOTE_DEFAULT_ID
 import com.notes.app.NOTE_ID
 import com.notes.app.NOTE_SCREEN
@@ -25,6 +26,7 @@ class NotesListViewModel @Inject constructor(
             }
         }
     }
+
     fun onAddClick(openScreen: (String) -> Unit) {
         openScreen("$NOTE_SCREEN?$NOTE_ID=$NOTE_DEFAULT_ID")
     }
@@ -33,15 +35,7 @@ class NotesListViewModel @Inject constructor(
         openScreen("$NOTE_SCREEN?$NOTE_ID=${note.id}")
     }
 
-    fun onSignOutClick() {
-        launchCatching {
-            accountService.signOut()
-        }
-    }
-
-    fun onDeleteAccountClick() {
-        launchCatching {
-            accountService.deleteAccount()
-        }
+    fun onAccountCenterClick(openScreen: (String) -> Unit) {
+        openScreen(ACCOUNT_CENTER_SCREEN)
     }
 }
