@@ -31,6 +31,10 @@ class AccountServiceImpl @Inject constructor() : AccountService {
         return Firebase.auth.currentUser != null
     }
 
+    override fun isAnonymousUser(): Boolean {
+        return Firebase.auth.currentUser?.isAnonymous ?: true
+    }
+
     override suspend fun createAnonymousAccount() {
         Firebase.auth.signInAnonymously().await()
     }

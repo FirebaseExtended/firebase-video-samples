@@ -19,6 +19,10 @@ class AccountCenterViewModel @Inject constructor(
     private val _isAnonymousAccount = MutableStateFlow(true)
     val isAnonymousAccount: StateFlow<Boolean> = _isAnonymousAccount.asStateFlow()
 
+    init {
+        _isAnonymousAccount.value = accountService.isAnonymousUser()
+    }
+
     fun onSignInClick(openScreen: (String) -> Unit) = openScreen(SIGN_IN_SCREEN)
 
     fun onSignUpClick(openScreen: (String) -> Unit) = openScreen(SIGN_UP_SCREEN)
