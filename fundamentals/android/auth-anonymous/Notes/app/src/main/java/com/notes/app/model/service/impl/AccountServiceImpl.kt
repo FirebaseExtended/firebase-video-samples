@@ -49,9 +49,6 @@ class AccountServiceImpl @Inject constructor() : AccountService {
     }
 
     override suspend fun signOut() {
-        if (Firebase.auth.currentUser!!.isAnonymous) {
-            Firebase.auth.currentUser!!.delete()
-        }
         Firebase.auth.signOut()
 
         // Sign the user back in anonymously.

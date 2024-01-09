@@ -39,15 +39,15 @@ class SignUpViewModel @Inject constructor(
     fun onSignUpClick(openAndPopUp: (String, String) -> Unit) {
         launchCatching {
             if (!_email.value.isValidEmail()) {
-                throw Exception("Invalid email format")
+                throw IllegalArgumentException("Invalid email format")
             }
 
             if (!_password.value.isValidPassword()) {
-                throw Exception("Invalid password format")
+                throw IllegalArgumentException("Invalid password format")
             }
 
-            if (!_password.value.passwordMatches(_confirmPassword.value)) {
-                throw Exception("Passwords do not match")
+            if (_password.value != _confirmPassword.value) {
+                throw IllegalArgumentException("Passwords do not match")
             }
 
             accountService.linkAccount(_email.value, _password.value)
