@@ -1,9 +1,11 @@
 package com.notes.app.model.service.impl
 
+import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
 import com.google.firebase.Firebase
 import com.google.firebase.auth.EmailAuthProvider
+import com.google.firebase.auth.userProfileChangeRequest
 import com.notes.app.model.User
 import com.notes.app.model.service.AccountService
 import kotlinx.coroutines.channels.awaitClose
@@ -18,7 +20,15 @@ class AccountServiceImpl @Inject constructor() : AccountService {
         get() = callbackFlow {
             val listener =
                 FirebaseAuth.AuthStateListener { auth ->
-                    this.trySend(auth.currentUser?.let { User(it.uid) })
+                    this.trySend(auth.currentUser?.let {
+                        User(
+                            id = it.uid,
+                            email = it.email ?: "",
+                            provider = it.providerId,
+                            displayName = it.displayName ?: "",
+                            isAnonymous = it.isAnonymous
+                        )
+                    })
                 }
             Firebase.auth.addAuthStateListener(listener)
             awaitClose { Firebase.auth.removeAuthStateListener(listener) }
@@ -31,12 +41,18 @@ class AccountServiceImpl @Inject constructor() : AccountService {
         return Firebase.auth.currentUser != null
     }
 
-    override fun isAnonymousUser(): Boolean {
-        return Firebase.auth.currentUser?.isAnonymous ?: true
-    }
-
     override suspend fun createAnonymousAccount() {
         Firebase.auth.signInAnonymously().await()
+    }
+
+    override suspend fun updateDisplayName(newDisplayName: String) {
+        val profileUpdates = userProfileChangeRequest {
+            displayName = newDisplayName
+        }
+
+        Firebase.auth.currentUser!!.updateProfile(profileUpdates).addOnCompleteListener {
+            Log.d("ma", "ma")
+        }
     }
 
     override suspend fun linkAccount(email: String, password: String) {

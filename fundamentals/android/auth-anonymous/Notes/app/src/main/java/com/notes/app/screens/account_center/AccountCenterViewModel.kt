@@ -6,21 +6,19 @@ import com.notes.app.SPLASH_SCREEN
 import com.notes.app.model.service.AccountService
 import com.notes.app.screens.NotesAppViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.filterNotNull
 import javax.inject.Inject
 
 @HiltViewModel
 class AccountCenterViewModel @Inject constructor(
     private val accountService: AccountService
 ) : NotesAppViewModel() {
-    // Backing properties to avoid state updates from other classes
-    private val _isAnonymousAccount = MutableStateFlow(true)
-    val isAnonymousAccount: StateFlow<Boolean> = _isAnonymousAccount.asStateFlow()
+    val user = accountService.currentUser.filterNotNull()
 
-    init {
-        _isAnonymousAccount.value = accountService.isAnonymousUser()
+    fun onUpdateDisplayNameClick(newDisplayName: String) {
+        launchCatching {
+            accountService.updateDisplayName(newDisplayName)
+        }
     }
 
     fun onSignInClick(openScreen: (String) -> Unit) = openScreen(SIGN_IN_SCREEN)
