@@ -8,6 +8,7 @@ interface AccountService {
     val currentUserId: String
     fun hasUser(): Boolean
     suspend fun createAnonymousAccount()
+    suspend fun getUserProfile(): User
     suspend fun updateDisplayName(newDisplayName: String)
     suspend fun linkAccount(email: String, password: String)
     suspend fun signIn(email: String, password: String)

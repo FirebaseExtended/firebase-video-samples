@@ -3,21 +3,33 @@ package com.notes.app.screens.account_center
 import com.notes.app.SIGN_IN_SCREEN
 import com.notes.app.SIGN_UP_SCREEN
 import com.notes.app.SPLASH_SCREEN
+import com.notes.app.model.User
 import com.notes.app.model.service.AccountService
 import com.notes.app.screens.NotesAppViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 
 @HiltViewModel
 class AccountCenterViewModel @Inject constructor(
     private val accountService: AccountService
 ) : NotesAppViewModel() {
-    val user = accountService.currentUser.filterNotNull()
+    // Backing property to avoid state updates from other classes
+    private val _user = MutableStateFlow(User())
+    val user: StateFlow<User> = _user.asStateFlow()
+
+    init {
+        launchCatching {
+            _user.value = accountService.getUserProfile()
+        }
+    }
 
     fun onUpdateDisplayNameClick(newDisplayName: String) {
         launchCatching {
             accountService.updateDisplayName(newDisplayName)
+            _user.value = _user.value.copy(displayName = newDisplayName)
         }
     }
 

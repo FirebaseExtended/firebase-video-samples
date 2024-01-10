@@ -36,6 +36,7 @@ fun DisplayNameCard(displayName: String, onUpdateDisplayNameClick: (String) -> U
     val cardTitle = displayName.ifBlank { stringResource(R.string.profile_name) }
 
     AccountCenterCard(cardTitle, Icons.Filled.Edit, Modifier.card()) {
+        newDisplayName =  displayName
         showDisplayNameDialog = true
     }
 
@@ -51,10 +52,7 @@ fun DisplayNameCard(displayName: String, onUpdateDisplayNameClick: (String) -> U
                 }
             },
             dismissButton = {
-                Button(onClick = {
-                    showDisplayNameDialog = false
-                    newDisplayName = displayName
-                }) {
+                Button(onClick = { showDisplayNameDialog = false }) {
                     Text(text = stringResource(R.string.cancel))
                 }
             },
@@ -66,10 +64,7 @@ fun DisplayNameCard(displayName: String, onUpdateDisplayNameClick: (String) -> U
                     Text(text = stringResource(R.string.update))
                 }
             },
-            onDismissRequest = {
-                showDisplayNameDialog = false
-                newDisplayName = displayName
-            }
+            onDismissRequest = { showDisplayNameDialog = false }
         )
     }
 }

@@ -1,10 +1,10 @@
 package com.notes.app.model.service.impl
 
-import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
 import com.google.firebase.Firebase
 import com.google.firebase.auth.EmailAuthProvider
+import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.userProfileChangeRequest
 import com.notes.app.model.User
 import com.notes.app.model.service.AccountService
@@ -20,15 +20,7 @@ class AccountServiceImpl @Inject constructor() : AccountService {
         get() = callbackFlow {
             val listener =
                 FirebaseAuth.AuthStateListener { auth ->
-                    this.trySend(auth.currentUser?.let {
-                        User(
-                            id = it.uid,
-                            email = it.email ?: "",
-                            provider = it.providerId,
-                            displayName = it.displayName ?: "",
-                            isAnonymous = it.isAnonymous
-                        )
-                    })
+                    this.trySend(auth.currentUser.toNotesUser())
                 }
             Firebase.auth.addAuthStateListener(listener)
             awaitClose { Firebase.auth.removeAuthStateListener(listener) }
@@ -45,14 +37,16 @@ class AccountServiceImpl @Inject constructor() : AccountService {
         Firebase.auth.signInAnonymously().await()
     }
 
+    override suspend fun getUserProfile(): User {
+        return Firebase.auth.currentUser.toNotesUser()
+    }
+
     override suspend fun updateDisplayName(newDisplayName: String) {
         val profileUpdates = userProfileChangeRequest {
             displayName = newDisplayName
         }
 
-        Firebase.auth.currentUser!!.updateProfile(profileUpdates).addOnCompleteListener {
-            Log.d("ma", "ma")
-        }
+        Firebase.auth.currentUser!!.updateProfile(profileUpdates)
     }
 
     override suspend fun linkAccount(email: String, password: String) {
@@ -73,5 +67,15 @@ class AccountServiceImpl @Inject constructor() : AccountService {
 
     override suspend fun deleteAccount() {
         Firebase.auth.currentUser!!.delete().await()
+    }
+
+    private fun FirebaseUser?.toNotesUser(): User {
+        return if (this == null) User() else User(
+            id = this.uid,
+            email = this.email ?: "",
+            provider = this.providerId,
+            displayName = this.displayName ?: "",
+            isAnonymous = this.isAnonymous
+        )
     }
 }
