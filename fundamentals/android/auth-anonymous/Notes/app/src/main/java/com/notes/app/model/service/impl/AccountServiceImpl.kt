@@ -33,12 +33,12 @@ class AccountServiceImpl @Inject constructor() : AccountService {
         return Firebase.auth.currentUser != null
     }
 
-    override suspend fun createAnonymousAccount() {
-        Firebase.auth.signInAnonymously().await()
+    override fun getUserProfile(): User {
+        return Firebase.auth.currentUser.toNotesUser()
     }
 
-    override suspend fun getUserProfile(): User {
-        return Firebase.auth.currentUser.toNotesUser()
+    override suspend fun createAnonymousAccount() {
+        Firebase.auth.signInAnonymously().await()
     }
 
     override suspend fun updateDisplayName(newDisplayName: String) {
@@ -46,7 +46,7 @@ class AccountServiceImpl @Inject constructor() : AccountService {
             displayName = newDisplayName
         }
 
-        Firebase.auth.currentUser!!.updateProfile(profileUpdates)
+        Firebase.auth.currentUser!!.updateProfile(profileUpdates).await()
     }
 
     override suspend fun linkAccount(email: String, password: String) {
