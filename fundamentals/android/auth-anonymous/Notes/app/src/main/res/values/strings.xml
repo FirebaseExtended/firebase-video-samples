@@ -14,4 +14,10 @@
     <string name="delete_account_title">Delete account?</string>
     <string name="delete_account_description">You will lose all your notes and your account will be deleted. This action is irreversible.</string>
     <string name="cancel">Cancel</string>
+    <string name="account_center">Account center</string>
+    <string name="profile_name">Display name</string>
+    <string name="profile_email">Email: %1$s</string>
+    <string name="profile_uid">UID: %1$s</string>
+    <string name="profile_provider">Account provider: %1$s</string>
+    <string name="update">Update</string>
 </resources>
