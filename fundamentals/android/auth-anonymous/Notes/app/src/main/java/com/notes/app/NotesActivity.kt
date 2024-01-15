@@ -13,9 +13,9 @@ class NotesActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        //Uncomment the following line if you want to run
-        //against the Firebase Local Emulator Suite:
-        //configureFirebaseServices()
+        // Uncomment the following line if you want to run
+        // against the Firebase Local Emulator Suite:
+        // configureFirebaseServices()
 
         setContent { NotesApp() }
     }
