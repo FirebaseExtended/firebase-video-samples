@@ -67,6 +67,8 @@ fun AccountCenterScreen(
                         )
                     }
 
+                    // ⚠️This is for demonstration purposes only, it's not a common
+                    // practice to show the unique ID or account provider of an account⚠️
                     Text(
                         text = String.format(stringResource(R.string.profile_uid), user.id),
                         modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)
