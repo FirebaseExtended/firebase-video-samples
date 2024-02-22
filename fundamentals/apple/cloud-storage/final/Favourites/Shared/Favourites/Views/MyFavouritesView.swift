@@ -47,20 +47,20 @@ struct MyFavouritesView: View {
         }
 
         Section("What's your favourite animal?") {
-//          AsyncImage(url: viewModel.favourite.animalImageURL) { phase in
-//            if let image = phase.image {
-//              image
-//                .resizable()
-//            } else if phase.error != nil {
-//              Color.red
-//            } else {
-//              Image(systemName: "photo.artframe")
-//                .resizable()
-//            }
-//          }
-//          .aspectRatio(contentMode: .fit)
-//          .frame(maxWidth: .infinity, alignment: .center)
-//          .cornerRadius(8.0)
+          AsyncImage(url: viewModel.favourite.animalImageURL) { phase in
+            if let image = phase.image {
+              image
+                .resizable()
+            } else if phase.error != nil {
+              Color.red
+            } else {
+              Image(systemName: "photo.artframe")
+                .resizable()
+            }
+          }
+          .aspectRatio(contentMode: .fit)
+          .frame(maxWidth: .infinity, alignment: .center)
+          .cornerRadius(8.0)
 
           image?
             .resizable()
