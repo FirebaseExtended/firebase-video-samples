@@ -1,0 +1,105 @@
+:root {
+  --yellow-5: hsl(45, 100%, 58%);
+  --gray-1: hsl(200, 12%, 95%);
+  --gray-5: hsl(213, 5%, 39%);
+  --gray-7: hsl(206, 6%, 25%);
+  --gray-8: hsl(225, 7%, 17%);
+  --gray-9: hsl(225, 6%, 13%);
+
+  --font-body: 'Google Sans', Arial;
+  --font-mono: 'Google Sans Mono', Menlo, monospace;
+  --text-h1: normal normal bold clamp(2rem, 4vw + 1rem, 4rem) var(--font-body);
+  --text-h2: normal normal bold clamp(2rem, 4vw + 1rem, 3.5rem) var(--font-body);
+  --text-h3: normal normal 400 1.25rem var(--font-mono);
+
+  --theme-bg: var(--gray-9);
+  --theme-text: var(--gray-1);
+  --theme-text-i: var(--gray-9);
+  --theme-accent: var(--yellow-5);
+  --theme-container: var(--gray-8);
+}
+
+#__nuxt, #__layout, #app {
+  height: 100%;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+html, body {
+  background-color: var(--theme-bg);
+  color: var(--gray-1);
+  font-family: var(--font-body);
+  height: 100%;
+}
+
+h1,h2,h3,h4,h5 {
+  font-family: var(--font-body);
+}
+
+h1 {
+  font: var(--text-h1);
+}
+
+h2 {
+  font: var(--text-h2);
+}
+
+h3 {
+  font: var(--text-h3);
+}
+
+button {
+  border: 0;
+  background-color: var(--theme-accent);
+  color: var(--theme-text-i);
+  padding: 8px 24px;
+  text-align: center;
+  font-family: var(--font-mono);
+  letter-spacing: .03em;
+  text-transform: uppercase;
+  border-radius: 6px;
+  font-size: 1.25rem;
+  cursor: pointer;
+}
+
+button a, button a:visited {
+  color: var(--theme-text-i) !important;
+  text-decoration: none;
+}
+
+a, a:visited {
+  color: var(--theme-accent);
+}
+
+.accent {
+  color: var(--theme-accent);
+}
+
+.gap-8 {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.button-list button {
+  padding: 4px 10px;
+  font-size: .875rem;
+  letter-spacing: 0.01em;
+}
+
+.result-list li a {
+  display: block;
+  border: 1px solid var(--gray-5);
+  padding: 4px 8px;
+  font-size: .85rem;
+  border-radius: 3px;
+  transition: border ease-out 150ms;
+  color: var(--theme-text) !important;
+}
+
+.result-list li a:hover {
+  border: 1px solid var(--theme-accent);
+  color: var(--theme-accent) !important;
+}

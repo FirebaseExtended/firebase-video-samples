@@ -1,0 +1,674 @@
+[
+  {
+    "name": "Buenos Aires",
+    "country": "Argentina",
+    "population": 3031250,
+    "primaryLanguageSpoken": "Spanish",
+    "isCapital": true,
+    "primaryAttractions": ["history", "food", "culture"]
+  },
+  {
+    "name": "Córdoba",
+    "country": "Argentina",
+    "population": 1329333,
+    "primaryLanguageSpoken": "Spanish",
+    "isCapital": false,
+    "primaryAttractions": ["history", "food", "music"]
+  },
+  {
+    "name": "Rosario",
+    "country": "Argentina",
+    "population": 1194000,
+    "primaryLanguageSpoken": "Spanish",
+    "isCapital": false,
+    "primaryAttractions": ["history", "food", "sports"]
+  },
+  {
+    "name": "Santa Fe",
+    "country": "Argentina",
+    "population": 507361,
+    "primaryLanguageSpoken": "Spanish",
+    "isCapital": false,
+    "primaryAttractions": ["history", "food", "culture"]
+  },
+  {
+    "name": "Mendoza",
+    "country": "Argentina",
+    "population": 1169500,
+    "primaryLanguageSpoken": "Spanish",
+    "isCapital": false,
+    "primaryAttractions": ["wine", "food", "mountains"]
+  },
+  {
+    "name": "La Plata",
+    "country": "Argentina",
+    "population": 856363,
+    "primaryLanguageSpoken": "Spanish",
+    "isCapital": false,
+    "primaryAttractions": ["history", "food", "culture"]
+  },
+  {
+    "name": "San Miguel de Tucumán",
+    "country": "Argentina",
+    "population": 568907,
+    "primaryLanguageSpoken": "Spanish",
+    "isCapital": false,
+    "primaryAttractions": ["history", "food", "culture"]
+  },
+  {
+    "name": "Mar del Plata",
+    "country": "Argentina",
+    "population": 621379,
+    "primaryLanguageSpoken": "Spanish",
+    "isCapital": false,
+    "primaryAttractions": ["beaches", "food", "nightlife"]
+  },
+  {
+    "name": "Bahía Blanca",
+    "country": "Argentina",
+    "population": 313306,
+    "primaryLanguageSpoken": "Spanish",
+    "isCapital": false,
+    "primaryAttractions": ["history", "food", "industry"]
+  },
+  {
+    "name": "New York City",
+    "country": "United States",
+    "population": 8804190,
+    "primaryLanguageSpoken": "English",
+    "isCapital": false,
+    "primaryAttractions": ["history", "food", "culture"]
+  },
+  {
+    "name": "Los Angeles",
+    "country": "United States",
+    "population": 3971883,
+    "primaryLanguageSpoken": "English",
+    "isCapital": false,
+    "primaryAttractions": ["beaches", "entertainment", "food"]
+  },
+  {
+    "name": "Chicago",
+    "country": "United States",
+    "population": 2746388,
+    "primaryLanguageSpoken": "English",
+    "isCapital": false,
+    "primaryAttractions": ["architecture", "food", "sports"]
+  },
+  {
+    "name": "Houston",
+    "country": "United States",
+    "population": 2325500,
+    "primaryLanguageSpoken": "English",
+    "isCapital": false,
+    "primaryAttractions": ["space center", "food", "music"]
+  },
+  {
+    "name": "Phoenix",
+    "country": "United States",
+    "population": 1660272,
+    "primaryLanguageSpoken": "English",
+    "isCapital": false,
+    "primaryAttractions": ["desert", "hiking", "food"]
+  },
+  {
+    "name": "Philadelphia",
+    "country": "United States",
+    "population": 1580919,
+    "primaryLanguageSpoken": "English",
+    "isCapital": false,
+    "primaryAttractions": ["history", "food", "culture"]
+  },
+  {
+    "name": "San Antonio",
+    "country": "United States",
+    "population": 1519518,
+    "primaryLanguageSpoken": "English",
+    "isCapital": false,
+    "primaryAttractions": ["history", "food", "music"]
+  },
+  {
+    "name": "San Diego",
+    "country": "United States",
+    "population": 1395313,
+    "primaryLanguageSpoken": "English",
+    "isCapital": false,
+    "primaryAttractions": ["beaches", "food", "culture"]
+  },
+  {
+    "name": "Dallas",
+    "country": "United States",
+    "population": 1345045,
+    "primaryLanguageSpoken": "English",
+    "isCapital": false,
+    "primaryAttractions": ["history", "food", "business"]
+  },
+  {
+    "name": "Washington D.C.",
+    "country": "United States",
+    "population": 705749,
+    "primaryLanguageSpoken": "English",
+    "isCapital": true,
+    "primaryAttractions": ["history", "government", "culture"]
+  },
+  {
+    "name": "Florianópolis",
+    "country": "Brazil",
+    "population": 508826,
+    "primaryLanguageSpoken": "Portuguese",
+    "isCapital": false,
+    "primaryAttractions": ["beaches", "food", "culture"]
+  },
+  {
+    "name": "São Paulo",
+    "country": "Brazil",
+    "population": 21846507,
+    "primaryLanguageSpoken": "Portuguese",
+    "isCapital": true,
+    "primaryAttractions": ["history", "food", "culture"]
+  },
+  {
+    "name": "Rio de Janeiro",
+    "country": "Brazil",
+    "population": 6747803,
+    "primaryLanguageSpoken": "Portuguese",
+    "isCapital": false,
+    "primaryAttractions": ["beaches", "food", "nightlife"]
+  },
+  {
+    "name": "Belo Horizonte",
+    "country": "Brazil",
+    "population": 2505633,
+    "primaryLanguageSpoken": "Portuguese",
+    "isCapital": false,
+    "primaryAttractions": ["history", "food", "culture"]
+  },
+  {
+    "name": "Porto Alegre",
+    "country": "Brazil",
+    "population": 1451930,
+    "primaryLanguageSpoken": "Portuguese",
+    "isCapital": false,
+    "primaryAttractions": ["beaches", "food", "wine"]
+  },
+  {
+    "name": "Salvador",
+    "country": "Brazil",
+    "population": 2930000,
+    "primaryLanguageSpoken": "Portuguese",
+    "isCapital": false,
+    "primaryAttractions": ["history", "food", "music"]
+  },
+  {
+    "name": "Fortaleza",
+    "country": "Brazil",
+    "population": 2674965,
+    "primaryLanguageSpoken": "Portuguese",
+    "isCapital": false,
+    "primaryAttractions": ["beaches", "food", "culture"]
+  },
+  {
+    "name": "Curitiba",
+    "country": "Brazil",
+    "population": 1933897,
+    "primaryLanguageSpoken": "Portuguese",
+    "isCapital": false,
+    "primaryAttractions": ["nature", "food", "culture"]
+  },
+  {
+    "name": "Recife",
+    "country": "Brazil",
+    "population": 1630692,
+    "primaryLanguageSpoken": "Portuguese",
+    "isCapital": false,
+    "primaryAttractions": ["beaches", "food", "music"]
+  },
+  {
+    "name": "Manaus",
+    "country": "Brazil",
+    "population": 2181192,
+    "primaryLanguageSpoken": "Portuguese",
+    "isCapital": false,
+    "primaryAttractions": ["nature", "food", "culture"]
+  },
+  {
+    "name": "Maputo",
+    "country": "Mozambique",
+    "population": 1260000,
+    "primaryLanguageSpoken": "Portuguese",
+    "isCapital": true,
+    "primaryAttractions": ["history", "beaches", "food", "culture"]
+  },
+  {
+    "name": "Berlin",
+    "country": "Germany",
+    "population": 3748131,
+    "primaryLanguageSpoken": "German",
+    "isCapital": true,
+    "primaryAttractions": ["history", "food", "culture"]
+  },
+  {
+    "name": "Hamburg",
+    "country": "Germany",
+    "population": 1844198,
+    "primaryLanguageSpoken": "German",
+    "isCapital": false,
+    "primaryAttractions": ["history", "food", "culture"]
+  },
+  {
+    "name": "München",
+    "country": "Germany",
+    "population": 1523918,
+    "primaryLanguageSpoken": "German",
+    "isCapital": false,
+    "primaryAttractions": ["history", "food", "beer"]
+  },
+  {
+    "name": "Frankfurt am Main",
+    "country": "Germany",
+    "population": 766293,
+    "primaryLanguageSpoken": "German",
+    "isCapital": false,
+    "primaryAttractions": ["history", "finance", "food"]
+  },
+  {
+    "name": "Köln",
+    "country": "Germany",
+    "population": 1081391,
+    "primaryLanguageSpoken": "German",
+    "isCapital": false,
+    "primaryAttractions": ["history", "food", "beer"]
+  },
+  {
+    "name": "Düsseldorf",
+    "country": "Germany",
+    "population": 612989,
+    "primaryLanguageSpoken": "German",
+    "isCapital": false,
+    "primaryAttractions": ["fashion", "food", "nightlife"]
+  },
+  {
+    "name": "Essen",
+    "country": "Germany",
+    "population": 582479,
+    "primaryLanguageSpoken": "German",
+    "isCapital": false,
+    "primaryAttractions": ["history", "food", "industry"]
+  },
+  {
+    "name": "Bremen",
+    "country": "Germany",
+    "population": 563147,
+    "primaryLanguageSpoken": "German",
+    "isCapital": false,
+    "primaryAttractions": ["history", "food", "music"]
+  },
+  {
+    "name": "Hannover",
+    "country": "Germany",
+    "population": 530000,
+    "primaryLanguageSpoken": "German",
+    "isCapital": false,
+    "primaryAttractions": ["history", "fairs", "food"]
+  },
+  {
+    "name": "Leipzig",
+    "country": "Germany",
+    "population": 528315,
+    "primaryLanguageSpoken": "German",
+    "isCapital": false,
+    "primaryAttractions": ["history", "music", "food"]
+  },
+  {
+    "name": "Accra",
+    "country": "Ghana",
+    "population": 2978674,
+    "primaryLanguageSpoken": "English",
+    "isCapital": true,
+    "primaryAttractions": ["history", "food", "culture"]
+  },
+  {
+    "name": "Kumasi",
+    "country": "Ghana",
+    "population": 2460000,
+    "primaryLanguageSpoken": "Twi",
+    "isCapital": false,
+    "primaryAttractions": ["history", "food", "culture"]
+  },
+  {
+    "name": "Tema",
+    "country": "Ghana",
+    "population": 1577184,
+    "primaryLanguageSpoken": "English",
+    "isCapital": false,
+    "primaryAttractions": ["beaches", "food", "industry"]
+  },
+  {
+    "name": "Sekondi-Takoradi",
+    "country": "Ghana",
+    "population": 232506,
+    "primaryLanguageSpoken": "English",
+    "isCapital": false,
+    "primaryAttractions": ["beaches", "food", "culture"]
+  },
+  {
+    "name": "Cape Coast",
+    "country": "Ghana",
+    "population": 150000,
+    "primaryLanguageSpoken": "English",
+    "isCapital": false,
+    "primaryAttractions": ["history", "food", "culture"]
+  },
+  {
+    "name": "Lagos",
+    "country": "Nigeria",
+    "population": 21542000,
+    "primaryLanguageSpoken": "English",
+    "isCapital": true,
+    "primaryAttractions": ["history", "food", "culture"]
+  },
+  {
+    "name": "Kano",
+    "country": "Nigeria",
+    "population": 10438450,
+    "primaryLanguageSpoken": "Hausa",
+    "isCapital": false,
+    "primaryAttractions": ["history", "food", "culture"]
+  },
+  {
+    "name": "Ibadan",
+    "country": "Nigeria",
+    "population": 9303700,
+    "primaryLanguageSpoken": "Yoruba",
+    "isCapital": false,
+    "primaryAttractions": ["history", "food", "culture"]
+  },
+  {
+    "name": "Abuja",
+    "country": "Nigeria",
+    "population": 7837434,
+    "primaryLanguageSpoken": "English",
+    "isCapital": true,
+    "primaryAttractions": ["history", "food", "culture"]
+  },
+  {
+    "name": "Port Harcourt",
+    "country": "Nigeria",
+    "population": 6117300,
+    "primaryLanguageSpoken": "Igbo",
+    "isCapital": false,
+    "primaryAttractions": ["history", "food", "culture"]
+  },
+  {
+    "name": "Tokyo",
+    "country": "Japan",
+    "population": 37400000,
+    "primaryLanguageSpoken": "Japanese",
+    "isCapital": true,
+    "primaryAttractions": ["history", "food", "culture"]
+  },
+  {
+    "name": "Yokohama",
+    "country": "Japan",
+    "population": 3732448,
+    "primaryLanguageSpoken": "Japanese",
+    "isCapital": false,
+    "primaryAttractions": ["port", "food", "culture"]
+  },
+  {
+    "name": "Osaka",
+    "country": "Japan",
+    "population": 2722000,
+    "primaryLanguageSpoken": "Japanese",
+    "isCapital": false,
+    "primaryAttractions": ["food", "culture", "nightlife"]
+  },
+  {
+    "name": "Nagoya",
+    "country": "Japan",
+    "population": 2305300,
+    "primaryLanguageSpoken": "Japanese",
+    "isCapital": false,
+    "primaryAttractions": ["history", "food", "industry"]
+  },
+  {
+    "name": "Kyoto",
+    "country": "Japan",
+    "population": 1474633,
+    "primaryLanguageSpoken": "Japanese",
+    "isCapital": false,
+    "primaryAttractions": ["history", "food", "culture"]
+  },
+  {
+    "name": "Mumbai",
+    "country": "India",
+    "population": 12442373,
+    "primaryLanguageSpoken": "Hindi",
+    "isCapital": false,
+    "primaryAttractions": ["history", "food", "culture"]
+  },
+  {
+    "name": "Delhi",
+    "country": "India",
+    "population": 16323483,
+    "primaryLanguageSpoken": "Hindi",
+    "isCapital": true,
+    "primaryAttractions": ["history", "food", "culture"]
+  },
+  {
+    "name": "Bangalore",
+    "country": "India",
+    "population": 10484350,
+    "primaryLanguageSpoken": "Kannada",
+    "isCapital": false,
+    "primaryAttractions": ["technology", "food", "culture"]
+  },
+  {
+    "name": "Hyderabad",
+    "country": "India",
+    "population": 6809970,
+    "primaryLanguageSpoken": "Telugu",
+    "isCapital": false,
+    "primaryAttractions": ["history", "food", "culture"]
+  },
+  {
+    "name": "Chennai",
+    "country": "India",
+    "population": 10425355,
+    "primaryLanguageSpoken": "Tamil",
+    "isCapital": false,
+    "primaryAttractions": ["history", "food", "culture"]
+  },
+  {
+    "name": "Kolkata",
+    "country": "India",
+    "population": 4506694,
+    "primaryLanguageSpoken": "Bengali",
+    "isCapital": false,
+    "primaryAttractions": ["history", "food", "culture"]
+  },
+  {
+    "name": "Ahmedabad",
+    "country": "India",
+    "population": 6380696,
+    "primaryLanguageSpoken": "Gujarati",
+    "isCapital": false,
+    "primaryAttractions": ["history", "food", "culture"]
+  },
+  {
+    "name": "Pune",
+    "country": "India",
+    "population": 5638348,
+    "primaryLanguageSpoken": "Marathi",
+    "isCapital": false,
+    "primaryAttractions": ["history", "food", "culture"]
+  },
+  {
+    "name": "Lucknow",
+    "country": "India",
+    "population": 2775146,
+    "primaryLanguageSpoken": "Urdu",
+    "isCapital": false,
+    "primaryAttractions": ["history", "food", "culture"]
+  },
+  {
+    "name": "Jaipur",
+    "country": "India",
+    "population": 3124458,
+    "primaryLanguageSpoken": "Hindi",
+    "isCapital": false,
+    "primaryAttractions": ["history", "food", "culture"]
+  },
+  {
+    "name": "Stockholm",
+    "country": "Sweden",
+    "population": 978770,
+    "primaryLanguageSpoken": "Swedish",
+    "isCapital": true,
+    "primaryAttractions": ["history", "food", "culture"]
+  },
+  {
+    "name": "Gothenburg",
+    "country": "Sweden",
+    "population": 579382,
+    "primaryLanguageSpoken": "Swedish",
+    "isCapital": false,
+    "primaryAttractions": ["history", "food", "culture"]
+  },
+  {
+    "name": "Malmö",
+    "country": "Sweden",
+    "population": 335106,
+    "primaryLanguageSpoken": "Swedish",
+    "isCapital": false,
+    "primaryAttractions": ["history", "food", "culture"]
+  },
+  {
+    "name": "Uppsala",
+    "country": "Sweden",
+    "population": 155329,
+    "primaryLanguageSpoken": "Swedish",
+    "isCapital": false,
+    "primaryAttractions": ["history", "food", "culture"]
+  },
+  {
+    "name": "Linköping",
+    "country": "Sweden",
+    "population": 103043,
+    "primaryLanguageSpoken": "Swedish",
+    "isCapital": false,
+    "primaryAttractions": ["history", "food", "culture"]
+  },
+  {
+    "name": "Santa Cruz de la Sierra",
+    "country": "Bolivia",
+    "population": 1856863,
+    "primaryLanguageSpoken": "Spanish",
+    "isCapital": false,
+    "primaryAttractions": ["history", "food", "culture"]
+  },
+  {
+    "name": "La Paz",
+    "country": "Bolivia",
+    "population": 800000,
+    "primaryLanguageSpoken": "Spanish",
+    "isCapital": true,
+    "primaryAttractions": ["history", "food", "culture"]
+  },
+  {
+    "name": "Cochabamba",
+    "country": "Bolivia",
+    "population": 674921,
+    "primaryLanguageSpoken": "Spanish",
+    "isCapital": false,
+    "primaryAttractions": ["history", "food", "culture"]
+  },
+  {
+    "name": "Oruro",
+    "country": "Bolivia",
+    "population": 252356,
+    "primaryLanguageSpoken": "Spanish",
+    "isCapital": false,
+    "primaryAttractions": ["history", "food", "culture"]
+  },
+  {
+    "name": "Sucre",
+    "country": "Bolivia",
+    "population": 244428,
+    "primaryLanguageSpoken": "Spanish",
+    "isCapital": true,
+    "primaryAttractions": ["history", "food", "culture"]
+  },
+  {
+    "name": "Bangkok",
+    "country": "Thailand",
+    "population": 10539415,
+    "primaryLanguageSpoken": "Thai",
+    "isCapital": true,
+    "primaryAttractions": ["Wat Pho", "Grand Palace", "Chatuchak Weekend Market"]
+  },
+  {
+    "name": "Chiang Mai",
+    "country": "Thailand",
+    "population": 2507558,
+    "primaryLanguageSpoken": "Thai",
+    "isCapital": false,
+    "primaryAttractions": ["Wat Phra That Doi Suthep", "Wat Phra Singh", "Night Safari"]
+  },
+  {
+    "name": "Phuket",
+    "country": "Thailand",
+    "population": 830207,
+    "primaryLanguageSpoken": "Thai",
+    "isCapital": false,
+    "primaryAttractions": ["Phuket Island", "Patong Beach", "Big Buddha"]
+  },
+  {
+    "name": "Hat Yai",
+    "country": "Thailand",
+    "population": 731694,
+    "primaryLanguageSpoken": "Thai",
+    "isCapital": false,
+    "primaryAttractions": ["Hat Yai Park", "Wat Phra Yai", "Central Festival Hat Yai"]
+  },
+  {
+    "name": "Nakhon Ratchasima",
+    "country": "Thailand",
+    "population": 675922,
+    "primaryLanguageSpoken": "Thai",
+    "isCapital": false,
+    "primaryAttractions": ["Khao Yai National Park", "Wat Phra Si Sanphet", "Nakhon Ratchasima Historical Park"]
+  },
+  {
+    "name": "Udon Thani",
+    "country": "Thailand",
+    "population": 579382,
+    "primaryLanguageSpoken": "Thai",
+    "isCapital": false,
+    "primaryAttractions": ["Udon Thani Historical Park", "Wat Phra That Si Udom Suk", "Udon Thani Zoo"]
+  },
+  {
+    "name": "Chiang Rai",
+    "country": "Thailand",
+    "population": 252356,
+    "primaryLanguageSpoken": "Thai",
+    "isCapital": false,
+    "primaryAttractions": ["Wat Phra That Doi Suthep", "Wat Phra Kaew", "Night Safari"]
+  },
+  {
+    "name": "Khon Kaen",
+    "country": "Thailand",
+    "population": 244428,
+    "primaryLanguageSpoken": "Thai",
+    "isCapital": false,
+    "primaryAttractions": ["Khon Kaen University", "Wat Si Mongkhon Wararam", "Khon Kaen Night Market"]
+  },
+  {
+    "name": "Nakhon Si Thammarat",
+    "country": "Thailand",
+    "population": 198996,
+    "primaryLanguageSpoken": "Thai",
+    "isCapital": false,
+    "primaryAttractions": ["Wat Phra Mahathat", "Wat Phra That Woramahathat", "Nakhon Si Thammarat Historical Park"]
+  }  
+]

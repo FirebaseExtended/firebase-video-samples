@@ -1,0 +1,16 @@
+{
+  "version": "13.3.0",
+  "firestore": {
+    "version": "1.18.2",
+    "path": "firestore_export",
+    "metadata_file": "firestore_export/firestore_export.overall_export_metadata"
+  },
+  "auth": {
+    "version": "13.3.0",
+    "path": "auth_export"
+  },
+  "storage": {
+    "version": "13.3.0",
+    "path": "storage_export"
+  }
+}

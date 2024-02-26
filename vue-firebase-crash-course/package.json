@@ -1,0 +1,24 @@
+{
+  "name": "vfire",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "concurrently npm:emulators vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "firebase": "firebase emulators:start --import=./local --export-on-exit"
+  },
+  "dependencies": {
+    "firebase": "^10.8.0",
+    "vue": "^3.4.19",
+    "vue-router": "^4.2.5",
+    "vuefire": "^3.1.22"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.0.4",
+    "concurrently": "^8.2.2",
+    "firebase-tools": "^13.3.0",
+    "vite": "^5.1.4"
+  }
+}
