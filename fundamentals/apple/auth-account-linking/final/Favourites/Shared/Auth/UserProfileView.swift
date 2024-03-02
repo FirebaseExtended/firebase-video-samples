@@ -73,7 +73,7 @@ struct UserProfileView: View {
         VStack(alignment: .leading) {
           Text("Provider")
             .font(.caption)
-            Text(viewModel.user?.providerData.first?.providerID ?? "(unknown)")
+          Text(viewModel.user?.providerData.first?.providerID ?? "(unknown)")
         }
         VStack(alignment: .leading) {
           Text("Anonymous / Guest user")
