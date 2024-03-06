@@ -135,6 +135,7 @@ struct LoginView: View {
         viewModel.handleSignInWithAppleRequest(request)
       } onCompletion: { result in
         viewModel.handleSignInWithAppleCompletion(result)
+        if case .success(_) = result { dismiss() }
       }
       .signInWithAppleButtonStyle(colorScheme == .light ? .black : .white)
       .frame(maxWidth: .infinity, minHeight: 50)
