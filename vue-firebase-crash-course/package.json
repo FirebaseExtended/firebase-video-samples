@@ -19,6 +19,6 @@
     "@vitejs/plugin-vue": "^5.0.4",
     "concurrently": "^8.2.2",
     "firebase-tools": "^13.3.0",
-    "vite": "^5.1.4"
+    "vite": "^5.1.7"
   }
 }
