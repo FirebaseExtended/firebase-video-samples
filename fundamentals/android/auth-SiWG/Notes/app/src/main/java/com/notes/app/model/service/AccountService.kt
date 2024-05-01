@@ -10,7 +10,8 @@ interface AccountService {
     fun getUserProfile(): User
     suspend fun createAnonymousAccount()
     suspend fun updateDisplayName(newDisplayName: String)
-    suspend fun linkAccount(email: String, password: String)
+    suspend fun linkAccountWithGoogle(idToken: String)
+    suspend fun linkAccountWithEmail(email: String, password: String)
     suspend fun signIn(email: String, password: String)
     suspend fun signOut()
     suspend fun deleteAccount()

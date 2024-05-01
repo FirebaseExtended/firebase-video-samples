@@ -1,8 +1,17 @@
 package com.notes.app.screens.account_center
 
+import android.util.Log
+import androidx.credentials.Credential
+import androidx.credentials.CustomCredential
+import androidx.credentials.GetCredentialResponse
+import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
+import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential.Companion.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
+import com.notes.app.ERROR_TAG
 import com.notes.app.SIGN_IN_SCREEN
 import com.notes.app.SIGN_UP_SCREEN
 import com.notes.app.SPLASH_SCREEN
+import com.notes.app.UNEXPECTED_CREDENTIAL
+import com.notes.app.UNEXPECTED_CUSTOM_CREDENTIAL
 import com.notes.app.model.User
 import com.notes.app.model.service.AccountService
 import com.notes.app.screens.NotesAppViewModel
@@ -35,8 +44,27 @@ class AccountCenterViewModel @Inject constructor(
 
     fun onSignInClick(openScreen: (String) -> Unit) = openScreen(SIGN_IN_SCREEN)
 
-    fun onSignInWithGoogleClick(openScreen: (String) -> Unit) {
+    fun onGetCredentialResponse(result: GetCredentialResponse, openScreen: (String) -> Unit) {
+        when (val credential = result.credential) {
+            is CustomCredential -> {
+                if (credential.type == TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
+                    linkAccountWithGoogle(credential, openScreen)
+                } else {
+                    Log.d(ERROR_TAG, UNEXPECTED_CUSTOM_CREDENTIAL)
+                }
+            }
+            else -> {
+                Log.d(ERROR_TAG, UNEXPECTED_CREDENTIAL)
+            }
+        }
+    }
 
+    private fun linkAccountWithGoogle(credential: Credential, openScreen: (String) -> Unit) {
+        launchCatching {
+            val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
+            accountService.linkAccountWithGoogle(googleIdTokenCredential.idToken)
+            openScreen(SPLASH_SCREEN)
+        }
     }
 
     fun onSignUpClick(openScreen: (String) -> Unit) = openScreen(SIGN_UP_SCREEN)

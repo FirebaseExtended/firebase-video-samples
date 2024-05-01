@@ -5,6 +5,7 @@ import com.google.firebase.auth.auth
 import com.google.firebase.Firebase
 import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.userProfileChangeRequest
 import com.notes.app.model.User
 import com.notes.app.model.service.AccountService
@@ -49,7 +50,12 @@ class AccountServiceImpl @Inject constructor() : AccountService {
         Firebase.auth.currentUser!!.updateProfile(profileUpdates).await()
     }
 
-    override suspend fun linkAccount(email: String, password: String) {
+    override suspend fun linkAccountWithGoogle(idToken: String) {
+        val firebaseCredential = GoogleAuthProvider.getCredential(idToken, null)
+        Firebase.auth.signInWithCredential(firebaseCredential).await()
+    }
+
+    override suspend fun linkAccountWithEmail(email: String, password: String) {
         val credential = EmailAuthProvider.getCredential(email, password)
         Firebase.auth.currentUser!!.linkWithCredential(credential).await()
     }
