@@ -16,6 +16,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
@@ -136,6 +137,7 @@ fun SignUpScreen(
 
         Button(
             onClick = { viewModel.onSignUpClick(openAndPopUp) },
+            colors = ButtonDefaults.buttonColors(containerColor = Purple40),
             modifier = modifier
                 .fillMaxWidth()
                 .padding(16.dp, 0.dp)

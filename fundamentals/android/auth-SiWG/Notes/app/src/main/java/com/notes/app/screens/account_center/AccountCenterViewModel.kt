@@ -42,7 +42,7 @@ class AccountCenterViewModel @Inject constructor(
         }
     }
 
-    fun onSignInClick(openScreen: (String) -> Unit) = openScreen(SIGN_IN_SCREEN)
+    fun onSignInClick(openScreen: (String) -> Unit) = openScreen(SIGN_UP_SCREEN)
 
     fun onGetCredentialResponse(result: GetCredentialResponse, openScreen: (String) -> Unit) {
         when (val credential = result.credential) {
@@ -66,8 +66,6 @@ class AccountCenterViewModel @Inject constructor(
             openScreen(SPLASH_SCREEN)
         }
     }
-
-    fun onSignUpClick(openScreen: (String) -> Unit) = openScreen(SIGN_UP_SCREEN)
 
     fun onSignOutClick(restartApp: (String) -> Unit) {
         launchCatching {
