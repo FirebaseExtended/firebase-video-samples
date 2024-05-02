@@ -52,7 +52,7 @@ class AccountServiceImpl @Inject constructor() : AccountService {
 
     override suspend fun linkAccountWithGoogle(idToken: String) {
         val firebaseCredential = GoogleAuthProvider.getCredential(idToken, null)
-        Firebase.auth.signInWithCredential(firebaseCredential).await()
+        Firebase.auth.currentUser!!.linkWithCredential(firebaseCredential).await()
     }
 
     override suspend fun linkAccountWithEmail(email: String, password: String) {
