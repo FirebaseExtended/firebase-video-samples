@@ -1,8 +1,15 @@
 package com.notes.app.screens.sign_in
 
+import android.util.Log
+import androidx.credentials.Credential
+import androidx.credentials.CustomCredential
+import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
+import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential.Companion.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
+import com.notes.app.ERROR_TAG
 import com.notes.app.SIGN_IN_SCREEN
 import com.notes.app.NOTES_LIST_SCREEN
 import com.notes.app.SIGN_UP_SCREEN
+import com.notes.app.UNEXPECTED_CREDENTIAL
 import com.notes.app.model.service.AccountService
 import com.notes.app.screens.NotesAppViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -32,8 +39,20 @@ class SignInViewModel @Inject constructor(
 
     fun onSignInClick(openAndPopUp: (String, String) -> Unit) {
         launchCatching {
-            accountService.signIn(_email.value, _password.value)
+            accountService.signInWithEmail(_email.value, _password.value)
             openAndPopUp(NOTES_LIST_SCREEN, SIGN_IN_SCREEN)
+        }
+    }
+
+    fun onSignInWithGoogle(credential: Credential, openAndPopUp: (String, String) -> Unit) {
+        launchCatching {
+            if (credential is CustomCredential && credential.type == TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
+                val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
+                accountService.signInWithGoogle(googleIdTokenCredential.idToken)
+                openAndPopUp(NOTES_LIST_SCREEN, SIGN_IN_SCREEN)
+            } else {
+                Log.d(ERROR_TAG, UNEXPECTED_CREDENTIAL)
+            }
         }
     }
 

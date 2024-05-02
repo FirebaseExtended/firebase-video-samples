@@ -35,6 +35,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.notes.app.R
+import com.notes.app.screens.account_center.AuthenticationButton
 import com.notes.app.ui.theme.NotesTheme
 import com.notes.app.ui.theme.Purple40
 
@@ -147,6 +148,20 @@ fun SignUpScreen(
                 fontSize = 16.sp,
                 modifier = modifier.padding(0.dp, 6.dp)
             )
+        }
+
+        Spacer(modifier = Modifier
+            .fillMaxWidth()
+            .padding(4.dp))
+
+        Text(text = stringResource(R.string.or), fontSize = 16.sp, color = Purple40)
+
+        Spacer(modifier = Modifier
+            .fillMaxWidth()
+            .padding(4.dp))
+
+        AuthenticationButton(R.string.sign_up_with_google) { credential ->
+            viewModel.onSignUpWithGoogle(credential, openAndPopUp)
         }
     }
 }

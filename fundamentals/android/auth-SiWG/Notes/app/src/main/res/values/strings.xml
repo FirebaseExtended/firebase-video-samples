@@ -5,9 +5,9 @@
     <string name="password">Password</string>
     <string name="confirm_password">Confirm password</string>
     <string name="sign_in">Sign in</string>
-    <string name="sign_in_with_email">Sign in with email and password</string>
     <string name="sign_in_with_google">Sign in with Google</string>
     <string name="sign_up">Sign up</string>
+    <string name="sign_up_with_google">Sign up with Google</string>
     <string name="sign_up_description">Don\'t have an account? Click here to Sign Up!</string>
     <string name="sign_out">Sign out</string>
     <string name="sign_out_title">Sign out?</string>
@@ -22,4 +22,5 @@
     <string name="profile_uid">UID: %1$s</string>
     <string name="profile_provider">Account provider: %1$s</string>
     <string name="update">Update</string>
+    <string name="or">or</string>
 </resources>

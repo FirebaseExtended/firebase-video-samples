@@ -16,6 +16,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
@@ -35,6 +36,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.notes.app.R
+import com.notes.app.screens.account_center.AuthenticationButton
 import com.notes.app.ui.theme.NotesTheme
 import com.notes.app.ui.theme.Purple40
 
@@ -115,6 +117,7 @@ fun SignInScreen(
 
         Button(
             onClick = { viewModel.onSignInClick(openAndPopUp) },
+            colors = ButtonDefaults.buttonColors(containerColor = Purple40),
             modifier = modifier
                 .fillMaxWidth()
                 .padding(16.dp, 0.dp)
@@ -130,8 +133,22 @@ fun SignInScreen(
             .fillMaxWidth()
             .padding(4.dp))
 
+        Text(text = stringResource(R.string.or), fontSize = 16.sp, color = Purple40)
+
+        Spacer(modifier = Modifier
+            .fillMaxWidth()
+            .padding(4.dp))
+
+        AuthenticationButton(R.string.sign_in_with_google) { credential ->
+            viewModel.onSignInWithGoogle(credential, openAndPopUp)
+        }
+
+        Spacer(modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp))
+
         TextButton(onClick = { viewModel.onSignUpClick(openAndPopUp) }) {
-            Text(text = stringResource(R.string.sign_up_description), fontSize = 16.sp)
+            Text(text = stringResource(R.string.sign_up_description), fontSize = 16.sp, color = Purple40)
         }
     }
 }
