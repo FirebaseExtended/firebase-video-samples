@@ -69,7 +69,7 @@ class SignUpViewModel @Inject constructor(
                 accountService.linkAccountWithGoogle(googleIdTokenCredential.idToken)
                 openAndPopUp(NOTES_LIST_SCREEN, SIGN_UP_SCREEN)
             } else {
-                Log.d(ERROR_TAG, UNEXPECTED_CREDENTIAL)
+                Log.e(ERROR_TAG, UNEXPECTED_CREDENTIAL)
             }
         }
     }

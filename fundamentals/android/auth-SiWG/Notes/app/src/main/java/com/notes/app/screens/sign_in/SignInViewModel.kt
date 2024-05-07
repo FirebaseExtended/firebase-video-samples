@@ -51,7 +51,7 @@ class SignInViewModel @Inject constructor(
                 accountService.signInWithGoogle(googleIdTokenCredential.idToken)
                 openAndPopUp(NOTES_LIST_SCREEN, SIGN_IN_SCREEN)
             } else {
-                Log.d(ERROR_TAG, UNEXPECTED_CREDENTIAL)
+                Log.e(ERROR_TAG, UNEXPECTED_CREDENTIAL)
             }
         }
     }

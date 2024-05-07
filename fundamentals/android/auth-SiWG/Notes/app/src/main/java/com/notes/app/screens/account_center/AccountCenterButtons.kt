@@ -187,8 +187,7 @@ fun AuthenticationButton(
                 .setServerClientId(context.getString(R.string.default_web_client_id))
                 .build()
 
-            val request = GetCredentialRequest
-                .Builder()
+            val request = GetCredentialRequest.Builder()
                 .addCredentialOption(googleIdOption)
                 .build()
 
