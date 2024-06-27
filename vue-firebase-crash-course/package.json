@@ -10,7 +10,7 @@
     "firebase": "firebase emulators:start --import=./local --export-on-exit"
   },
   "dependencies": {
-    "firebase": "^10.8.0",
+    "firebase": "^10.11.1",
     "vue": "^3.4.19",
     "vue-router": "^4.2.5",
     "vuefire": "^3.1.22"
