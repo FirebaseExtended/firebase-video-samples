@@ -2,9 +2,27 @@ package com.notes.app
 
 import androidx.compose.runtime.Stable
 import androidx.navigation.NavHostController
+import androidx.compose.material3.SnackbarHostState
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.launch
 
 @Stable
-class NotesAppState(val navController: NavHostController) {
+class NotesAppState(
+    val snackbarHostState: SnackbarHostState,
+    val navController: NavHostController,
+    private val snackbarManager: SnackbarManager,
+    coroutineScope: CoroutineScope
+) {
+    init {
+        coroutineScope.launch {
+            snackbarManager.snackbarMessages.filterNotNull().collect { message ->
+                snackbarHostState.showSnackbar(message)
+                snackbarManager.clearSnackbarState()
+            }
+        }
+    }
+
     fun popUp() {
         navController.popBackStack()
     }

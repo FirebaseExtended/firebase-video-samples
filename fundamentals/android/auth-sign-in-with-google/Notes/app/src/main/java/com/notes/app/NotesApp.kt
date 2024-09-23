@@ -4,9 +4,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.NavGraphBuilder
@@ -21,15 +24,19 @@ import com.notes.app.screens.sign_in.SignInScreen
 import com.notes.app.screens.sign_up.SignUpScreen
 import com.notes.app.screens.splash.SplashScreen
 import com.notes.app.ui.theme.NotesTheme
+import kotlinx.coroutines.CoroutineScope
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 fun NotesApp() {
     NotesTheme {
         Surface(color = MaterialTheme.colorScheme.background) {
-            val appState = rememberAppState()
+            val snackbarHostState = remember { SnackbarHostState() }
+            val appState = rememberAppState(snackbarHostState)
 
-            Scaffold { innerPaddingModifier ->
+            Scaffold(
+                snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
+            ) { innerPaddingModifier ->
                 NavHost(
                     navController = appState.navController,
                     startDestination = SPLASH_SCREEN,
@@ -43,9 +50,14 @@ fun NotesApp() {
 }
 
 @Composable
-fun rememberAppState(navController: NavHostController = rememberNavController()) =
-    remember(navController) {
-        NotesAppState(navController)
+fun rememberAppState(
+    snackbarHostState: SnackbarHostState,
+    navController: NavHostController = rememberNavController(),
+    snackbarManager: SnackbarManager = SnackbarManager,
+    coroutineScope: CoroutineScope = rememberCoroutineScope()
+) =
+    remember(snackbarHostState, navController, snackbarManager, coroutineScope) {
+        NotesAppState(snackbarHostState, navController, snackbarManager, coroutineScope)
     }
 
 fun NavGraphBuilder.notesGraph(appState: NotesAppState) {

@@ -47,6 +47,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.notes.app.ERROR_TAG
 import com.notes.app.R
+import com.notes.app.SnackbarManager
 import com.notes.app.ui.theme.NotesTheme
 import com.notes.app.ui.theme.Purple40
 import kotlinx.coroutines.launch
@@ -163,7 +164,11 @@ fun SignInScreen(
             .padding(8.dp))
 
         Button(
-            onClick = { coroutineScope.launch { getCredentials(openAndPopUp, viewModel, context) } },
+            onClick = {
+                coroutineScope.launch {
+                    getCredentials(openAndPopUp, viewModel, context, showSnackbarOnError = true)
+                }
+            },
             colors = ButtonDefaults.buttonColors(containerColor = Purple40),
             modifier = Modifier
                 .fillMaxWidth()
@@ -184,7 +189,7 @@ fun SignInScreen(
 
         LaunchedEffect(true) {
             coroutineScope.launch {
-                getCredentials(openAndPopUp, viewModel, context)
+                getCredentials(openAndPopUp, viewModel, context, showSnackbarOnError = false)
             }
         }
     }
@@ -193,7 +198,8 @@ fun SignInScreen(
 private suspend fun getCredentials(
     openAndPopUp: (String, String) -> Unit,
     viewModel: SignInViewModel,
-    context: Context
+    context: Context,
+    showSnackbarOnError: Boolean
 ) {
     try {
         val request = getCredentialRequest(
@@ -208,7 +214,7 @@ private suspend fun getCredentials(
 
         viewModel.onSignInWithGoogle(result.credential, openAndPopUp)
     } catch (e: NoCredentialException) {
-        getCredentialsWithoutFilter(openAndPopUp, viewModel, context)
+        getCredentialsWithoutFilter(openAndPopUp, viewModel, context, showSnackbarOnError)
     } catch (e: GetCredentialException) {
         Log.d(ERROR_TAG, e.message.orEmpty())
     }
@@ -217,7 +223,8 @@ private suspend fun getCredentials(
 private suspend fun getCredentialsWithoutFilter(
     openAndPopUp: (String, String) -> Unit,
     viewModel: SignInViewModel,
-    context: Context
+    context: Context,
+    showSnackbarOnError: Boolean
 ) {
     try {
         val request = getCredentialRequest(
@@ -232,6 +239,10 @@ private suspend fun getCredentialsWithoutFilter(
 
         viewModel.onSignUpWithGoogle(result.credential, openAndPopUp)
     } catch (e: GetCredentialException) {
+        if (showSnackbarOnError) {
+            SnackbarManager.showMessage(context.getString(R.string.authentication_error))
+        }
+
         Log.d(ERROR_TAG, e.message.orEmpty())
     }
 }
