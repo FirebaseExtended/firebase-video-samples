@@ -1,5 +1,7 @@
 package com.notes.app.screens.sign_in
 
+import android.content.Context
+import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
@@ -24,21 +26,30 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.credentials.CredentialManager
+import androidx.credentials.GetCredentialRequest
+import androidx.credentials.exceptions.GetCredentialException
+import androidx.credentials.exceptions.NoCredentialException
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.google.android.libraries.identity.googleid.GetGoogleIdOption
+import com.notes.app.ERROR_TAG
 import com.notes.app.R
-import com.notes.app.screens.account_center.AuthenticationButton
 import com.notes.app.ui.theme.NotesTheme
 import com.notes.app.ui.theme.Purple40
+import kotlinx.coroutines.launch
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
@@ -48,6 +59,9 @@ fun SignInScreen(
     modifier: Modifier = Modifier,
     viewModel: SignInViewModel = hiltViewModel()
 ) {
+    val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
+
     val email = viewModel.email.collectAsState()
     val password = viewModel.password.collectAsState()
 
@@ -148,10 +162,89 @@ fun SignInScreen(
             .fillMaxWidth()
             .padding(8.dp))
 
-        AuthenticationButton(R.string.authenticate_with_google) { credential ->
-            viewModel.onSignInWithGoogle(credential, openAndPopUp)
+        Button(
+            onClick = { coroutineScope.launch { getCredentials(openAndPopUp, viewModel, context) } },
+            colors = ButtonDefaults.buttonColors(containerColor = Purple40),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp, 0.dp)
+        ) {
+            Icon(
+                painter = painterResource(id = R.drawable.google_g),
+                modifier = Modifier.padding(horizontal = 16.dp),
+                contentDescription = "Google logo"
+            )
+
+            Text(
+                text = stringResource(R.string.authenticate_with_google),
+                fontSize = 16.sp,
+                modifier = Modifier.padding(0.dp, 6.dp)
+            )
+        }
+
+        LaunchedEffect(true) {
+            coroutineScope.launch {
+                getCredentials(openAndPopUp, viewModel, context)
+            }
         }
     }
+}
+
+private suspend fun getCredentials(
+    openAndPopUp: (String, String) -> Unit,
+    viewModel: SignInViewModel,
+    context: Context
+) {
+    try {
+        val request = getCredentialRequest(
+            setFilter = true,
+            webClientId = context.getString(R.string.default_web_client_id)
+        )
+
+        val result = CredentialManager.create(context).getCredential(
+            request = request,
+            context = context
+        )
+
+        viewModel.onSignInWithGoogle(result.credential, openAndPopUp)
+    } catch (e: NoCredentialException) {
+        getCredentialsWithoutFilter(openAndPopUp, viewModel, context)
+    } catch (e: GetCredentialException) {
+        Log.d(ERROR_TAG, e.message.orEmpty())
+    }
+}
+
+private suspend fun getCredentialsWithoutFilter(
+    openAndPopUp: (String, String) -> Unit,
+    viewModel: SignInViewModel,
+    context: Context
+) {
+    try {
+        val request = getCredentialRequest(
+            setFilter = false,
+            webClientId = context.getString(R.string.default_web_client_id)
+        )
+
+        val result = CredentialManager.create(context).getCredential(
+            request = request,
+            context = context
+        )
+
+        viewModel.onSignUpWithGoogle(result.credential, openAndPopUp)
+    } catch (e: GetCredentialException) {
+        Log.d(ERROR_TAG, e.message.orEmpty())
+    }
+}
+
+private fun getCredentialRequest(setFilter: Boolean, webClientId: String): GetCredentialRequest {
+    val googleIdOption = GetGoogleIdOption.Builder()
+        .setFilterByAuthorizedAccounts(setFilter)
+        .setServerClientId(webClientId)
+        .build()
+
+    return GetCredentialRequest.Builder()
+        .addCredentialOption(googleIdOption)
+        .build()
 }
 
 @Preview(showBackground = true, showSystemUi = true)

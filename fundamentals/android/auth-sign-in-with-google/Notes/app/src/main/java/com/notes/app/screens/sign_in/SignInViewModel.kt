@@ -56,6 +56,18 @@ class SignInViewModel @Inject constructor(
         }
     }
 
+    fun onSignUpWithGoogle(credential: Credential, openAndPopUp: (String, String) -> Unit) {
+        launchCatching {
+            if (credential is CustomCredential && credential.type == TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
+                val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
+                accountService.linkAccountWithGoogle(googleIdTokenCredential.idToken)
+                openAndPopUp(NOTES_LIST_SCREEN, SIGN_IN_SCREEN)
+            } else {
+                Log.e(ERROR_TAG, UNEXPECTED_CREDENTIAL)
+            }
+        }
+    }
+
     fun onSignUpClick(openScreen: (String) -> Unit) {
         openScreen(SIGN_UP_SCREEN)
     }
