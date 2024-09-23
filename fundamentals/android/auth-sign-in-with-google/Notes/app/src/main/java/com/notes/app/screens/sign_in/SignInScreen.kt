@@ -43,6 +43,7 @@ import com.notes.app.ui.theme.Purple40
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 fun SignInScreen(
+    openScreen: (String) -> Unit,
     openAndPopUp: (String, String) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: SignInViewModel = hiltViewModel()
@@ -133,22 +134,22 @@ fun SignInScreen(
             .fillMaxWidth()
             .padding(4.dp))
 
-        Text(text = stringResource(R.string.or), fontSize = 16.sp, color = Purple40)
+        TextButton(onClick = { viewModel.onSignUpClick(openScreen) }) {
+            Text(text = stringResource(R.string.sign_up_description), fontSize = 16.sp, color = Purple40)
+        }
 
         Spacer(modifier = Modifier
             .fillMaxWidth()
             .padding(4.dp))
 
-        AuthenticationButton(R.string.sign_in_with_google) { credential ->
-            viewModel.onSignInWithGoogle(credential, openAndPopUp)
-        }
+        Text(text = stringResource(R.string.or), fontSize = 16.sp, color = Purple40)
 
         Spacer(modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp))
 
-        TextButton(onClick = { viewModel.onSignUpClick(openAndPopUp) }) {
-            Text(text = stringResource(R.string.sign_up_description), fontSize = 16.sp, color = Purple40)
+        AuthenticationButton(R.string.authenticate_with_google) { credential ->
+            viewModel.onSignInWithGoogle(credential, openAndPopUp)
         }
     }
 }
@@ -157,6 +158,6 @@ fun SignInScreen(
 @Composable
 fun AuthPreview() {
     NotesTheme {
-        SignInScreen({ _, _ -> })
+        SignInScreen({}, { _, _ -> })
     }
 }
