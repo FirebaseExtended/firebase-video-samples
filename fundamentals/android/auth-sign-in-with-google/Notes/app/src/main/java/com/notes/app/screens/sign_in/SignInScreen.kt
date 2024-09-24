@@ -41,6 +41,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.credentials.CredentialManager
 import androidx.credentials.exceptions.GetCredentialException
+import androidx.credentials.exceptions.NoCredentialException
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.notes.app.ERROR_TAG
 import com.notes.app.R
@@ -155,7 +156,7 @@ fun SignInScreen(
 
         AuthenticationButton(buttonText = R.string.sign_in_with_google) {
             coroutineScope.launch {
-                launchCredentialManager(openAndPopUp, viewModel, context)
+                launchCredentialManager(openAndPopUp, viewModel, context, showError = true)
             }
         }
 
@@ -167,9 +168,9 @@ fun SignInScreen(
             Text(text = stringResource(R.string.sign_up_description), fontSize = 16.sp, color = Purple40)
         }
 
-        LaunchedEffect(true) {
+        LaunchedEffect(Unit) {
             coroutineScope.launch {
-                launchCredentialManager(openAndPopUp, viewModel, context)
+                launchCredentialManager(openAndPopUp, viewModel, context, showError = false)
             }
         }
     }
@@ -178,7 +179,8 @@ fun SignInScreen(
 private suspend fun launchCredentialManager(
     openAndPopUp: (String, String) -> Unit,
     viewModel: SignInViewModel,
-    context: Context
+    context: Context,
+    showError: Boolean
 ) {
     try {
         val request = viewModel.getCredentialRequest(
@@ -191,9 +193,10 @@ private suspend fun launchCredentialManager(
         )
 
         viewModel.onSignInWithGoogle(result.credential, openAndPopUp)
+    } catch (e: NoCredentialException) {
+        if (showError) SnackbarManager.showMessage(context.getString(R.string.authentication_error))
     } catch (e: GetCredentialException) {
         Log.d(ERROR_TAG, e.message.orEmpty())
-        SnackbarManager.showMessage(context.getString(R.string.authentication_error))
     }
 }
 
