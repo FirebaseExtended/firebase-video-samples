@@ -1,5 +1,7 @@
 package com.notes.app.screens.sign_up
 
+import android.content.Context
+import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
@@ -23,20 +25,29 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.credentials.CredentialManager
+import androidx.credentials.exceptions.GetCredentialException
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.notes.app.ERROR_TAG
 import com.notes.app.R
+import com.notes.app.SnackbarManager
+import com.notes.app.screens.account_center.AuthenticationButton
 import com.notes.app.ui.theme.NotesTheme
 import com.notes.app.ui.theme.Purple40
+import kotlinx.coroutines.launch
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
@@ -45,6 +56,9 @@ fun SignUpScreen(
     modifier: Modifier = Modifier,
     viewModel: SignUpViewModel = hiltViewModel()
 ) {
+    val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
+
     val email = viewModel.email.collectAsState()
     val password = viewModel.password.collectAsState()
     val confirmPassword = viewModel.confirmPassword.collectAsState()
@@ -148,6 +162,50 @@ fun SignUpScreen(
                 modifier = modifier.padding(0.dp, 6.dp)
             )
         }
+
+        Spacer(modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp))
+
+        Text(text = stringResource(R.string.or), fontSize = 16.sp, color = Purple40)
+
+        Spacer(modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp))
+
+        AuthenticationButton(R.string.sign_up_with_google) {
+            coroutineScope.launch {
+                launchCredentialManager(openAndPopUp, viewModel, context)
+            }
+        }
+
+        LaunchedEffect(true) {
+            coroutineScope.launch {
+                launchCredentialManager(openAndPopUp, viewModel, context)
+            }
+        }
+    }
+}
+
+private suspend fun launchCredentialManager(
+    openAndPopUp: (String, String) -> Unit,
+    viewModel: SignUpViewModel,
+    context: Context
+) {
+    try {
+        val request = viewModel.getCredentialRequest(
+            webClientId = context.getString(R.string.default_web_client_id)
+        )
+
+        val result = CredentialManager.create(context).getCredential(
+            request = request,
+            context = context
+        )
+
+        viewModel.onSignUpWithGoogle(result.credential, openAndPopUp)
+    } catch (e: GetCredentialException) {
+        SnackbarManager.showMessage(context.getString(R.string.authentication_error))
+        Log.d(ERROR_TAG, e.message.orEmpty())
     }
 }
 

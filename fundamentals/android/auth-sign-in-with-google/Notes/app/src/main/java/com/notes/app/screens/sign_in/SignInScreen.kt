@@ -40,14 +40,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.credentials.CredentialManager
-import androidx.credentials.GetCredentialRequest
 import androidx.credentials.exceptions.GetCredentialException
-import androidx.credentials.exceptions.NoCredentialException
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.notes.app.ERROR_TAG
 import com.notes.app.R
 import com.notes.app.SnackbarManager
+import com.notes.app.screens.account_center.AuthenticationButton
 import com.notes.app.ui.theme.NotesTheme
 import com.notes.app.ui.theme.Purple40
 import kotlinx.coroutines.launch
@@ -147,15 +145,7 @@ fun SignInScreen(
 
         Spacer(modifier = Modifier
             .fillMaxWidth()
-            .padding(4.dp))
-
-        TextButton(onClick = { viewModel.onSignUpClick(openScreen) }) {
-            Text(text = stringResource(R.string.sign_up_description), fontSize = 16.sp, color = Purple40)
-        }
-
-        Spacer(modifier = Modifier
-            .fillMaxWidth()
-            .padding(4.dp))
+            .padding(8.dp))
 
         Text(text = stringResource(R.string.or), fontSize = 16.sp, color = Purple40)
 
@@ -163,47 +153,35 @@ fun SignInScreen(
             .fillMaxWidth()
             .padding(8.dp))
 
-        Button(
-            onClick = {
-                coroutineScope.launch {
-                    getCredentials(openAndPopUp, viewModel, context, showSnackbarOnError = true)
-                }
-            },
-            colors = ButtonDefaults.buttonColors(containerColor = Purple40),
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp, 0.dp)
-        ) {
-            Icon(
-                painter = painterResource(id = R.drawable.google_g),
-                modifier = Modifier.padding(horizontal = 16.dp),
-                contentDescription = "Google logo"
-            )
+        AuthenticationButton(buttonText = R.string.sign_in_with_google) {
+            coroutineScope.launch {
+                launchCredentialManager(openAndPopUp, viewModel, context)
+            }
+        }
 
-            Text(
-                text = stringResource(R.string.authenticate_with_google),
-                fontSize = 16.sp,
-                modifier = Modifier.padding(0.dp, 6.dp)
-            )
+        Spacer(modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp))
+
+        TextButton(onClick = { viewModel.onSignUpClick(openScreen) }) {
+            Text(text = stringResource(R.string.sign_up_description), fontSize = 16.sp, color = Purple40)
         }
 
         LaunchedEffect(true) {
             coroutineScope.launch {
-                getCredentials(openAndPopUp, viewModel, context, showSnackbarOnError = false)
+                launchCredentialManager(openAndPopUp, viewModel, context)
             }
         }
     }
 }
 
-private suspend fun getCredentials(
+private suspend fun launchCredentialManager(
     openAndPopUp: (String, String) -> Unit,
     viewModel: SignInViewModel,
-    context: Context,
-    showSnackbarOnError: Boolean
+    context: Context
 ) {
     try {
-        val request = getCredentialRequest(
-            setFilter = true,
+        val request = viewModel.getCredentialRequest(
             webClientId = context.getString(R.string.default_web_client_id)
         )
 
@@ -213,49 +191,10 @@ private suspend fun getCredentials(
         )
 
         viewModel.onSignInWithGoogle(result.credential, openAndPopUp)
-    } catch (e: NoCredentialException) {
-        getCredentialsWithoutFilter(openAndPopUp, viewModel, context, showSnackbarOnError)
     } catch (e: GetCredentialException) {
         Log.d(ERROR_TAG, e.message.orEmpty())
+        SnackbarManager.showMessage(context.getString(R.string.authentication_error))
     }
-}
-
-private suspend fun getCredentialsWithoutFilter(
-    openAndPopUp: (String, String) -> Unit,
-    viewModel: SignInViewModel,
-    context: Context,
-    showSnackbarOnError: Boolean
-) {
-    try {
-        val request = getCredentialRequest(
-            setFilter = false,
-            webClientId = context.getString(R.string.default_web_client_id)
-        )
-
-        val result = CredentialManager.create(context).getCredential(
-            request = request,
-            context = context
-        )
-
-        viewModel.onSignUpWithGoogle(result.credential, openAndPopUp)
-    } catch (e: GetCredentialException) {
-        if (showSnackbarOnError) {
-            SnackbarManager.showMessage(context.getString(R.string.authentication_error))
-        }
-
-        Log.d(ERROR_TAG, e.message.orEmpty())
-    }
-}
-
-private fun getCredentialRequest(setFilter: Boolean, webClientId: String): GetCredentialRequest {
-    val googleIdOption = GetGoogleIdOption.Builder()
-        .setFilterByAuthorizedAccounts(setFilter)
-        .setServerClientId(webClientId)
-        .build()
-
-    return GetCredentialRequest.Builder()
-        .addCredentialOption(googleIdOption)
-        .build()
 }
 
 @Preview(showBackground = true, showSystemUi = true)

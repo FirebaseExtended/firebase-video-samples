@@ -3,6 +3,8 @@ package com.notes.app.screens.sign_in
 import android.util.Log
 import androidx.credentials.Credential
 import androidx.credentials.CustomCredential
+import androidx.credentials.GetCredentialRequest
+import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential.Companion.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
 import com.notes.app.ERROR_TAG
@@ -37,6 +39,17 @@ class SignInViewModel @Inject constructor(
         _password.value = newPassword
     }
 
+    fun getCredentialRequest(webClientId: String): GetCredentialRequest {
+        val googleIdOption = GetGoogleIdOption.Builder()
+            .setFilterByAuthorizedAccounts(true)
+            .setServerClientId(webClientId)
+            .build()
+
+        return GetCredentialRequest.Builder()
+            .addCredentialOption(googleIdOption)
+            .build()
+    }
+
     fun onSignInClick(openAndPopUp: (String, String) -> Unit) {
         launchCatching {
             accountService.signInWithEmail(_email.value, _password.value)
@@ -49,18 +62,6 @@ class SignInViewModel @Inject constructor(
             if (credential is CustomCredential && credential.type == TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
                 val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
                 accountService.signInWithGoogle(googleIdTokenCredential.idToken)
-                openAndPopUp(NOTES_LIST_SCREEN, SIGN_IN_SCREEN)
-            } else {
-                Log.e(ERROR_TAG, UNEXPECTED_CREDENTIAL)
-            }
-        }
-    }
-
-    fun onSignUpWithGoogle(credential: Credential, openAndPopUp: (String, String) -> Unit) {
-        launchCatching {
-            if (credential is CustomCredential && credential.type == TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
-                val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
-                accountService.linkAccountWithGoogle(googleIdTokenCredential.idToken)
                 openAndPopUp(NOTES_LIST_SCREEN, SIGN_IN_SCREEN)
             } else {
                 Log.e(ERROR_TAG, UNEXPECTED_CREDENTIAL)
