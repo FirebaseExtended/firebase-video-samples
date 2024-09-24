@@ -6,7 +6,7 @@
     <string name="confirm_password">Confirm password</string>
     <string name="sign_in">Sign in</string>
     <string name="sign_in_with_google">Sign in with Google</string>
-    <string name="authentication_error">No Google accounts found on this device</string>
+    <string name="no_accounts_error">No Google accounts found on this device</string>
     <string name="sign_up">Sign up</string>
     <string name="sign_up_with_google">Sign up with Google</string>
     <string name="sign_up_description">Don\'t have an account? Click here to Sign Up!</string>

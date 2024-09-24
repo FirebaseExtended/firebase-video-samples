@@ -169,14 +169,14 @@ fun SignUpScreen(
 
         AuthenticationButton(R.string.sign_up_with_google) {
             coroutineScope.launch {
-                viewModel.launchCredentialManager(context, showError = true) { result ->
+                viewModel.launchCredManButtonUI(context) { result ->
                     viewModel.onSignUpWithGoogle(result, openAndPopUp)
                 }
             }
         }
 
         LaunchedEffect(Unit) {
-            viewModel.launchCredentialManager(context, showError = false) { result ->
+            viewModel.launchCredManBottomSheet(context) { result ->
                 viewModel.onSignUpWithGoogle(result, openAndPopUp)
             }
         }
