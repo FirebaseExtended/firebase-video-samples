@@ -20,8 +20,8 @@ import androidx.navigation.navArgument
 import com.notes.app.screens.account_center.AccountCenterScreen
 import com.notes.app.screens.note.NoteScreen
 import com.notes.app.screens.notes_list.NotesListScreen
-import com.notes.app.screens.sign_in.SignInScreen
-import com.notes.app.screens.sign_up.SignUpScreen
+import com.notes.app.screens.authentication.sign_in.SignInScreen
+import com.notes.app.screens.authentication.sign_up.SignUpScreen
 import com.notes.app.screens.splash.SplashScreen
 import com.notes.app.ui.theme.NotesTheme
 import kotlinx.coroutines.CoroutineScope

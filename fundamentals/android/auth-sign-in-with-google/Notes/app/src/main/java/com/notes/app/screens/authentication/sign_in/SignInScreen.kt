@@ -1,7 +1,5 @@
-package com.notes.app.screens.sign_in
+package com.notes.app.screens.authentication.sign_in
 
-import android.content.Context
-import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
@@ -39,13 +37,8 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.credentials.CredentialManager
-import androidx.credentials.exceptions.GetCredentialException
-import androidx.credentials.exceptions.NoCredentialException
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.notes.app.ERROR_TAG
 import com.notes.app.R
-import com.notes.app.SnackbarManager
 import com.notes.app.screens.account_center.AuthenticationButton
 import com.notes.app.ui.theme.NotesTheme
 import com.notes.app.ui.theme.Purple40
@@ -156,7 +149,9 @@ fun SignInScreen(
 
         AuthenticationButton(buttonText = R.string.sign_in_with_google) {
             coroutineScope.launch {
-                launchCredentialManager(openAndPopUp, viewModel, context, showError = true)
+                viewModel.launchCredentialManager(context, showError = true) { result ->
+                    viewModel.onSignInWithGoogle(result, openAndPopUp)
+                }
             }
         }
 
@@ -169,34 +164,10 @@ fun SignInScreen(
         }
 
         LaunchedEffect(Unit) {
-            coroutineScope.launch {
-                launchCredentialManager(openAndPopUp, viewModel, context, showError = false)
+            viewModel.launchCredentialManager(context, showError = false) { result ->
+                viewModel.onSignInWithGoogle(result, openAndPopUp)
             }
         }
-    }
-}
-
-private suspend fun launchCredentialManager(
-    openAndPopUp: (String, String) -> Unit,
-    viewModel: SignInViewModel,
-    context: Context,
-    showError: Boolean
-) {
-    try {
-        val request = viewModel.getCredentialRequest(
-            webClientId = context.getString(R.string.default_web_client_id)
-        )
-
-        val result = CredentialManager.create(context).getCredential(
-            request = request,
-            context = context
-        )
-
-        viewModel.onSignInWithGoogle(result.credential, openAndPopUp)
-    } catch (e: NoCredentialException) {
-        if (showError) SnackbarManager.showMessage(context.getString(R.string.authentication_error))
-    } catch (e: GetCredentialException) {
-        Log.d(ERROR_TAG, e.message.orEmpty())
     }
 }
 

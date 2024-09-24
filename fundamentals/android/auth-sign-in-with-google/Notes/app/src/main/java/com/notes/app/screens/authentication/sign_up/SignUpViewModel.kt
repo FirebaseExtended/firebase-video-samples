@@ -1,10 +1,8 @@
-package com.notes.app.screens.sign_up
+package com.notes.app.screens.authentication.sign_up
 
 import android.util.Log
 import androidx.credentials.Credential
 import androidx.credentials.CustomCredential
-import androidx.credentials.GetCredentialRequest
-import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential.Companion.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
 import com.notes.app.ERROR_TAG
@@ -12,7 +10,9 @@ import com.notes.app.NOTES_LIST_SCREEN
 import com.notes.app.SIGN_UP_SCREEN
 import com.notes.app.UNEXPECTED_CREDENTIAL
 import com.notes.app.model.service.AccountService
-import com.notes.app.screens.NotesAppViewModel
+import com.notes.app.screens.authentication.AuthenticationViewModel
+import com.notes.app.screens.authentication.isValidEmail
+import com.notes.app.screens.authentication.isValidPassword
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -22,7 +22,7 @@ import javax.inject.Inject
 @HiltViewModel
 class SignUpViewModel @Inject constructor(
     private val accountService: AccountService
-) : NotesAppViewModel() {
+) : AuthenticationViewModel() {
     // Backing properties to avoid state updates from other classes
     private val _email = MutableStateFlow("")
     val email: StateFlow<String> = _email.asStateFlow()
@@ -43,17 +43,6 @@ class SignUpViewModel @Inject constructor(
 
     fun updateConfirmPassword(newConfirmPassword: String) {
         _confirmPassword.value = newConfirmPassword
-    }
-
-    fun getCredentialRequest(webClientId: String): GetCredentialRequest {
-        val googleIdOption = GetGoogleIdOption.Builder()
-            .setFilterByAuthorizedAccounts(false)
-            .setServerClientId(webClientId)
-            .build()
-
-        return GetCredentialRequest.Builder()
-            .addCredentialOption(googleIdOption)
-            .build()
     }
 
     fun onSignUpClick(openAndPopUp: (String, String) -> Unit) {
