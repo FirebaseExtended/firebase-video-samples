@@ -9,7 +9,7 @@ import kotlinx.coroutines.launch
 
 @Stable
 class NotesAppState(
-    val snackbarHostState: SnackbarHostState,
+    private val snackbarHostState: SnackbarHostState,
     val navController: NavHostController,
     private val snackbarManager: SnackbarManager,
     coroutineScope: CoroutineScope

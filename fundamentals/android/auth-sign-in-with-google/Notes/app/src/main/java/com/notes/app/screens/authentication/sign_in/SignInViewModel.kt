@@ -11,7 +11,7 @@ import com.notes.app.NOTES_LIST_SCREEN
 import com.notes.app.SIGN_UP_SCREEN
 import com.notes.app.UNEXPECTED_CREDENTIAL
 import com.notes.app.model.service.AccountService
-import com.notes.app.screens.authentication.AuthenticationViewModel
+import com.notes.app.screens.NotesAppViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -21,7 +21,7 @@ import javax.inject.Inject
 @HiltViewModel
 class SignInViewModel @Inject constructor(
     private val accountService: AccountService
-) : AuthenticationViewModel() {
+) : NotesAppViewModel() {
     // Backing properties to avoid state updates from other classes
     private val _email = MutableStateFlow("")
     val email: StateFlow<String> = _email.asStateFlow()

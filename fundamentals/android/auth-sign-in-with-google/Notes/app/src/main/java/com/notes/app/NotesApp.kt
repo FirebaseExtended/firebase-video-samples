@@ -55,10 +55,11 @@ fun rememberAppState(
     navController: NavHostController = rememberNavController(),
     snackbarManager: SnackbarManager = SnackbarManager,
     coroutineScope: CoroutineScope = rememberCoroutineScope()
-) =
-    remember(snackbarHostState, navController, snackbarManager, coroutineScope) {
+): NotesAppState {
+    return remember(snackbarHostState, navController, snackbarManager, coroutineScope) {
         NotesAppState(snackbarHostState, navController, snackbarManager, coroutineScope)
     }
+}
 
 fun NavGraphBuilder.notesGraph(appState: NotesAppState) {
     composable(NOTES_LIST_SCREEN) {

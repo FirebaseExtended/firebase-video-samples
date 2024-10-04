@@ -25,7 +25,6 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -38,10 +37,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.notes.app.R
-import com.notes.app.screens.account_center.AuthenticationButton
+import com.notes.app.screens.authentication.AuthenticationButton
+import com.notes.app.screens.authentication.launchCredManBottomSheet
 import com.notes.app.ui.theme.NotesTheme
 import com.notes.app.ui.theme.Purple40
-import kotlinx.coroutines.launch
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
@@ -51,7 +50,6 @@ fun SignUpScreen(
     viewModel: SignUpViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
-    val coroutineScope = rememberCoroutineScope()
 
     val email = viewModel.email.collectAsState()
     val password = viewModel.password.collectAsState()
@@ -167,16 +165,12 @@ fun SignUpScreen(
             .fillMaxWidth()
             .padding(8.dp))
 
-        AuthenticationButton(R.string.sign_up_with_google) {
-            coroutineScope.launch {
-                viewModel.launchCredManButtonUI(context) { result ->
-                    viewModel.onSignUpWithGoogle(result, openAndPopUp)
-                }
-            }
+        AuthenticationButton(R.string.sign_up_with_google) { credential ->
+            viewModel.onSignUpWithGoogle(credential, openAndPopUp)
         }
 
         LaunchedEffect(Unit) {
-            viewModel.launchCredManBottomSheet(context) { result ->
+            launchCredManBottomSheet(context) { result ->
                 viewModel.onSignUpWithGoogle(result, openAndPopUp)
             }
         }

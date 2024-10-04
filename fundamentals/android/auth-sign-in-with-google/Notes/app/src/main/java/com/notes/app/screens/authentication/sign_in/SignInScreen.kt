@@ -26,7 +26,6 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -39,10 +38,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.notes.app.R
-import com.notes.app.screens.account_center.AuthenticationButton
+import com.notes.app.screens.authentication.AuthenticationButton
+import com.notes.app.screens.authentication.launchCredManBottomSheet
 import com.notes.app.ui.theme.NotesTheme
 import com.notes.app.ui.theme.Purple40
-import kotlinx.coroutines.launch
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
@@ -53,7 +52,6 @@ fun SignInScreen(
     viewModel: SignInViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
-    val coroutineScope = rememberCoroutineScope()
 
     val email = viewModel.email.collectAsState()
     val password = viewModel.password.collectAsState()
@@ -147,12 +145,8 @@ fun SignInScreen(
             .fillMaxWidth()
             .padding(8.dp))
 
-        AuthenticationButton(buttonText = R.string.sign_in_with_google) {
-            coroutineScope.launch {
-                viewModel.launchCredManButtonUI(context) { result ->
-                    viewModel.onSignInWithGoogle(result, openAndPopUp)
-                }
-            }
+        AuthenticationButton(buttonText = R.string.sign_in_with_google) { credential ->
+            viewModel.onSignInWithGoogle(credential, openAndPopUp)
         }
 
         Spacer(modifier = Modifier
@@ -164,7 +158,7 @@ fun SignInScreen(
         }
 
         LaunchedEffect(Unit) {
-            viewModel.launchCredManBottomSheet(context) { result ->
+            launchCredManBottomSheet(context) { result ->
                 viewModel.onSignInWithGoogle(result, openAndPopUp)
             }
         }
