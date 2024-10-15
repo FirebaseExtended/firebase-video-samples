@@ -94,12 +94,8 @@ fun AccountCenterScreen(
                 .padding(12.dp))
 
             if (user.isAnonymous) {
-                AccountCenterCard(stringResource(R.string.sign_in), Icons.Filled.Face, Modifier.card()) {
+                AccountCenterCard(stringResource(R.string.authenticate), Icons.Filled.AccountCircle, Modifier.card()) {
                     viewModel.onSignInClick(restartApp)
-                }
-
-                AccountCenterCard(stringResource(R.string.sign_up), Icons.Filled.AccountCircle, Modifier.card()) {
-                    viewModel.onSignUpClick(restartApp)
                 }
             } else {
                 ExitAppCard { viewModel.onSignOutClick(restartApp) }

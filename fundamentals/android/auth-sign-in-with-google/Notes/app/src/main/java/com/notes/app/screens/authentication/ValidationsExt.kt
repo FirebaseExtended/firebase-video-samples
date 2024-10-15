@@ -1,4 +1,4 @@
-package com.notes.app.screens.sign_up
+package com.notes.app.screens.authentication
 
 import android.util.Patterns
 import java.util.regex.Pattern

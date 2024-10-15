@@ -1,7 +1,6 @@
 package com.notes.app.screens.account_center
 
 import com.notes.app.SIGN_IN_SCREEN
-import com.notes.app.SIGN_UP_SCREEN
 import com.notes.app.SPLASH_SCREEN
 import com.notes.app.model.User
 import com.notes.app.model.service.AccountService
@@ -34,8 +33,6 @@ class AccountCenterViewModel @Inject constructor(
     }
 
     fun onSignInClick(openScreen: (String) -> Unit) = openScreen(SIGN_IN_SCREEN)
-
-    fun onSignUpClick(openScreen: (String) -> Unit) = openScreen(SIGN_UP_SCREEN)
 
     fun onSignOutClick(restartApp: (String) -> Unit) {
         launchCatching {
