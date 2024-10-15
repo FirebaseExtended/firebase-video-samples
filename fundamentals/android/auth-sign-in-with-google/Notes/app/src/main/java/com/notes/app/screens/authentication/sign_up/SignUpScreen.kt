@@ -55,6 +55,12 @@ fun SignUpScreen(
     val password = viewModel.password.collectAsState()
     val confirmPassword = viewModel.confirmPassword.collectAsState()
 
+    LaunchedEffect(Unit) {
+        launchCredManBottomSheet(context) { result ->
+            viewModel.onSignUpWithGoogle(result, openAndPopUp)
+        }
+    }
+
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -167,12 +173,6 @@ fun SignUpScreen(
 
         AuthenticationButton(R.string.sign_up_with_google) { credential ->
             viewModel.onSignUpWithGoogle(credential, openAndPopUp)
-        }
-
-        LaunchedEffect(Unit) {
-            launchCredManBottomSheet(context) { result ->
-                viewModel.onSignUpWithGoogle(result, openAndPopUp)
-            }
         }
     }
 }

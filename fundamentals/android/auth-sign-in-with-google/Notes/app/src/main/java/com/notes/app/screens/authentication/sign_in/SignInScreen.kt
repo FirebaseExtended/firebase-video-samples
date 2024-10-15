@@ -46,7 +46,7 @@ import com.notes.app.ui.theme.Purple40
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 fun SignInScreen(
-    openScreen: (String) -> Unit,
+    onSignUpClicked: (String) -> Unit,
     openAndPopUp: (String, String) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: SignInViewModel = hiltViewModel()
@@ -55,6 +55,12 @@ fun SignInScreen(
 
     val email = viewModel.email.collectAsState()
     val password = viewModel.password.collectAsState()
+
+    LaunchedEffect(Unit) {
+        launchCredManBottomSheet(context) { result ->
+            viewModel.onSignInWithGoogle(result, openAndPopUp)
+        }
+    }
 
     Column(
         modifier = modifier
@@ -153,14 +159,8 @@ fun SignInScreen(
             .fillMaxWidth()
             .padding(8.dp))
 
-        TextButton(onClick = { viewModel.onSignUpClick(openScreen) }) {
+        TextButton(onClick = { viewModel.onSignUpClick(onSignUpClicked) }) {
             Text(text = stringResource(R.string.sign_up_description), fontSize = 16.sp, color = Purple40)
-        }
-
-        LaunchedEffect(Unit) {
-            launchCredManBottomSheet(context) { result ->
-                viewModel.onSignInWithGoogle(result, openAndPopUp)
-            }
         }
     }
 }
