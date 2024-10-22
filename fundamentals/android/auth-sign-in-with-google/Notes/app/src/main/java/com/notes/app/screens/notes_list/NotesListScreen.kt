@@ -34,6 +34,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.notes.app.ACCOUNT_CENTER_SCREEN
+import com.notes.app.NOTE_DEFAULT_ID
+import com.notes.app.NOTE_ID
+import com.notes.app.NOTE_SCREEN
 import com.notes.app.R
 import com.notes.app.model.Note
 import com.notes.app.model.getTitle
@@ -54,7 +58,7 @@ fun NotesListScreen(
     Scaffold(
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { viewModel.onAddClick(openScreen) },
+                onClick = { openScreen("$NOTE_SCREEN?$NOTE_ID=$NOTE_DEFAULT_ID") },
                 modifier = modifier.padding(16.dp),
                 containerColor = Purple40,
                 shape = RoundedCornerShape(16.dp)
@@ -71,7 +75,7 @@ fun NotesListScreen(
             TopAppBar(
                 title = { Text(stringResource(R.string.app_name)) },
                 actions = {
-                    IconButton(onClick = { viewModel.onAccountCenterClick(openScreen) }) {
+                    IconButton(onClick = { openScreen(ACCOUNT_CENTER_SCREEN) }) {
                         Icon(Icons.Filled.Person, "Account center")
                     }
                 }
@@ -90,7 +94,7 @@ fun NotesListScreen(
                     items(notes, key = { it.id }) { noteItem ->
                         NoteItem(
                             note = noteItem,
-                            onActionClick = { viewModel.onNoteClick(openScreen, noteItem) }
+                            onActionClick = { openScreen("$NOTE_SCREEN?$NOTE_ID=${noteItem.id}") }
                         )
                     }
                 }

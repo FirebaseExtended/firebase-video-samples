@@ -38,6 +38,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.notes.app.R
+import com.notes.app.SIGN_UP_SCREEN
 import com.notes.app.screens.authentication.AuthenticationButton
 import com.notes.app.screens.authentication.launchCredManBottomSheet
 import com.notes.app.ui.theme.NotesTheme
@@ -159,7 +160,7 @@ fun SignInScreen(
             .fillMaxWidth()
             .padding(8.dp))
 
-        TextButton(onClick = { viewModel.onSignUpClick(onSignUpClicked) }) {
+        TextButton(onClick = { onSignUpClicked(SIGN_UP_SCREEN) }) {
             Text(text = stringResource(R.string.sign_up_description), fontSize = 16.sp, color = Purple40)
         }
     }
