@@ -47,7 +47,7 @@ import com.notes.app.ui.theme.Purple40
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 fun SignInScreen(
-    onSignUpClicked: (String) -> Unit,
+    openScreen: (String) -> Unit,
     openAndPopUp: (String, String) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: SignInViewModel = hiltViewModel()
@@ -160,7 +160,7 @@ fun SignInScreen(
             .fillMaxWidth()
             .padding(8.dp))
 
-        TextButton(onClick = { onSignUpClicked(SIGN_UP_SCREEN) }) {
+        TextButton(onClick = { openScreen(SIGN_UP_SCREEN) }) {
             Text(text = stringResource(R.string.sign_up_description), fontSize = 16.sp, color = Purple40)
         }
     }
