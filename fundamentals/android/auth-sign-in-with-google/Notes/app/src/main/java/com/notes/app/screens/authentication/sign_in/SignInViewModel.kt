@@ -8,7 +8,6 @@ import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential.Co
 import com.notes.app.ERROR_TAG
 import com.notes.app.SIGN_IN_SCREEN
 import com.notes.app.NOTES_LIST_SCREEN
-import com.notes.app.SIGN_UP_SCREEN
 import com.notes.app.UNEXPECTED_CREDENTIAL
 import com.notes.app.model.service.AccountService
 import com.notes.app.screens.NotesAppViewModel
@@ -54,9 +53,5 @@ class SignInViewModel @Inject constructor(
                 Log.e(ERROR_TAG, UNEXPECTED_CREDENTIAL)
             }
         }
-    }
-
-    fun onSignUpClick(openScreen: (String) -> Unit) {
-        openScreen(SIGN_UP_SCREEN)
     }
 }
