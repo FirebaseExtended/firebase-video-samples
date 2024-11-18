@@ -9,7 +9,7 @@
     "firebase": "firebase emulators:start --only auth,firestore,hosting --import=./offline-seed --export-on-exit --project calmban-dev"
   },
   "dependencies": {
-    "firebase": "^9.6.10",
+    "firebase": "^10.9.0",
     "preact": "^10.5.15",
     "preact-router": "^4.0.1"
   },
