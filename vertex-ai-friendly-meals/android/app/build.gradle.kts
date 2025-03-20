@@ -61,6 +61,7 @@ dependencies {
     ksp(libs.hilt.android.compiler)
 
     implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.vertexai)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
