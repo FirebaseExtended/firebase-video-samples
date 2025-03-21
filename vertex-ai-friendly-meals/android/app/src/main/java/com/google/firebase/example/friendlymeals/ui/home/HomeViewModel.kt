@@ -17,11 +17,17 @@ class HomeViewModel @Inject constructor(
     val recipe: StateFlow<Recipe?>
         get() = _recipe.asStateFlow()
 
-    fun generateRecipe(ingredients: String, cuisines: String) {
+    private val _loading = MutableStateFlow(false)
+    val loading: StateFlow<Boolean>
+        get() = _loading.asStateFlow()
+
+    fun generateRecipe(ingredients: String, notes: String) {
         launchCatching {
-            val generatedRecipe = aiRepository.generateRecipe(ingredients, cuisines)
+            _loading.value = true
+            val generatedRecipe = aiRepository.generateRecipe(ingredients, notes)
             val recipeImage = aiRepository.generateRecipeImage(generatedRecipe)
 
+            _loading.value = false
             _recipe.value = Recipe(
                 description = generatedRecipe,
                 image = recipeImage

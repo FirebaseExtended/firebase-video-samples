@@ -11,9 +11,9 @@ class AIRemoteDataSource @Inject constructor(
     private val generativeModel: GenerativeModel,
     private val imagenModel: ImagenModel,
 ) {
-    suspend fun generateRecipe(ingredients: String, cuisines: String): String {
-        val prompt = "Based on this ingredients list: $ingredients, " +
-                "please give me one recipe that fits these cuisines: $cuisines."
+    suspend fun generateRecipe(ingredients: String, notes: String): String {
+        var prompt = "Based on this ingredients list: $ingredients, please give me one recipe."
+        if (notes.isNotBlank()) prompt += "Please take in consideration these notes: $notes."
         val response = generativeModel.generateContent(prompt)
         return response.text.orEmpty()
     }

@@ -63,6 +63,9 @@ dependencies {
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.vertexai)
 
+    //Library to handle Markdown in Compose
+    implementation(libs.richtext.commonmark)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

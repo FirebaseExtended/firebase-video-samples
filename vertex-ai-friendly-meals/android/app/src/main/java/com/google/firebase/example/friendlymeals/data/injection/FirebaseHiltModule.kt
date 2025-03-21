@@ -29,7 +29,7 @@ object FirebaseHiltModule {
     @Provides fun imagenModel(): ImagenModel {
         val generationConfig = imagenGenerationConfig {
             numberOfImages = 1
-            aspectRatio = ImagenAspectRatio.PORTRAIT_3x4
+            aspectRatio = ImagenAspectRatio.SQUARE_1x1
             imageFormat = ImagenImageFormat.png()
         }
 

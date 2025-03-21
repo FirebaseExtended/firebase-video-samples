@@ -14,7 +14,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonColors
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -33,16 +33,21 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.google.firebase.example.friendlymeals.R
 import com.google.firebase.example.friendlymeals.data.model.Recipe
+import com.google.firebase.example.friendlymeals.ui.shared.LoadingIndicator
 import com.google.firebase.example.friendlymeals.ui.theme.DarkFirebaseYellow
 import com.google.firebase.example.friendlymeals.ui.theme.FriendlyMealsTheme
 import com.google.firebase.example.friendlymeals.ui.theme.LightFirebaseYellow
 import com.google.firebase.example.friendlymeals.ui.theme.MediumFirebaseYellow
+import com.halilibo.richtext.commonmark.Markdown
+import com.halilibo.richtext.ui.BasicRichText
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -53,10 +58,12 @@ fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel()
 ) {
     val recipe = viewModel.recipe.collectAsStateWithLifecycle()
+    val loading = viewModel.loading.collectAsStateWithLifecycle()
 
     HomeScreenContent(
         onGenerateClick = viewModel::generateRecipe,
-        recipe = recipe.value
+        recipe = recipe.value,
+        loading = loading.value
     )
 }
 
@@ -65,7 +72,8 @@ fun HomeScreen(
 fun HomeScreenContent(
     modifier: Modifier = Modifier,
     onGenerateClick: (String, String) -> Unit,
-    recipe: Recipe?
+    recipe: Recipe?,
+    loading: Boolean
 ) {
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
 
@@ -82,6 +90,20 @@ fun HomeScreenContent(
 
             Spacer(modifier = Modifier.size(16.dp))
 
+            if (recipe == null && loading) {
+                Box(
+                    modifier = modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 8.dp)
+                        .clip(RoundedCornerShape(48f))
+                        .border(2.dp, DarkFirebaseYellow, RoundedCornerShape(48f))
+                        .background(MediumFirebaseYellow)
+                        .padding(16.dp)
+                ) {
+                    LoadingIndicator()
+                }
+            }
+
             if (recipe != null) RecipeBox(recipe = recipe)
         }
     }
@@ -93,7 +115,7 @@ fun IngredientsBox(
     onGenerateClick: (String, String) -> Unit,
 ) {
     var ingredients by remember { mutableStateOf("") }
-    var cuisines by remember { mutableStateOf("") }
+    var notes by remember { mutableStateOf("") }
 
     Box(
         modifier = modifier
@@ -119,17 +141,17 @@ fun IngredientsBox(
                     unfocusedContainerColor = LightFirebaseYellow
                 ),
                 placeholder = {
-                    Text(text = "Enter your list of ingredients")
+                    Text(text = stringResource(R.string.ingredients_hint))
                 }
             )
 
             Spacer(modifier = Modifier.size(16.dp))
 
             TextField(
-                value = cuisines,
-                onValueChange = { cuisines = it },
+                value = notes,
+                onValueChange = { notes = it },
                 modifier = Modifier
-                    .fillMaxWidth().height(72.dp),
+                    .fillMaxWidth().height(128.dp),
                 shape = RoundedCornerShape(24.dp),
                 colors = TextFieldDefaults.colors(
                     focusedIndicatorColor = Color.Transparent,
@@ -139,7 +161,7 @@ fun IngredientsBox(
                     unfocusedContainerColor = LightFirebaseYellow
                 ),
                 placeholder = {
-                    Text(text = "Enter preferred cuisines")
+                    Text(text = stringResource(R.string.notes_hint))
                 }
             )
 
@@ -147,15 +169,10 @@ fun IngredientsBox(
 
             Button(
                 modifier = Modifier.fillMaxWidth(),
-                colors = ButtonColors(
-                    containerColor = DarkFirebaseYellow,
-                    contentColor = Color.White,
-                    disabledContainerColor = LightFirebaseYellow,
-                    disabledContentColor = Color.Gray
-                ),
-                onClick = { onGenerateClick(ingredients, cuisines) }
+                colors = ButtonDefaults.buttonColors(containerColor = DarkFirebaseYellow),
+                onClick = { onGenerateClick(ingredients, notes) }
             ) {
-                Text("Generate recipe", fontSize = 16.sp)
+                Text(stringResource(R.string.generate_recipe_button), fontSize = 16.sp)
             }
         }
     }
@@ -187,7 +204,9 @@ fun RecipeBox(
 
             Spacer(modifier = Modifier.size(16.dp))
 
-            Text(text = recipe.description)
+            BasicRichText {
+                Markdown(recipe.description)
+            }
         }
     }
 }
@@ -198,7 +217,8 @@ fun HomeScreenPreview() {
     FriendlyMealsTheme(darkTheme = true) {
         HomeScreenContent(
             onGenerateClick = { _, _ -> },
-            recipe = Recipe()
+            recipe = Recipe(),
+            loading = false
         )
     }
 }

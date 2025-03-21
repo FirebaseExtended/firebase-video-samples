@@ -1,3 +1,6 @@
 <resources>
     <string name="app_name">Friendly Meals</string>
+    <string name="ingredients_hint">Enter your list of ingredients</string>
+    <string name="notes_hint">Any notes or preferred cuisines?</string>
+    <string name="generate_recipe_button">Generate recipe</string>
 </resources>
