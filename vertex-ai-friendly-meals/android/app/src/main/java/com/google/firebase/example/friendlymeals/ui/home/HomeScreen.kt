@@ -90,7 +90,7 @@ fun HomeScreenContent(
 
             Spacer(modifier = Modifier.size(16.dp))
 
-            if (recipe == null && loading) {
+            if (loading) {
                 Box(
                     modifier = modifier
                         .fillMaxWidth()
