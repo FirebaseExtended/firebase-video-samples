@@ -12,17 +12,13 @@ class AIRemoteDataSource @Inject constructor(
     private val imagenModel: ImagenModel,
 ) {
     suspend fun generateRecipe(ingredients: String, notes: String): String {
-        var prompt = "Based on this ingredients list: $ingredients, please give me one recipe."
-        if (notes.isNotBlank()) {
-          prompt += "Please take in consideration these notes: $notes."
-        }
-        val response = generativeModel.generateContent(prompt)
-        return response.text.orEmpty()
+        //TODO: Call Gemini API to generate recipe based on ingredients and notes
+        return ""
     }
 
     @OptIn(PublicPreviewAPI::class)
     suspend fun generateRecipeImage(recipe: String): Bitmap {
-        val imageResponse = imagenModel.generateImages(recipe)
-        return imageResponse.images.first().asBitmap()
+        //TODO: call Imagen API to generate recipe image based on recipe returned by Gemini
+        return Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)
     }
 }

@@ -170,7 +170,7 @@ fun IngredientsBox(
             Button(
                 modifier = Modifier.fillMaxWidth(),
                 colors = ButtonDefaults.buttonColors(containerColor = DarkFirebaseYellow),
-                onClick = { onGenerateClick(ingredients, notes) }
+                onClick = {} //TODO: Add call to ViewModel
             ) {
                 Text(stringResource(R.string.generate_recipe_button), fontSize = 16.sp)
             }
@@ -196,17 +196,7 @@ fun RecipeBox(
             modifier = Modifier.fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            val image = recipe.image?.asImageBitmap()
-
-            if (image != null) {
-                Image(bitmap = image, "Recipe image")
-            }
-
-            Spacer(modifier = Modifier.size(16.dp))
-
-            BasicRichText {
-                Markdown(recipe.description)
-            }
+            //TODO: Add recipe image and description UI elements
         }
     }
 }

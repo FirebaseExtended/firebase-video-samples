@@ -23,15 +23,7 @@ class HomeViewModel @Inject constructor(
 
     fun generateRecipe(ingredients: String, notes: String) {
         launchCatching {
-            _loading.value = true
-            val generatedRecipe = aiRepository.generateRecipe(ingredients, notes)
-            val recipeImage = aiRepository.generateRecipeImage(generatedRecipe)
-
-            _loading.value = false
-            _recipe.value = Recipe(
-                description = generatedRecipe,
-                image = recipeImage
-            )
+            //TODO: Add call to repository
         }
     }
 }
