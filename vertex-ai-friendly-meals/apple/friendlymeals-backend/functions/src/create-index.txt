@@ -1,0 +1,1 @@
+gcloud firestore indexes composite create --project=peterfriese-friendly-meals-04 --collection-group=recipes --query-scope=COLLECTION --field-config=vector-config='{"dimension":"768","flat": "{}"}',field-path=ingredientsEmbeddings

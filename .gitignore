@@ -58,3 +58,4 @@ GoogleService-Info.plist
 google-services.json
 .idea
 local.properties
+/vertex-ai-friendly-meals/apple/service-accounts
