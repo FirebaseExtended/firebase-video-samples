@@ -3,6 +3,8 @@ package com.google.firebase.example.friendlymeals.ui.home
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -16,6 +18,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -33,6 +36,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -127,23 +131,40 @@ fun IngredientsBox(
             .padding(16.dp)
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
-            TextField(
-                value = ingredients,
-                onValueChange = { ingredients = it },
-                modifier = Modifier
-                    .fillMaxWidth().height(128.dp),
-                shape = RoundedCornerShape(24.dp),
-                colors = TextFieldDefaults.colors(
-                    focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent,
-                    disabledIndicatorColor = Color.Transparent,
-                    focusedContainerColor = LightFirebaseYellow,
-                    unfocusedContainerColor = LightFirebaseYellow
-                ),
-                placeholder = {
-                    Text(text = stringResource(R.string.ingredients_hint))
+            Box {
+                TextField(
+                    value = ingredients,
+                    onValueChange = { ingredients = it },
+                    modifier = Modifier
+                        .fillMaxWidth().height(128.dp),
+                    shape = RoundedCornerShape(24.dp),
+                    colors = TextFieldDefaults.colors(
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent,
+                        disabledIndicatorColor = Color.Transparent,
+                        focusedContainerColor = LightFirebaseYellow,
+                        unfocusedContainerColor = LightFirebaseYellow
+                    ),
+                    placeholder = {
+                        Text(text = stringResource(R.string.ingredients_hint))
+                    }
+                )
+
+                if (ingredients.isBlank()) {
+                    Icon(
+                        painter = painterResource(R.drawable.ic_camera),
+                        contentDescription = "Camera Icon",
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .clickable(
+                                interactionSource = remember { MutableInteractionSource() },
+                                indication = null,
+                                onClick = {  }
+                            )
+                            .padding(end = 12.dp, top = 12.dp)
+                    )
                 }
-            )
+            }
 
             Spacer(modifier = Modifier.size(16.dp))
 
