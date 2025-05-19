@@ -1,5 +1,9 @@
 package com.google.firebase.example.friendlymeals.ui.home
 
+import android.Manifest
+import android.content.Context
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -26,6 +30,7 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -36,6 +41,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -61,14 +67,31 @@ object HomeRoute
 fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel()
 ) {
+    val tempFileUrl = viewModel.tempFileUrl.collectAsStateWithLifecycle()
     val recipe = viewModel.recipe.collectAsStateWithLifecycle()
     val loading = viewModel.loading.collectAsStateWithLifecycle()
 
+    val context = LocalContext.current
+    val cameraLauncher = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { isImageSaved ->
+        if (isImageSaved) {
+            viewModel.onImageSaved(context)
+        } else {
+            viewModel.onImageCancelled()
+        }
+    }
+
     HomeScreenContent(
         onGenerateClick = viewModel::generateRecipe,
+        onCameraPermissionGranted = viewModel::onCameraPermissionGranted,
         recipe = recipe.value,
         loading = loading.value
     )
+
+    LaunchedEffect(key1 = tempFileUrl.value) {
+        tempFileUrl.value?.let {
+            cameraLauncher.launch(it)
+        }
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -76,6 +99,7 @@ fun HomeScreen(
 fun HomeScreenContent(
     modifier: Modifier = Modifier,
     onGenerateClick: (String, String) -> Unit,
+    onCameraPermissionGranted: (Context) -> Unit = {},
     recipe: Recipe?,
     loading: Boolean
 ) {
@@ -90,7 +114,10 @@ fun HomeScreenContent(
             .padding(innerPadding)
             .verticalScroll(rememberScrollState())
         ) {
-            IngredientsBox(onGenerateClick = onGenerateClick)
+            IngredientsBox(
+                onGenerateClick = onGenerateClick,
+                onCameraPermissionGranted = onCameraPermissionGranted
+            )
 
             Spacer(modifier = Modifier.size(16.dp))
 
@@ -117,9 +144,17 @@ fun HomeScreenContent(
 fun IngredientsBox(
     modifier: Modifier = Modifier,
     onGenerateClick: (String, String) -> Unit,
+    onCameraPermissionGranted: (Context) -> Unit = {}
 ) {
     var ingredients by remember { mutableStateOf("") }
     var notes by remember { mutableStateOf("") }
+
+    val context = LocalContext.current
+    val permissionLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { permissionGranted ->
+        if (permissionGranted) {
+            onCameraPermissionGranted(context)
+        }
+    }
 
     Box(
         modifier = modifier
@@ -159,7 +194,7 @@ fun IngredientsBox(
                             .clickable(
                                 interactionSource = remember { MutableInteractionSource() },
                                 indication = null,
-                                onClick = {  }
+                                onClick = { permissionLauncher.launch(Manifest.permission.CAMERA)  }
                             )
                             .padding(end = 12.dp, top = 12.dp)
                     )
