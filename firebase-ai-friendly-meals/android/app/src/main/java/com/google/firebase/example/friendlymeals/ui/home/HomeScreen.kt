@@ -2,8 +2,12 @@ package com.google.firebase.example.friendlymeals.ui.home
 
 import android.Manifest
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.result.contract.ActivityResultContracts.RequestPermission
+import androidx.activity.result.contract.ActivityResultContracts.TakePicture
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -30,7 +34,6 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -47,8 +50,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.FileProvider
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.google.firebase.example.friendlymeals.BuildConfig
 import com.google.firebase.example.friendlymeals.R
 import com.google.firebase.example.friendlymeals.data.model.Recipe
 import com.google.firebase.example.friendlymeals.ui.shared.LoadingIndicator
@@ -59,6 +64,7 @@ import com.google.firebase.example.friendlymeals.ui.theme.MediumFirebaseYellow
 import com.halilibo.richtext.commonmark.Markdown
 import com.halilibo.richtext.ui.BasicRichText
 import kotlinx.serialization.Serializable
+import java.io.File
 
 @Serializable
 object HomeRoute
@@ -69,36 +75,21 @@ fun HomeScreen(
 ) {
     val viewState = viewModel.viewState.collectAsStateWithLifecycle()
 
-    val context = LocalContext.current
-    val cameraLauncher = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { isImageSaved ->
-        if (isImageSaved) {
-            viewModel.onImageSaved(context)
-        } else {
-            viewModel.onImageCancelled()
-        }
-    }
-
     HomeScreenContent(
         onIngredientsUpdated = viewModel::onIngredientsUpdated,
+        onImageTaken = viewModel::onImageTaken,
         onGenerateClick = viewModel::generateRecipe,
-        onCameraPermissionGranted = viewModel::onCameraPermissionGranted,
         viewState = viewState.value
     )
-
-    LaunchedEffect(key1 = viewState.value.tempFileUrl) {
-        viewState.value.tempFileUrl?.let {
-            cameraLauncher.launch(it)
-        }
-    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreenContent(
     modifier: Modifier = Modifier,
-    onIngredientsUpdated: (String) -> Unit = {},
+    onIngredientsUpdated: (String) -> Unit,
+    onImageTaken: (Bitmap?) -> Unit,
     onGenerateClick: (String, String) -> Unit,
-    onCameraPermissionGranted: (Context) -> Unit = {},
     viewState: HomeViewState
 ) {
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
@@ -114,8 +105,8 @@ fun HomeScreenContent(
         ) {
             IngredientsBox(
                 onIngredientsUpdated = onIngredientsUpdated,
+                onImageTaken = onImageTaken,
                 onGenerateClick = onGenerateClick,
-                onCameraPermissionGranted = onCameraPermissionGranted,
                 viewState = viewState
             )
 
@@ -143,17 +134,28 @@ fun HomeScreenContent(
 @Composable
 fun IngredientsBox(
     modifier: Modifier = Modifier,
-    onIngredientsUpdated: (String) -> Unit = {},
+    onIngredientsUpdated: (String) -> Unit,
+    onImageTaken: (Bitmap?) -> Unit,
     onGenerateClick: (String, String) -> Unit,
-    onCameraPermissionGranted: (Context) -> Unit = {},
     viewState: HomeViewState
 ) {
-    var notes by remember { mutableStateOf("") }
-
     val context = LocalContext.current
-    val permissionLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { permissionGranted ->
+    var notes by remember { mutableStateOf("") }
+    var tempFileUrl by remember { mutableStateOf<Uri?>(null) }
+
+    val cameraLauncher = rememberLauncherForActivityResult(TakePicture()) { imageTaken ->
+        if (imageTaken) {
+            val imageBitmap = createImageBitmap(context, tempFileUrl)
+            onImageTaken(imageBitmap)
+        } else {
+            tempFileUrl = null
+        }
+    }
+
+    val permissionLauncher = rememberLauncherForActivityResult(RequestPermission()) { permissionGranted ->
         if (permissionGranted) {
-            onCameraPermissionGranted(context)
+            tempFileUrl = createTempFileUrl(context)
+            tempFileUrl?.let { cameraLauncher.launch(it) }
         }
     }
 
@@ -181,6 +183,7 @@ fun IngredientsBox(
                         focusedContainerColor = LightFirebaseYellow,
                         unfocusedContainerColor = LightFirebaseYellow
                     ),
+                    enabled = !viewState.ingredientsLoading,
                     placeholder = {
                         Text(text = stringResource(R.string.ingredients_hint))
                     }
@@ -195,10 +198,23 @@ fun IngredientsBox(
                             .clickable(
                                 interactionSource = remember { MutableInteractionSource() },
                                 indication = null,
-                                onClick = { permissionLauncher.launch(Manifest.permission.CAMERA)  }
+                                onClick = {
+                                    if (!viewState.ingredientsLoading) {
+                                        permissionLauncher.launch(Manifest.permission.CAMERA)
+                                    }
+                                }
                             )
                             .padding(end = 12.dp, top = 12.dp)
                     )
+                }
+
+                if (viewState.ingredientsLoading) {
+                    Box(
+                        modifier = Modifier.fillMaxWidth().height(128.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        LoadingIndicator()
+                    }
                 }
             }
 
@@ -273,11 +289,35 @@ fun RecipeBox(
     }
 }
 
+private fun createTempFileUrl(context: Context): Uri? {
+    val tempFile = File.createTempFile(
+        "temp_image_file_",
+        ".jpg",
+        context.cacheDir
+    )
+
+    return FileProvider.getUriForFile(context,
+        "${BuildConfig.APPLICATION_ID}.provider",
+        tempFile
+    )
+}
+
+private fun createImageBitmap(context: Context, tempFileUrl: Uri?): Bitmap? {
+    return tempFileUrl?.let {
+        val imageInputStream = context.contentResolver.openInputStream(it)
+        val bitmap = BitmapFactory.decodeStream(imageInputStream)
+        imageInputStream?.close()
+        bitmap
+    }
+}
+
 @Composable
 @Preview(showSystemUi = true)
 fun HomeScreenPreview() {
     FriendlyMealsTheme(darkTheme = true) {
         HomeScreenContent(
+            onIngredientsUpdated = {},
+            onImageTaken = {},
             onGenerateClick = { _, _ -> },
             viewState = HomeViewState()
         )
