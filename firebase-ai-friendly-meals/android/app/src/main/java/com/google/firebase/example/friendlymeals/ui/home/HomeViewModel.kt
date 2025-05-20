@@ -1,7 +1,6 @@
 package com.google.firebase.example.friendlymeals.ui.home
 
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import com.google.firebase.example.friendlymeals.MainViewModel
 import com.google.firebase.example.friendlymeals.data.model.Recipe
 import com.google.firebase.example.friendlymeals.data.repository.AIRepository
@@ -9,7 +8,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import java.io.InputStream
 import javax.inject.Inject
 
 @HiltViewModel
@@ -33,12 +31,11 @@ class HomeViewModel @Inject constructor(
                     ingredientsLoading = true
                 )
 
-                val ingredients = "apple, sugar"
-                //TODO: call API to get ingredients from image bitmap
+                val ingredients = aiRepository.generateIngredients(image)
 
                 _viewState.value = _viewState.value.copy(
                     ingredientsLoading = false,
-                    ingredients = ingredients,
+                    ingredients = ingredients
                 )
             }
         }
