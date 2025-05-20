@@ -67,9 +67,7 @@ object HomeRoute
 fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel()
 ) {
-    val tempFileUrl = viewModel.tempFileUrl.collectAsStateWithLifecycle()
-    val recipe = viewModel.recipe.collectAsStateWithLifecycle()
-    val loading = viewModel.loading.collectAsStateWithLifecycle()
+    val viewState = viewModel.viewState.collectAsStateWithLifecycle()
 
     val context = LocalContext.current
     val cameraLauncher = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { isImageSaved ->
@@ -81,14 +79,14 @@ fun HomeScreen(
     }
 
     HomeScreenContent(
+        onIngredientsUpdated = viewModel::onIngredientsUpdated,
         onGenerateClick = viewModel::generateRecipe,
         onCameraPermissionGranted = viewModel::onCameraPermissionGranted,
-        recipe = recipe.value,
-        loading = loading.value
+        viewState = viewState.value
     )
 
-    LaunchedEffect(key1 = tempFileUrl.value) {
-        tempFileUrl.value?.let {
+    LaunchedEffect(key1 = viewState.value.tempFileUrl) {
+        viewState.value.tempFileUrl?.let {
             cameraLauncher.launch(it)
         }
     }
@@ -98,10 +96,10 @@ fun HomeScreen(
 @Composable
 fun HomeScreenContent(
     modifier: Modifier = Modifier,
+    onIngredientsUpdated: (String) -> Unit = {},
     onGenerateClick: (String, String) -> Unit,
     onCameraPermissionGranted: (Context) -> Unit = {},
-    recipe: Recipe?,
-    loading: Boolean
+    viewState: HomeViewState
 ) {
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
 
@@ -115,13 +113,15 @@ fun HomeScreenContent(
             .verticalScroll(rememberScrollState())
         ) {
             IngredientsBox(
+                onIngredientsUpdated = onIngredientsUpdated,
                 onGenerateClick = onGenerateClick,
-                onCameraPermissionGranted = onCameraPermissionGranted
+                onCameraPermissionGranted = onCameraPermissionGranted,
+                viewState = viewState
             )
 
             Spacer(modifier = Modifier.size(16.dp))
 
-            if (loading) {
+            if (viewState.recipeLoading) {
                 Box(
                     modifier = modifier
                         .fillMaxWidth()
@@ -135,7 +135,7 @@ fun HomeScreenContent(
                 }
             }
 
-            if (recipe != null) RecipeBox(recipe = recipe)
+            if (viewState.recipe != null) RecipeBox(recipe = viewState.recipe)
         }
     }
 }
@@ -143,10 +143,11 @@ fun HomeScreenContent(
 @Composable
 fun IngredientsBox(
     modifier: Modifier = Modifier,
+    onIngredientsUpdated: (String) -> Unit = {},
     onGenerateClick: (String, String) -> Unit,
-    onCameraPermissionGranted: (Context) -> Unit = {}
+    onCameraPermissionGranted: (Context) -> Unit = {},
+    viewState: HomeViewState
 ) {
-    var ingredients by remember { mutableStateOf("") }
     var notes by remember { mutableStateOf("") }
 
     val context = LocalContext.current
@@ -168,8 +169,8 @@ fun IngredientsBox(
         Column(modifier = Modifier.fillMaxWidth()) {
             Box {
                 TextField(
-                    value = ingredients,
-                    onValueChange = { ingredients = it },
+                    value = viewState.ingredients,
+                    onValueChange = onIngredientsUpdated,
                     modifier = Modifier
                         .fillMaxWidth().height(128.dp),
                     shape = RoundedCornerShape(24.dp),
@@ -185,7 +186,7 @@ fun IngredientsBox(
                     }
                 )
 
-                if (ingredients.isBlank()) {
+                if (viewState.ingredients.isBlank()) {
                     Icon(
                         painter = painterResource(R.drawable.ic_camera),
                         contentDescription = "Camera Icon",
@@ -223,10 +224,15 @@ fun IngredientsBox(
 
             Spacer(modifier = Modifier.size(16.dp))
 
+            val generateButtonEnabled = viewState.ingredients.isNotBlank()
+                    && !viewState.recipeLoading
+                    && !viewState.ingredientsLoading
+
             Button(
                 modifier = Modifier.fillMaxWidth(),
                 colors = ButtonDefaults.buttonColors(containerColor = DarkFirebaseYellow),
-                onClick = { onGenerateClick(ingredients, notes) }
+                enabled = generateButtonEnabled,
+                onClick = { onGenerateClick(viewState.ingredients, notes) }
             ) {
                 Text(stringResource(R.string.generate_recipe_button), fontSize = 16.sp)
             }
@@ -273,8 +279,7 @@ fun HomeScreenPreview() {
     FriendlyMealsTheme(darkTheme = true) {
         HomeScreenContent(
             onGenerateClick = { _, _ -> },
-            recipe = Recipe(),
-            loading = false
+            viewState = HomeViewState()
         )
     }
 }

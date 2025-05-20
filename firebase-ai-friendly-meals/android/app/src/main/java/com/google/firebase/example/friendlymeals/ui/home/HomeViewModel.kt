@@ -2,7 +2,6 @@ package com.google.firebase.example.friendlymeals.ui.home
 
 import android.content.Context
 import android.graphics.BitmapFactory
-import android.net.Uri
 import androidx.core.content.FileProvider
 import com.google.firebase.example.friendlymeals.BuildConfig
 import com.google.firebase.example.friendlymeals.MainViewModel
@@ -19,61 +18,77 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     private val aiRepository: AIRepository
 ) : MainViewModel() {
-    private val _tempFileUrl = MutableStateFlow<Uri?>(null)
-    val tempFileUrl: StateFlow<Uri?>
-        get() = _tempFileUrl.asStateFlow()
-
-    private val _recipe = MutableStateFlow<Recipe?>(null)
-    val recipe: StateFlow<Recipe?>
-        get() = _recipe.asStateFlow()
-
-    private val _loading = MutableStateFlow(false)
-    val loading: StateFlow<Boolean>
-        get() = _loading.asStateFlow()
+    private val _viewState = MutableStateFlow<HomeViewState>(HomeViewState())
+    val viewState: StateFlow<HomeViewState>
+        get() = _viewState.asStateFlow()
 
     fun onCameraPermissionGranted(context: Context) {
-        val tempFile = File.createTempFile(
-            "temp_image_file_",
-            ".jpg",
-            context.cacheDir
-        )
+        launchCatching {
+            val tempFile = File.createTempFile(
+                "temp_image_file_",
+                ".jpg",
+                context.cacheDir
+            )
 
-        _tempFileUrl.value = FileProvider.getUriForFile(context,
-            "${BuildConfig.APPLICATION_ID}.provider",
-            tempFile
-        )
+            _viewState.value = _viewState.value.copy(
+                tempFileUrl = FileProvider.getUriForFile(context,
+                    "${BuildConfig.APPLICATION_ID}.provider",
+                    tempFile
+                )
+            )
+        }
     }
 
     fun onImageSaved(context: Context) {
         launchCatching {
-            val tempImageUrl = _tempFileUrl.value
+            val tempImageUrl = _viewState.value.tempFileUrl
             if (tempImageUrl != null) {
+                _viewState.value = _viewState.value.copy(
+                    ingredientsLoading = true
+                )
 
                 val input = context.contentResolver.openInputStream(tempImageUrl)
                 val bitmap = BitmapFactory.decodeStream(input)
+                val ingredients = "apple, sugar"
+                //TODO: call API to get ingredients from image
 
-                //loading state on
-                //call API
-                //on API result clear temp file and loading state
-                //add ingredients to the input
+                _viewState.value = _viewState.value.copy(
+                    tempFileUrl = null,
+                    ingredientsLoading = false,
+                    ingredients = ingredients,
+                )
             }
         }
     }
 
     fun onImageCancelled() {
-        _tempFileUrl.value = null
+        _viewState.value = _viewState.value.copy(
+            tempFileUrl = null,
+            ingredientsLoading = false
+        )
+    }
+
+    fun onIngredientsUpdated(ingredients: String) {
+        _viewState.value = _viewState.value.copy(
+            ingredients = ingredients
+        )
     }
 
     fun generateRecipe(ingredients: String, notes: String) {
         launchCatching {
-            _loading.value = true
+            _viewState.value = _viewState.value.copy(
+                recipeLoading = true
+            )
+
             val generatedRecipe = aiRepository.generateRecipe(ingredients, notes)
             val recipeImage = aiRepository.generateRecipeImage(generatedRecipe)
 
-            _loading.value = false
-            _recipe.value = Recipe(
-                description = generatedRecipe,
-                image = recipeImage
+            _viewState.value = _viewState.value.copy(
+                recipeLoading = false,
+                recipe = Recipe(
+                    description = generatedRecipe,
+                    image = recipeImage
+                )
             )
         }
     }
