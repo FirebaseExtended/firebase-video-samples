@@ -1,10 +1,10 @@
 package com.google.firebase.example.friendlymeals.data.datasource
 
 import android.graphics.Bitmap
-import com.google.firebase.vertexai.GenerativeModel
-import com.google.firebase.vertexai.ImagenModel
-import com.google.firebase.vertexai.type.PublicPreviewAPI
-import com.google.firebase.vertexai.type.content
+import com.google.firebase.ai.GenerativeModel
+import com.google.firebase.ai.ImagenModel
+import com.google.firebase.ai.type.PublicPreviewAPI
+import com.google.firebase.ai.type.content
 import javax.inject.Inject
 
 @OptIn(PublicPreviewAPI::class)
