@@ -40,6 +40,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 
@@ -61,7 +62,7 @@ dependencies {
     ksp(libs.hilt.android.compiler)
 
     implementation(platform(libs.firebase.bom))
-    implementation(libs.firebase.vertexai)
+    implementation(libs.firebase.ai)
 
     //Library to handle Markdown in Compose
     implementation(libs.richtext.commonmark)
