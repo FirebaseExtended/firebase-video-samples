@@ -38,7 +38,7 @@ object FirebaseHiltModule {
             personFilterLevel = ImagenPersonFilterLevel.BLOCK_ALL
         )
 
-        return Firebase.ai.imagenModel(
+        return Firebase.ai(backend = GenerativeBackend.googleAI()).imagenModel(
             modelName = "imagen-3.0-generate-002",
             generationConfig = generationConfig,
             safetySettings = safetySettings
