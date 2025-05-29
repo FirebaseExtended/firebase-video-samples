@@ -13,6 +13,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -30,6 +31,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
@@ -53,7 +55,6 @@ import androidx.compose.ui.unit.sp
 import androidx.core.content.FileProvider
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.google.firebase.example.friendlymeals.BuildConfig
 import com.google.firebase.example.friendlymeals.R
 import com.google.firebase.example.friendlymeals.data.model.Recipe
 import com.google.firebase.example.friendlymeals.ui.shared.LoadingIndicator
@@ -140,6 +141,7 @@ fun IngredientsBox(
     viewState: HomeViewState
 ) {
     val context = LocalContext.current
+    val isDarkTheme = isSystemInDarkTheme()
     var notes by remember { mutableStateOf("") }
     var tempFileUrl by remember { mutableStateOf<Uri?>(null) }
 
@@ -176,22 +178,20 @@ fun IngredientsBox(
                     modifier = Modifier
                         .fillMaxWidth().height(128.dp),
                     shape = RoundedCornerShape(24.dp),
-                    colors = TextFieldDefaults.colors(
-                        focusedIndicatorColor = Color.Transparent,
-                        unfocusedIndicatorColor = Color.Transparent,
-                        disabledIndicatorColor = Color.Transparent,
-                        focusedContainerColor = LightFirebaseYellow,
-                        unfocusedContainerColor = LightFirebaseYellow
-                    ),
+                    colors = getTextFieldColors(),
                     enabled = !viewState.ingredientsLoading,
                     placeholder = {
-                        Text(text = stringResource(R.string.ingredients_hint))
+                        Text(
+                            text = stringResource(R.string.ingredients_hint),
+                            color = if (isDarkTheme) Color.White else Color.DarkGray
+                        )
                     }
                 )
 
                 if (viewState.ingredients.isBlank()) {
                     Icon(
                         painter = painterResource(R.drawable.ic_camera),
+                        tint = if (isDarkTheme) Color.White else Color.DarkGray,
                         contentDescription = "Camera Icon",
                         modifier = Modifier
                             .align(Alignment.TopEnd)
@@ -226,15 +226,12 @@ fun IngredientsBox(
                 modifier = Modifier
                     .fillMaxWidth().height(128.dp),
                 shape = RoundedCornerShape(24.dp),
-                colors = TextFieldDefaults.colors(
-                    focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent,
-                    disabledIndicatorColor = Color.Transparent,
-                    focusedContainerColor = LightFirebaseYellow,
-                    unfocusedContainerColor = LightFirebaseYellow
-                ),
+                colors = getTextFieldColors(),
                 placeholder = {
-                    Text(text = stringResource(R.string.notes_hint))
+                    Text(
+                        text = stringResource(R.string.notes_hint),
+                        color = if (isDarkTheme) Color.White else Color.DarkGray
+                    )
                 }
             )
 
@@ -246,7 +243,12 @@ fun IngredientsBox(
 
             Button(
                 modifier = Modifier.fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors(containerColor = DarkFirebaseYellow),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = DarkFirebaseYellow,
+                    contentColor = Color.White,
+                    disabledContainerColor = Color.LightGray,
+                    disabledContentColor = Color.Gray
+                ),
                 enabled = generateButtonEnabled,
                 onClick = { onGenerateClick(viewState.ingredients, notes) }
             ) {
@@ -297,8 +299,23 @@ private fun createTempFileUrl(context: Context): Uri? {
     )
 
     return FileProvider.getUriForFile(context,
-        "${BuildConfig.APPLICATION_ID}.provider",
+        "com.google.firebase.example.friendlymeals.provider",
         tempFile
+    )
+}
+
+@Composable
+private fun getTextFieldColors(): TextFieldColors {
+    val isDarkTheme = isSystemInDarkTheme()
+
+    return TextFieldDefaults.colors(
+        focusedIndicatorColor = Color.Transparent,
+        unfocusedIndicatorColor = Color.Transparent,
+        disabledIndicatorColor = Color.Transparent,
+        focusedContainerColor = if (isDarkTheme) DarkFirebaseYellow else LightFirebaseYellow,
+        unfocusedContainerColor = if (isDarkTheme) DarkFirebaseYellow else LightFirebaseYellow,
+        focusedTextColor = if (isDarkTheme) Color.White else Color.DarkGray,
+        unfocusedTextColor = if (isDarkTheme) Color.White else Color.DarkGray
     )
 }
 
