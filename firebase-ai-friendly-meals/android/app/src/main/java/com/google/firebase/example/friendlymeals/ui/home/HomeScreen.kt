@@ -13,7 +13,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -60,7 +59,6 @@ import com.google.firebase.example.friendlymeals.data.model.Recipe
 import com.google.firebase.example.friendlymeals.ui.shared.LoadingIndicator
 import com.google.firebase.example.friendlymeals.ui.theme.DarkFirebaseYellow
 import com.google.firebase.example.friendlymeals.ui.theme.FriendlyMealsTheme
-import com.google.firebase.example.friendlymeals.ui.theme.LightFirebaseYellow
 import com.google.firebase.example.friendlymeals.ui.theme.MediumFirebaseYellow
 import com.halilibo.richtext.commonmark.Markdown
 import com.halilibo.richtext.ui.BasicRichText
@@ -141,7 +139,6 @@ fun IngredientsBox(
     viewState: HomeViewState
 ) {
     val context = LocalContext.current
-    val isDarkTheme = isSystemInDarkTheme()
     var notes by remember { mutableStateOf("") }
     var tempFileUrl by remember { mutableStateOf<Uri?>(null) }
 
@@ -180,18 +177,12 @@ fun IngredientsBox(
                     shape = RoundedCornerShape(24.dp),
                     colors = getTextFieldColors(),
                     enabled = !viewState.ingredientsLoading,
-                    placeholder = {
-                        Text(
-                            text = stringResource(R.string.ingredients_hint),
-                            color = if (isDarkTheme) Color.White else Color.DarkGray
-                        )
-                    }
+                    placeholder = { Text(text = stringResource(R.string.ingredients_hint)) }
                 )
 
                 if (viewState.ingredients.isBlank()) {
                     Icon(
                         painter = painterResource(R.drawable.ic_camera),
-                        tint = if (isDarkTheme) Color.White else Color.DarkGray,
                         contentDescription = "Camera Icon",
                         modifier = Modifier
                             .align(Alignment.TopEnd)
@@ -227,12 +218,7 @@ fun IngredientsBox(
                     .fillMaxWidth().height(128.dp),
                 shape = RoundedCornerShape(24.dp),
                 colors = getTextFieldColors(),
-                placeholder = {
-                    Text(
-                        text = stringResource(R.string.notes_hint),
-                        color = if (isDarkTheme) Color.White else Color.DarkGray
-                    )
-                }
+                placeholder = { Text(text = stringResource(R.string.notes_hint)) }
             )
 
             Spacer(modifier = Modifier.size(16.dp))
@@ -306,16 +292,10 @@ private fun createTempFileUrl(context: Context): Uri? {
 
 @Composable
 private fun getTextFieldColors(): TextFieldColors {
-    val isDarkTheme = isSystemInDarkTheme()
-
     return TextFieldDefaults.colors(
         focusedIndicatorColor = Color.Transparent,
         unfocusedIndicatorColor = Color.Transparent,
-        disabledIndicatorColor = Color.Transparent,
-        focusedContainerColor = if (isDarkTheme) DarkFirebaseYellow else LightFirebaseYellow,
-        unfocusedContainerColor = if (isDarkTheme) DarkFirebaseYellow else LightFirebaseYellow,
-        focusedTextColor = if (isDarkTheme) Color.White else Color.DarkGray,
-        unfocusedTextColor = if (isDarkTheme) Color.White else Color.DarkGray
+        disabledIndicatorColor = Color.Transparent
     )
 }
 
