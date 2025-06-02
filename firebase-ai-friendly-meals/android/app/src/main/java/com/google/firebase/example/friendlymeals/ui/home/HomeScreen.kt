@@ -1,8 +1,18 @@
 package com.google.firebase.example.friendlymeals.ui.home
 
+import android.Manifest
+import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts.RequestPermission
+import androidx.activity.result.contract.ActivityResultContracts.TakePicture
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -16,9 +26,11 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
@@ -33,10 +45,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.FileProvider
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.firebase.example.friendlymeals.R
@@ -44,11 +59,11 @@ import com.google.firebase.example.friendlymeals.data.model.Recipe
 import com.google.firebase.example.friendlymeals.ui.shared.LoadingIndicator
 import com.google.firebase.example.friendlymeals.ui.theme.DarkFirebaseYellow
 import com.google.firebase.example.friendlymeals.ui.theme.FriendlyMealsTheme
-import com.google.firebase.example.friendlymeals.ui.theme.LightFirebaseYellow
 import com.google.firebase.example.friendlymeals.ui.theme.MediumFirebaseYellow
 import com.halilibo.richtext.commonmark.Markdown
 import com.halilibo.richtext.ui.BasicRichText
 import kotlinx.serialization.Serializable
+import java.io.File
 
 @Serializable
 object HomeRoute
@@ -57,13 +72,13 @@ object HomeRoute
 fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel()
 ) {
-    val recipe = viewModel.recipe.collectAsStateWithLifecycle()
-    val loading = viewModel.loading.collectAsStateWithLifecycle()
+    val viewState = viewModel.viewState.collectAsStateWithLifecycle()
 
     HomeScreenContent(
+        onIngredientsUpdated = viewModel::onIngredientsUpdated,
+        onImageTaken = viewModel::onImageTaken,
         onGenerateClick = viewModel::generateRecipe,
-        recipe = recipe.value,
-        loading = loading.value
+        viewState = viewState.value
     )
 }
 
@@ -71,9 +86,10 @@ fun HomeScreen(
 @Composable
 fun HomeScreenContent(
     modifier: Modifier = Modifier,
+    onIngredientsUpdated: (String) -> Unit,
+    onImageTaken: (Bitmap?) -> Unit,
     onGenerateClick: (String, String) -> Unit,
-    recipe: Recipe?,
-    loading: Boolean
+    viewState: HomeViewState
 ) {
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
 
@@ -86,11 +102,16 @@ fun HomeScreenContent(
             .padding(innerPadding)
             .verticalScroll(rememberScrollState())
         ) {
-            IngredientsBox(onGenerateClick = onGenerateClick)
+            IngredientsBox(
+                onIngredientsUpdated = onIngredientsUpdated,
+                onImageTaken = onImageTaken,
+                onGenerateClick = onGenerateClick,
+                viewState = viewState
+            )
 
             Spacer(modifier = Modifier.size(16.dp))
 
-            if (loading) {
+            if (viewState.recipeLoading) {
                 Box(
                     modifier = modifier
                         .fillMaxWidth()
@@ -104,7 +125,7 @@ fun HomeScreenContent(
                 }
             }
 
-            if (recipe != null) RecipeBox(recipe = recipe)
+            if (viewState.recipe != null) RecipeBox(recipe = viewState.recipe)
         }
     }
 }
@@ -112,10 +133,30 @@ fun HomeScreenContent(
 @Composable
 fun IngredientsBox(
     modifier: Modifier = Modifier,
+    onIngredientsUpdated: (String) -> Unit,
+    onImageTaken: (Bitmap?) -> Unit,
     onGenerateClick: (String, String) -> Unit,
+    viewState: HomeViewState
 ) {
-    var ingredients by remember { mutableStateOf("") }
+    val context = LocalContext.current
     var notes by remember { mutableStateOf("") }
+    var tempFileUrl by remember { mutableStateOf<Uri?>(null) }
+
+    val cameraLauncher = rememberLauncherForActivityResult(TakePicture()) { imageTaken ->
+        if (imageTaken) {
+            val imageBitmap = createImageBitmap(context, tempFileUrl)
+            onImageTaken(imageBitmap)
+        } else {
+            tempFileUrl = null
+        }
+    }
+
+    val permissionLauncher = rememberLauncherForActivityResult(RequestPermission()) { permissionGranted ->
+        if (permissionGranted) {
+            tempFileUrl = createTempFileUrl(context)
+            tempFileUrl?.let { cameraLauncher.launch(it) }
+        }
+    }
 
     Box(
         modifier = modifier
@@ -127,23 +168,46 @@ fun IngredientsBox(
             .padding(16.dp)
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
-            TextField(
-                value = ingredients,
-                onValueChange = { ingredients = it },
-                modifier = Modifier
-                    .fillMaxWidth().height(128.dp),
-                shape = RoundedCornerShape(24.dp),
-                colors = TextFieldDefaults.colors(
-                    focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent,
-                    disabledIndicatorColor = Color.Transparent,
-                    focusedContainerColor = LightFirebaseYellow,
-                    unfocusedContainerColor = LightFirebaseYellow
-                ),
-                placeholder = {
-                    Text(text = stringResource(R.string.ingredients_hint))
+            Box {
+                TextField(
+                    value = viewState.ingredients,
+                    onValueChange = onIngredientsUpdated,
+                    modifier = Modifier
+                        .fillMaxWidth().height(128.dp),
+                    shape = RoundedCornerShape(24.dp),
+                    colors = getTextFieldColors(),
+                    enabled = !viewState.ingredientsLoading,
+                    placeholder = { Text(text = stringResource(R.string.ingredients_hint)) }
+                )
+
+                if (viewState.ingredients.isBlank()) {
+                    Icon(
+                        painter = painterResource(R.drawable.ic_camera),
+                        contentDescription = "Camera Icon",
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .clickable(
+                                interactionSource = remember { MutableInteractionSource() },
+                                indication = null,
+                                onClick = {
+                                    if (!viewState.ingredientsLoading) {
+                                        permissionLauncher.launch(Manifest.permission.CAMERA)
+                                    }
+                                }
+                            )
+                            .padding(end = 12.dp, top = 12.dp)
+                    )
                 }
-            )
+
+                if (viewState.ingredientsLoading) {
+                    Box(
+                        modifier = Modifier.fillMaxWidth().height(128.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        LoadingIndicator()
+                    }
+                }
+            }
 
             Spacer(modifier = Modifier.size(16.dp))
 
@@ -153,24 +217,26 @@ fun IngredientsBox(
                 modifier = Modifier
                     .fillMaxWidth().height(128.dp),
                 shape = RoundedCornerShape(24.dp),
-                colors = TextFieldDefaults.colors(
-                    focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent,
-                    disabledIndicatorColor = Color.Transparent,
-                    focusedContainerColor = LightFirebaseYellow,
-                    unfocusedContainerColor = LightFirebaseYellow
-                ),
-                placeholder = {
-                    Text(text = stringResource(R.string.notes_hint))
-                }
+                colors = getTextFieldColors(),
+                placeholder = { Text(text = stringResource(R.string.notes_hint)) }
             )
 
             Spacer(modifier = Modifier.size(16.dp))
 
+            val generateButtonEnabled = viewState.ingredients.isNotBlank()
+                    && !viewState.recipeLoading
+                    && !viewState.ingredientsLoading
+
             Button(
                 modifier = Modifier.fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors(containerColor = DarkFirebaseYellow),
-                onClick = { onGenerateClick(ingredients, notes) }
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = DarkFirebaseYellow,
+                    contentColor = Color.White,
+                    disabledContainerColor = Color.LightGray,
+                    disabledContentColor = Color.Gray
+                ),
+                enabled = generateButtonEnabled,
+                onClick = { onGenerateClick(viewState.ingredients, notes) }
             ) {
                 Text(stringResource(R.string.generate_recipe_button), fontSize = 16.sp)
             }
@@ -211,14 +277,46 @@ fun RecipeBox(
     }
 }
 
+private fun createTempFileUrl(context: Context): Uri? {
+    val tempFile = File.createTempFile(
+        "temp_image_file_",
+        ".jpg",
+        context.cacheDir
+    )
+
+    return FileProvider.getUriForFile(context,
+        "com.google.firebase.example.friendlymeals.provider",
+        tempFile
+    )
+}
+
+@Composable
+private fun getTextFieldColors(): TextFieldColors {
+    return TextFieldDefaults.colors(
+        focusedIndicatorColor = Color.Transparent,
+        unfocusedIndicatorColor = Color.Transparent,
+        disabledIndicatorColor = Color.Transparent
+    )
+}
+
+private fun createImageBitmap(context: Context, tempFileUrl: Uri?): Bitmap? {
+    return tempFileUrl?.let {
+        val imageInputStream = context.contentResolver.openInputStream(it)
+        val bitmap = BitmapFactory.decodeStream(imageInputStream)
+        imageInputStream?.close()
+        bitmap
+    }
+}
+
 @Composable
 @Preview(showSystemUi = true)
 fun HomeScreenPreview() {
     FriendlyMealsTheme(darkTheme = true) {
         HomeScreenContent(
+            onIngredientsUpdated = {},
+            onImageTaken = {},
             onGenerateClick = { _, _ -> },
-            recipe = Recipe(),
-            loading = false
+            viewState = HomeViewState()
         )
     }
 }
