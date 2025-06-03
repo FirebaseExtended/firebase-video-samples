@@ -1,0 +1,36 @@
+{
+  "main": "lib/index.js",
+  "scripts": {
+    "genkit:start": "genkit start -- tsx --watch src/index.ts",
+    "genkit:emulator": "npx genkit start -- firebase emulators:start --inspect-functions --import=./emulator-data --export-on-exit=./emulator-data",
+    "build": "tsc",
+    "build:watch": "tsc --watch",
+    "serve": "npm run build && firebase emulators:start --only functions",
+    "shell": "npm run build && firebase functions:shell",
+    "start": "npm run shell",
+    "deploy": "npm run build && firebase deploy --only functions",
+    "logs": "firebase functions:log",
+    "import-recipes": "tsx src/import-recipes.ts"
+  },
+  "name": "functions",
+  "engines": {
+    "node": "22"
+  },
+  "dependencies": {
+    "@genkit-ai/ai": "^1.6.2",
+    "@genkit-ai/firebase": "^1.6.0",
+    "@genkit-ai/googleai": "^1.6.2",
+    "@genkit-ai/vertexai": "^1.6.0",
+    "express": "^5.1.0",
+    "firebase-admin": "^12.6.0",
+    "firebase-functions": "^6.0.1",
+    "genkit": "^1.6.0"
+  },
+  "devDependencies": {
+    "firebase-functions-test": "^3.1.0",
+    "genkit-cli": "^1.6.0",
+    "tsx": "^4.19.3",
+    "typescript": "^4.9.5"
+  },
+  "private": true
+}
