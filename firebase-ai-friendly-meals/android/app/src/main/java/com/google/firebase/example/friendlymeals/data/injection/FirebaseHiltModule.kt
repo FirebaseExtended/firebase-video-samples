@@ -21,27 +21,11 @@ import dagger.hilt.components.SingletonComponent
 @InstallIn(SingletonComponent::class)
 object FirebaseHiltModule {
     @Provides fun generativeModel(): GenerativeModel {
-        return Firebase.ai(backend = GenerativeBackend.googleAI())
-            .generativeModel("gemini-2.0-flash")
+        //TODO: return generative model
     }
 
     @OptIn(PublicPreviewAPI::class)
     @Provides fun imagenModel(): ImagenModel {
-        val generationConfig = imagenGenerationConfig {
-            numberOfImages = 1
-            aspectRatio = ImagenAspectRatio.SQUARE_1x1
-            imageFormat = ImagenImageFormat.png()
-        }
-
-        val safetySettings = ImagenSafetySettings(
-            safetyFilterLevel = ImagenSafetyFilterLevel.BLOCK_LOW_AND_ABOVE,
-            personFilterLevel = ImagenPersonFilterLevel.BLOCK_ALL
-        )
-
-        return Firebase.ai(backend = GenerativeBackend.googleAI()).imagenModel(
-            modelName = "imagen-3.0-generate-002",
-            generationConfig = generationConfig,
-            safetySettings = safetySettings
-        )
+        //TODO: return Imagen model
     }
 }

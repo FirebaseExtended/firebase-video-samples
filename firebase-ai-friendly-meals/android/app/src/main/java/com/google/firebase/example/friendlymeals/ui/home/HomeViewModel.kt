@@ -42,21 +42,6 @@ class HomeViewModel @Inject constructor(
     }
 
     fun generateRecipe(ingredients: String, notes: String) {
-        launchCatching {
-            _viewState.value = _viewState.value.copy(
-                recipeLoading = true
-            )
-
-            val generatedRecipe = aiRepository.generateRecipe(ingredients, notes)
-            val recipeImage = aiRepository.generateRecipeImage(generatedRecipe)
-
-            _viewState.value = _viewState.value.copy(
-                recipeLoading = false,
-                recipe = Recipe(
-                    description = generatedRecipe,
-                    image = recipeImage
-                )
-            )
-        }
+        //TODO: call AIRepository to generate recipe
     }
 }
