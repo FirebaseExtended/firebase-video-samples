@@ -2,8 +2,8 @@
 
 Welcome to **FriendlyMeals**, a sample iOS project accompanying the [Firebase Fundamentals video series](https://www.youtube.com/playlist?list=PLl-K7zZEsYLnfwBe4WgEw9ao0J0N1LYDR) on YouTube.
 
-![App Screenshot](assets/screenshot.png)
-*FriendlyMeals app – Suggest Recipes screen*
+![App Screenshot](assets/screenshot-hero.png)
+*FriendlyMeals app – Hero screenshot with gradient background*
 
 This repository demonstrates how to integrate Firebase features into an iOS app, with a current focus on **Firebase AI Logic**. As the video series progresses, we will add more examples covering additional Firebase services and best practices for iOS development.
 
