@@ -24,7 +24,7 @@ class SuggestRecipeViewModel {
   var isGenerating = false
   var isPresentingRecipe = false
 
-  var ingredients = "Tomatoes, Basil, Mozarella"
+  var ingredients = "Tomatoes, Basil, Mozzarella"
   var notes = "Italian"
   var recipe = ""
   
