@@ -47,8 +47,14 @@ class HomeCubit extends Cubit<HomeState> {
   }
 
   Future<void> onGenerateIngredients() async {
-    if (state.selectedImage == null) {
-      throw Exception('No image selected');
+    if (state.ingredients.trim().isEmpty) {
+      emit(
+        state.copyWith(
+          status: HomeViewState.failure,
+          errorMessage: () => 'Please add some ingredients first',
+        ),
+      );
+      return;
     }
 
     emit(
