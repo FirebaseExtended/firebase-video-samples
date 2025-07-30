@@ -1,4 +1,5 @@
 import 'package:firebase_ai_friendly_meals/core/widgets/bordered_card.dart';
+import 'package:firebase_ai_friendly_meals/core/widgets/memory_image_builder.dart';
 import 'package:firebase_ai_friendly_meals/ui/home/cubit/home_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -22,7 +23,10 @@ class HomeRecipeSection extends StatelessWidget {
             child: Column(
               spacing: 16,
               children: [
-                // TODO: display recipe image and description
+                if (state.recipe?.image case final image?)
+                  MemoryImageBuilder(imageBytes: image),
+                if (state.recipe?.description case final description?)
+                  _RecipeDescription(data: description),
               ],
             ),
           ),
