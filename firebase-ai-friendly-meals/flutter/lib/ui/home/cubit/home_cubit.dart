@@ -140,17 +140,7 @@ class HomeCubit extends Cubit<HomeState> {
           errorMessage: () => 'An unexpected error occurred. Please try again.',
         ),
       );
-      return;
     }
-
-    emit(
-      state.copyWith(
-        status: HomeViewState.loading,
-        errorMessage: () => null,
-      ),
-    );
-
-    // TODO: Call the repository to generate the recipe
   }
 
   String _getErrorMessage(AIException exception) {
