@@ -33,19 +33,19 @@ dependencies:
     sdk: flutter
 
   # Firebase
-  firebase_core: ^3.15.0
-  firebase_ai: ^2.2.0
+  firebase_core: ^3.15.2
+  firebase_ai: ^2.3.0
 
   # State Management & Dependency Injection
   flutter_bloc: ^9.1.1
   equatable: ^2.0.7
   # Dependency Injection
   get_it: ^8.0.3
-  injectable: ^2.5.0
+  injectable: ^2.5.1
 
   # UI Components
   cupertino_icons: ^1.0.8
-  gpt_markdown: ^1.1.1
+  gpt_markdown: ^1.1.2
 
   # Image handling
   image_picker: ^1.1.2
