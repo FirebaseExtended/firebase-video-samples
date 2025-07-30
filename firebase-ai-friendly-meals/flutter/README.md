@@ -12,6 +12,17 @@ please give me one recipe. Please take in consideration these notes:
 [TYPE YOUR NOTES, LIKE DIETARY RESTRICTIONS AND CUISINE PREFERENCES]
 ```
 
+## Prerequisites
+
+Before starting this workshop, make sure you have the following installed:
+
+- **Flutter 3.32.8** or later
+  - You can check your Flutter version by running: `flutter --version`
+  - To upgrade Flutter, run: `flutter upgrade`
+- **Dart SDK** (included with Flutter)
+- **Android Studio** or **Xcode** (for running on mobile devices)
+- **VS Code** or your preferred IDE with Flutter extension
+
 ## Setting up your environment
 
 1. Clone the repository:
@@ -49,6 +60,7 @@ please give me one recipe. Please take in consideration these notes:
    ```
 
 4. Use the FlutterFire CLI to configure your Flutter apps to connect to Firebase:
+
    ```bash
    flutterfire configure
    ```
