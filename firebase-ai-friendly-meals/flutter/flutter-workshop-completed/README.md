@@ -94,7 +94,7 @@ lib/core/
 
    ```bash
    git clone <repository-url>
-   cd firebase_ai_friendly_meals
+   cd firebase_ai_friendly_meals/flutter/flutter-workshop-completed
    ```
 
 2. **Install dependencies**

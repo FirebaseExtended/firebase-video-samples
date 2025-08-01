@@ -34,10 +34,10 @@ Before starting this workshop, make sure you have the following installed:
 2. Checkout the workshop branch:
 
    ```bash
-   git checkout workshop
+   git checkout community-contribution/firebase-ai-logic-flutter-workshop
    ```
 
-3. Open the `firebase_ai_friendly_meals` folder in an IDE _(VSCode, Intellij, Android Studio)_.
+3. Open the `flutter-workshop-completed` folder in an IDE _(VSCode, Intellij, Android Studio)_.
 
 4. Open the [Firebase console](https://console.firebase.google.com).
 
