@@ -180,8 +180,6 @@ linter:
     - secure_pubspec_urls
 
 analyzer:
-  errors:
-    lines_longer_than_80_chars: ignore
   exclude:
     - '**.g.dart'
     - '**.pb.dart'
