@@ -84,7 +84,7 @@ lib/core/
 
 ### Prerequisites
 
-1. **Flutter SDK** (3.8.0 or later)
+1. **Flutter SDK** (3.32.0 or later)
 2. **Firebase Project** with AI Logic enabled
 3. **Firebase AI API access** (Gemini Developer API or Vertex AI)
 

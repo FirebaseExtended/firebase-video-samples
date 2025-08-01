@@ -16,7 +16,7 @@ please give me one recipe. Please take in consideration these notes:
 
 Before starting this workshop, make sure you have the following installed:
 
-- **Flutter 3.32.8** or later
+- **Flutter 3.32.0** or later
   - You can check your Flutter version by running: `flutter --version`
   - To upgrade Flutter, run: `flutter upgrade`
 - **Dart SDK** (included with Flutter)
