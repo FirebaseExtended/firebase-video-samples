@@ -10,7 +10,7 @@ This repository demonstrates how to integrate Firebase features into an Android 
 
 ## 🚀 Features
 
-- **Firebase AI Logic**: Learn how to use Firebase's AI-powered features to enhance your app's functionality.
+- **Firebase AI Logic**: Learn how build AI-powered features to enhance your app's functionality.
 - **Modular Structure**: The project is organized by feature, making it easy to follow along and extend.
 - **Upcoming**: More Firebase features (such as Authentication, Firestore, Storage, and more) will be added soon!
 
@@ -26,19 +26,19 @@ This repository demonstrates how to integrate Firebase features into an Android 
 ## 🔥 Setting Up Firebase
 
 1. **Create a Firebase Project**
-   - Go to the [Firebase Console](https://console.firebase.google.com/).
-   - Click **Add project** and follow the prompts.
+   1. Sign into the [Firebase console](https://console.firebase.google.com/).
+   1. Click the button to create a new Firebase project, and follow the on-screen workflow. Google Analytics is *not* required for this app.
 
 1. **Register the Android App**
-   - Click **Add app** > **Android**.
-   - Enter the application ID: `com.google.firebase.example.friendlymeals`
-   - Click **Register app**.
+   1.  Click **Add app** > **Android**.
+   1.  Follow the on-screen workflow.  You can enter the package name: `com.google.firebase.example.friendlymeals`
+   1.  Click **Register app**.
 
-1. **Download the `google-services.json` file**
-   - Download from Firebase Console.
-   - Copy it to `firebase-ai-friendly-meals/android/app`.
+1. During the "Add app" workflow, **download the `google-services.json` file**.
+   - Move this file into this directory of the app: `firebase-ai-friendly-meals/android/app`.
+   - If you didn't download this file during the "Add app" workflow, you can always [obtain it later](https://support.google.com/firebase/answer/7015592).
 
-1. **Run the App**
+1. **Run the app**
    - Build and run in Android Studio on an Android emulator or physical device.
 
 ## 🤝 Contributing
