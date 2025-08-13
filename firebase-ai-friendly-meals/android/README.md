@@ -20,7 +20,7 @@ This repository demonstrates how to integrate Firebase features into an Android 
    ```sh
    git clone https://github.com/FirebaseExtended/firebase-video-samples
    ```
-2. **Open the project**
+1. **Open the project**
    - Open `firebase-ai-friendly-meals/android` in Android Studio.
 
 ## 🔥 Setting Up Firebase
@@ -29,16 +29,16 @@ This repository demonstrates how to integrate Firebase features into an Android 
    - Go to the [Firebase Console](https://console.firebase.google.com/).
    - Click **Add project** and follow the prompts.
 
-2. **Register the Android App**
+1. **Register the Android App**
    - Click **Add app** > **Android**.
    - Enter the application ID: `com.google.firebase.example.friendlymeals`
    - Click **Register app**.
 
-3. **Download the `google-services.json` file**
+1. **Download the `google-services.json` file**
    - Download from Firebase Console.
    - Copy it to `firebase-ai-friendly-meals/android/app`.
 
-5. **Run the App**
+1. **Run the App**
    - Build and run in Android Studio on an Android emulator or physical device.
 
 ## 🤝 Contributing
