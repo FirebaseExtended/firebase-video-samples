@@ -1,3 +1,4 @@
+import 'package:firebase_ai/firebase_ai.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 
@@ -9,39 +10,55 @@ class RecipeGeneratorScreen extends StatefulWidget {
 }
 
 class _RecipeGeneratorScreenState extends State<RecipeGeneratorScreen> {
+  final _ingredientsController = TextEditingController();
+  final _notesController = TextEditingController();
   bool _showRecipeCard = false;
   String _generatedRecipe = "";
+  bool _isLoading = false;
 
-  void _handleGenerateRecipe() {
+  void _handleGenerateRecipe() async {
+    if (_ingredientsController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please enter some ingredients.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
     setState(() {
-      _generatedRecipe = """
-## Garlic Chicken and Rice Skillet
-
-A simple and flavorful one-pan meal.
-
-**Ingredients:**
-- 1 lb boneless, skinless chicken thighs, cut into bite-sized pieces
-- 1 cup long-grain white rice
-- 2 cups chicken broth
-- 5 cloves garlic, minced
-- 1 onion, chopped
-- 2 tbsp olive oil
-- 1 tsp dried oregano
-- Salt and pepper to taste
-- Fresh parsley, chopped (for garnish)
-
-**Instructions:**
-1. Heat olive oil in a large skillet or pot over medium-high heat.
-2. Season chicken with salt, pepper, and oregano. Add to the skillet and cook until browned on all sides. Remove chicken and set aside.
-3. In the same skillet, add the chopped onion and cook until softened, about 3-4 minutes.
-4. Stir in the minced garlic and cook for another minute until fragrant.
-5. Add the rice to the skillet and toast for 1-2 minutes, stirring constantly.
-6. Pour in the chicken broth, scraping up any browned bits from the bottom of the pan. Bring to a simmer.
-7. Return the chicken to the skillet. Reduce heat to low, cover, and cook for 18-20 minutes, or until the rice is tender and the liquid has been absorbed.
-8. Fluff the rice with a fork, garnish with fresh parsley, and serve immediately.
-""";
-      _showRecipeCard = true;
+      _isLoading = true;
+      _showRecipeCard = false;
     });
+
+    try {
+      final model = FirebaseAI.googleAI().generativeModel(
+        model: 'gemini-2.5-flash-lite',
+      );
+
+      final ingredients = _ingredientsController.text;
+      final notes = _notesController.text;
+      String prompt =
+          "Based on this list of ingredients: $ingredients, please give me a recipe. ";
+      if (notes.isNotEmpty) {
+        prompt += "Please also take in consideration these notes: $notes";
+      }
+      final response = await model.generateContent([Content.text(prompt)]);
+
+      setState(() {
+        _generatedRecipe = response.text ?? 'No recipe generated.';
+        _showRecipeCard = true;
+      });
+    } catch (e) {
+      setState(() {
+        _generatedRecipe = 'Error generating recipe: $e';
+        _showRecipeCard = true;
+      });
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
   @override
@@ -55,29 +72,35 @@ A simple and flavorful one-pan meal.
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const SizedBox(height: 16.0),
-              const TextField(
-                decoration: InputDecoration(
+              TextField(
+                controller: _ingredientsController,
+                decoration: const InputDecoration(
                   labelText: 'Enter ingredients (comma separated)',
                   border: OutlineInputBorder(),
                 ),
               ),
               const SizedBox(height: 16.0),
-              const TextField(
-                decoration: InputDecoration(
+              TextField(
+                controller: _notesController,
+                decoration: const InputDecoration(
                   labelText: 'Notes or preferred cuisines',
                   border: OutlineInputBorder(),
                 ),
               ),
               const SizedBox(height: 32.0),
               TextButton(
-                onPressed: _handleGenerateRecipe,
+                onPressed: _isLoading ? null : _handleGenerateRecipe,
                 style: TextButton.styleFrom(
                   backgroundColor: Theme.of(context).primaryColor,
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 16.0),
                   textStyle: const TextStyle(fontSize: 18.0),
                 ),
-                child: const Text('Generate Recipe'),
+                child: _isLoading
+                    ? const CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      )
+                    : const Text('Generate Recipe'),
               ),
               const SizedBox(height: 24.0),
               Visibility(
