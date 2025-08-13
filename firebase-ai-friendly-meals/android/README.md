@@ -47,4 +47,4 @@ Contributions and suggestions are welcome! Feel free to open issues or pull requ
 
 ## 📄 License
 
-This project is licensed under the [Apache License](./LICENSE), which can be found in the root of this repository. It is provided for educational purposes as part of the Firebase Fundamentals video series.
+This project is licensed under the [Apache License](../../LICENSE), which can be found in the root of this repository. It is provided for educational purposes as part of the Firebase Fundamentals video series.
