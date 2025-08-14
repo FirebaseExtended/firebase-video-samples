@@ -1,6 +1,9 @@
+import 'dart:typed_data';
+
 import 'package:firebase_ai/firebase_ai.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:image_picker/image_picker.dart';
 
 class RecipeGeneratorScreen extends StatefulWidget {
   const RecipeGeneratorScreen({super.key});
@@ -15,6 +18,54 @@ class _RecipeGeneratorScreenState extends State<RecipeGeneratorScreen> {
   bool _showRecipeCard = false;
   String _generatedRecipe = "";
   bool _isLoading = false;
+  bool _isExtractingIngredients = false;
+
+  void _pickImageAndExtractIngredients() async {
+    setState(() {
+      _isExtractingIngredients = true;
+    });
+
+    try {
+      final imagePicker = ImagePicker();
+      final pickedFile = await imagePicker.pickImage(
+        source: ImageSource.gallery,
+      );
+
+      if (pickedFile != null) {
+        final imageBytes = await pickedFile.readAsBytes();
+        final model = FirebaseAI.googleAI().generativeModel(
+          model: 'gemini-2.5-flash-lite',
+        );
+
+        final prompt = Content.multi([
+          TextPart("""
+            Please analyze this image and list all visible food ingredients.
+            Format the response as a comma-separated list of ingredients.
+            Be specific with measurements where possible, 
+            but focus on identifying the ingredients accurately.
+            """),
+          InlineDataPart('image/jpeg', imageBytes),
+        ]);
+
+        final response = await model.generateContent([prompt]);
+
+        if (response.text != null) {
+          _ingredientsController.text = response.text!;
+        }
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error processing image: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } finally {
+      setState(() {
+        _isExtractingIngredients = false;
+      });
+    }
+  }
 
   void _handleGenerateRecipe() async {
     if (_ingredientsController.text.isEmpty) {
@@ -74,9 +125,18 @@ class _RecipeGeneratorScreenState extends State<RecipeGeneratorScreen> {
               const SizedBox(height: 16.0),
               TextField(
                 controller: _ingredientsController,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   labelText: 'Enter ingredients (comma separated)',
-                  border: OutlineInputBorder(),
+                  border: const OutlineInputBorder(),
+                  suffixIcon: _isExtractingIngredients
+                      ? const Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: CircularProgressIndicator(),
+                        )
+                      : IconButton(
+                          icon: const Icon(Icons.camera_alt),
+                          onPressed: _pickImageAndExtractIngredients,
+                        ),
                 ),
               ),
               const SizedBox(height: 16.0),
