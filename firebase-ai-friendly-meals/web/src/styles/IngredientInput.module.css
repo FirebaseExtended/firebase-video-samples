@@ -1,0 +1,66 @@
+.ingredientInputContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 2em;
+    box-sizing: border-box;
+}
+
+.label {
+    display: block;
+    margin-bottom: 1rem;
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.ingredientTextArea, .cuisineTypeDropdown {
+    border-radius: 0.5rem;
+    box-sizing: border-box;
+    padding: 1rem;
+    width: 100%;
+}
+
+.cuisineTypeDropdown {
+    color: black;
+    position: relative;
+    background: transparent;
+
+    /* Remove the default toggle icon*/
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+}
+
+/* Create a positioning context used for the custom dropdown */
+.cuisineTypeDropdownContainer {
+    width: 100%;
+    position: relative; 
+    box-sizing: border-box;
+}
+
+/* Add a custom toggle icon using a pseudo-element */
+.cuisineTypeDropdownContainer::after {
+    content: "▼";
+    position: absolute;
+    top: 50%;
+    right: 1rem;
+    transform: translateY(-50%);
+    pointer-events: none;
+}
+
+button {
+    align-self: center;
+    background-color: #4285F4;
+    color: white;
+    padding: 1rem 0;
+    transition: background-color 0.3s;
+    width: 50%;
+
+    &:not(:disabled):hover {
+        background-color: #166abe;
+    }
+
+    &:disabled {
+        cursor: default;
+        opacity: 30%;
+    }
+}

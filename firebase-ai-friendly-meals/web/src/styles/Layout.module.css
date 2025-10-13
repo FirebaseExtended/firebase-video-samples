@@ -1,0 +1,43 @@
+body {
+    font-family: 'Google Sans Display';
+    font-size: 16px;
+}
+
+.mainContainer {
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    margin: auto;
+    padding: 2em;
+    height: 100vh;
+    max-width: 1320px;
+}
+
+.mainContainer h1 {
+    color: #FFC400;
+}
+
+.contentContainer {
+    display: flex;
+    gap: 8em;
+    height: 100%;
+    width: 100%;
+    overflow: scroll;
+}
+
+@media (max-width: 920px) {
+    .contentContainer {
+        flex-direction: column;
+        gap: 2em;
+    }
+}
+
+.layoutPane {
+    background-color: #ffffff;
+    border: 1px solid lightgray;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    flex: 1;
+    overflow-y: scroll;
+    padding: 2rem;
+}
