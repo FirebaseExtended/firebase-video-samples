@@ -1,4 +1,5 @@
 import React from "react";
+import Markdown from "react-markdown";
 
 interface Ingredient {
   title: string;
@@ -28,7 +29,12 @@ export interface GeneratedRecipeData {
 const GeneratedRecipe: React.FC<GeneratedRecipeProp> = ({
   data,
 }: GeneratedRecipeProp) => {
-  if (data.textRecipe) return <div>{data.textRecipe}</div>;
+  if (data.textRecipe)
+    return (
+      <div>
+        <Markdown>{data.textRecipe}</Markdown>
+      </div>
+    );
   if (data.errorMessage) return <div>{data.errorMessage}</div>;
 
   console.log("hello");
