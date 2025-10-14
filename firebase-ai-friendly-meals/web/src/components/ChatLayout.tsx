@@ -40,13 +40,13 @@ const Layout: React.FC = () => {
     <div className={styles.mainContainer}>
       <h1>Friendly Meals</h1>
       <div className={styles.contentContainer}>
-        <div className={styles.layoutPane}>
+        <div className={[styles.layoutPane, styles.input].join(' ')}>
           <IngredientInput
             isLoading={isLoading}
             handleSubmit={generateTextRecipeHandler}
           />
         </div>
-        <div className={styles.layoutPane}>
+        <div className={[styles.layoutPane, styles.output].join(' ')}>
           <GeneratedRecipe data={generatedRecipe} />
         </div>
       </div>
