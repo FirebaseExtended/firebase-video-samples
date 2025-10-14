@@ -11,7 +11,10 @@ export const IngredientInput: React.FC<IngredientInputProps> = ({ handleSubmit, 
   const [cuisineType, setCuisineType] = useState("");
 
   return (
-    <div className={styles.ingredientInputContainer}>
+    <form onSubmit={(e) => {
+      e.preventDefault();
+      handleSubmit(ingredients, cuisineType)}
+      } className={styles.ingredientInputContainer}>
       <div>
         <label className={styles.label}>Ingredients</label>
         <textarea
@@ -22,6 +25,8 @@ export const IngredientInput: React.FC<IngredientInputProps> = ({ handleSubmit, 
           rows={5}
         />
       </div>
+      <div>
+      <label className={styles.label}>Cuisine</label>
       <div className={styles.cuisineTypeDropdownContainer}>
         <select
           className={styles.cuisineTypeDropdown}
@@ -36,10 +41,11 @@ export const IngredientInput: React.FC<IngredientInputProps> = ({ handleSubmit, 
           <option value="American">American</option>
         </select>
       </div>
+      </div>
       <button 
         disabled={isLoading}
-        onClick={() => handleSubmit(ingredients, cuisineType)}>{isLoading ? 'Loading' : 'Generate'}
+        type="submit">{isLoading ? 'Loading' : 'Generate'}
       </button>
-    </div>
+    </form>
   );
 }
