@@ -13,7 +13,8 @@ body {
 }
 
 .mainContainer h1 {
-    color: #FFC400;
+    color: #4285F4;
+    text-shadow: 2px 2px #FFC400;
 }
 
 .contentContainer {
