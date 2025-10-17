@@ -47,4 +47,15 @@ body {
     &.output {
         flex: 1;
     }
+
+    &.chat {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+}
+
+.chatInput {
+    width: 100%;
+    padding: 1rem;
 }

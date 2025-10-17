@@ -1,0 +1,19 @@
+.messageBubble {
+    border: 3px solid #4285F4;
+    max-width: 85%;
+    padding-inline: 1rem;
+    border-radius: 8px;
+
+    &.left {
+        align-self: self-start;
+        border-top-left-radius: 0px;
+        border-color: lightgray;
+    }
+
+    &.right {
+        align-self: self-end;
+        text-align: right;
+        border-top-right-radius: 0px;
+    }
+    
+}
