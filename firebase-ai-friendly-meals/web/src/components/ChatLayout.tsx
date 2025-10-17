@@ -11,7 +11,12 @@ const Layout: React.FC = () => {
   >([]);
   const chat = useMemo(() => {
     // Create a `GenerativeModel` instance with the desired model.
-    const model = getGenerativeModel(ai, { model: "gemini-2.5-flash" });
+    const model = getGenerativeModel(ai, {
+      model: "gemini-2.5-flash",
+      generationConfig: { maxOutputTokens: 1000 },
+      systemInstruction:
+        "You're a recipe recommendation chat bot. Keep responses brief, since they need to fit in a chat window.",
+    });
     return model.startChat();
   }, []);
 
