@@ -7,7 +7,7 @@ import ChatMessage from "./ChatMessage";
 const Layout: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [history, setHistory] = useState<
-    Array<{ role: "user" | "model"; message: string }>
+    Array<{ role: "user" | "model"; message: string; timestamp: number }>
   >([]);
   const chat = useMemo(() => {
     // Create a `GenerativeModel` instance with the desired model.
@@ -20,35 +20,38 @@ const Layout: React.FC = () => {
     return model.startChat();
   }, []);
 
-  const updateModelMessage = useCallback((newMessage) => {
-    setHistory((prevHistory) => {
+  const updateModelMessage = useCallback(
+    (newMessage: string) => {
+      setHistory((prevHistory) => {
         const newHistory = structuredClone(prevHistory);
         const modelMessage = newHistory.at(-1);
 
-        if (!modelMessage || modelMessage.role !== 'model') {
-            console.log(newHistory, prevHistory);
-            throw new Error('could not find message from model');
+        if (!modelMessage || modelMessage.role !== "model") {
+          console.log(newHistory, prevHistory);
+          throw new Error("could not find message from model");
         }
 
         if (modelMessage.message === "...") {
-            modelMessage.message = "";
-          }
-          modelMessage.message += newMessage;
-          return newHistory;
+          modelMessage.message = "";
+        }
+        modelMessage.message += newMessage;
+        return newHistory;
       });
-  }, [setHistory]);
+    },
+    [setHistory]
+  );
 
   async function sendMessage(message: string) {
     setLoading(true);
     setHistory([
       ...history,
-      { role: "user", message },
+      { role: "user", message, timestamp: Date.now() },
       // add a placeholder for the model's message
-      { role: "model", message: "..." },
+      { role: "model", message: "...", timestamp: Date.now() + 500 },
     ]);
 
     // Uncomment below for non-streaming code:
-    // 
+    //
     // let generatedText: string;
     // try {
     //   const { response } = await chat.sendMessage(message);
@@ -67,9 +70,9 @@ const Layout: React.FC = () => {
         updateModelMessage(chunk.text());
       }
     } catch (e) {
-        updateModelMessage((e as Error).message);
+      updateModelMessage((e as Error).message);
     }
-    
+
     setLoading(false);
   }
 
@@ -81,7 +84,10 @@ const Layout: React.FC = () => {
           className={[styles.layoutPane, styles.output, styles.chat].join(" ")}
         >
           {history.map((historyItem) => (
-            <ChatMessage {...historyItem} />
+            <ChatMessage
+              key={`${historyItem.timestamp}:${historyItem.role}`}
+              {...historyItem}
+            />
           ))}
           <div style={{ overflowAnchor: "auto", height: "1px" }}></div>
         </div>
@@ -89,7 +95,7 @@ const Layout: React.FC = () => {
           className={[styles.layoutPane, styles.input].join(" ")}
           onSubmit={async (e) => {
             e.preventDefault();
-            
+
             // get the message
             const formData = new FormData(e.currentTarget);
             const userMessage = formData.get("user-message");
