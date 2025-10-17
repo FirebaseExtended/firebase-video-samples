@@ -2,7 +2,6 @@
     display: flex;
     flex-direction: column;
     gap: 2em;
-    box-sizing: border-box;
     flex: 1;
     overflow-y: scroll;
     border-radius: 8px;
@@ -21,7 +20,6 @@
 .cuisineTypeDropdown {
     background: transparent;
     border-radius: 0.5rem;
-    box-sizing: border-box;
     color: black;
     padding: 1rem;
     position: relative;
@@ -37,7 +35,6 @@
 .cuisineTypeDropdownContainer {
     width: 100%;
     position: relative; 
-    box-sizing: border-box;
 
 /* Add a custom toggle icon using a pseudo-element */
     &::after {

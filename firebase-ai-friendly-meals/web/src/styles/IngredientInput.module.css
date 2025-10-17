@@ -2,7 +2,6 @@
     display: flex;
     flex-direction: column;
     gap: 2em;
-    box-sizing: border-box;
 }
 
 .label {
@@ -14,7 +13,6 @@
 
 .ingredientTextArea, .cuisineTypeDropdown {
     border-radius: 0.5rem;
-    box-sizing: border-box;
     padding: 1rem;
     width: 100%;
 }
@@ -34,7 +32,6 @@
 .cuisineTypeDropdownContainer {
     width: 100%;
     position: relative; 
-    box-sizing: border-box;
 }
 
 /* Add a custom toggle icon using a pseudo-element */

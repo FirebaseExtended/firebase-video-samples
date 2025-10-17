@@ -6,7 +6,6 @@ body {
 .mainContainer {
     display: flex;
     flex-direction: column;
-    box-sizing: border-box;
     margin: auto;
     padding: 2em;
     height: 100vh;
