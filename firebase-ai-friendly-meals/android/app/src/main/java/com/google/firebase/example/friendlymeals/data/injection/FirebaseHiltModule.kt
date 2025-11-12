@@ -22,7 +22,7 @@ import dagger.hilt.components.SingletonComponent
 object FirebaseHiltModule {
     @Provides fun generativeModel(): GenerativeModel {
         return Firebase.ai(backend = GenerativeBackend.googleAI())
-            .generativeModel("gemini-2.0-flash")
+            .generativeModel("gemini-2.5-flash")
     }
 
     @OptIn(PublicPreviewAPI::class)
@@ -39,7 +39,7 @@ object FirebaseHiltModule {
         )
 
         return Firebase.ai(backend = GenerativeBackend.googleAI()).imagenModel(
-            modelName = "imagen-3.0-generate-002",
+            modelName = "imagen-4.0-fast-generate-001",
             generationConfig = generationConfig,
             safetySettings = safetySettings
         )
