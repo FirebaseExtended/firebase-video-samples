@@ -43,7 +43,7 @@ object FirebaseHiltModule {
 
             override fun onError(error: FirebaseRemoteConfigException) {
                 Log.w(
-                    ContentValues.TAG,
+                    TAG,
                     "Config update error with code: ${error.code}",
                     error
                 )

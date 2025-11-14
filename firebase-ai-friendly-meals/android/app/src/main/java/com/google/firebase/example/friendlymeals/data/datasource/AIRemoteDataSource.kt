@@ -75,12 +75,12 @@ class AIRemoteDataSource @Inject constructor(
             ?.filterIsInstance<ImagePart>()?.firstOrNull()?.image
     }
 
-    suspend fun generateRecipePhotoImagen(recipe: String): Bitmap {
+    suspend fun generateRecipePhotoImagen(recipe: String): Bitmap? {
         val prompt = "A professional food photography shot of this recipe: $recipe. " +
                 "Style: High-end food photography, restaurant-quality plating, soft natural " +
                 "lighting, on a clean background, showing the complete plated dish."
 
         val imageResponse = imagenModel.generateImages(prompt)
-        return imageResponse.images.first().asBitmap()
+        return imageResponse.images.firstOrNull()?.asBitmap()
     }
 }
