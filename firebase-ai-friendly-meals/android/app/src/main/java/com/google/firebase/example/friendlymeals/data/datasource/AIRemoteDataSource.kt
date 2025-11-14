@@ -71,8 +71,8 @@ class AIRemoteDataSource @Inject constructor(
                 "lighting, on a clean background, showing the complete plated dish."
 
         return generativeModel.generateContent(prompt)
-            .candidates.first().content.parts
-            .filterIsInstance<ImagePart>().firstOrNull()?.image
+            .candidates.firstOrNull()?.content?.parts
+            ?.filterIsInstance<ImagePart>()?.firstOrNull()?.image
     }
 
     suspend fun generateRecipePhotoImagen(recipe: String): Bitmap {
