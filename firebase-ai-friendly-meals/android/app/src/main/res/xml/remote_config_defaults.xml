@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?><defaults>
+  <entry>
+    <key>model_name</key>
+    <value>gemini-2.5-flash-image</value>
+  </entry>
+  <entry>
+    <key>imagen_name</key>
+    <value>imagen-4.0-fast-generate-001</value>
+  </entry>
+</defaults>

@@ -48,7 +48,7 @@ class HomeViewModel @Inject constructor(
             )
 
             val generatedRecipe = aiRepository.generateRecipe(ingredients, notes)
-            val recipeImage = aiRepository.generateRecipeImage(generatedRecipe)
+            val recipeImage = aiRepository.generateRecipePhoto(generatedRecipe)
 
             _viewState.value = _viewState.value.copy(
                 recipeLoading = false,
