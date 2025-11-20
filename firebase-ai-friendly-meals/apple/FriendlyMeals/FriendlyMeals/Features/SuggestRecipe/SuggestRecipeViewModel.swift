@@ -1,7 +1,6 @@
 //
 // FriendlyMeals
 //
-// Created by Peter Friese on 02.07.25.
 // Copyright © 2025 Google LLC.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,10 +23,10 @@ class SuggestRecipeViewModel {
   var isGenerating = false
   var isPresentingRecipe = false
 
-  var ingredients = "Tomatoes, Basil, Mozzarella"
+  var ingredients = "Chopped tomatoes, aubergines, courgettes, parmesan cheese, garlic, olive oil"
   var notes = "Italian"
   var recipe = ""
-  
+
   private var model: GenerativeModel = {
     let generationConfig = GenerationConfig(
       temperature: 0.9,
@@ -36,17 +35,19 @@ class SuggestRecipeViewModel {
       maxOutputTokens: 4096
     )
     let firebaseAI = FirebaseAI.firebaseAI(backend: .googleAI())
-    return firebaseAI.generativeModel(modelName: "gemini-2.5-flash",
-                                      generationConfig: generationConfig)
+    return firebaseAI.generativeModel(
+      modelName: "gemini-2.5-flash",
+      generationConfig: generationConfig
+    )
   }()
 
   func generateRecipe() async throws {
     isGenerating = true
     defer { isGenerating = false }
-    
+
     var prompt = """
       Create a recipe using the following ingredients: \(ingredients).
-      
+
       Please include:
       1. A creative title that describes the dish
       2. A brief, appetizing description
@@ -54,17 +55,24 @@ class SuggestRecipeViewModel {
       4. List of ingredients with measurements
       5. Step-by-step cooking instructions
       """
-    
+
     if !notes.isEmpty {
-      prompt.append("""
+      prompt.append(
+        """
         Please make sure to consider the following notes 
         when creating the recipe: \(notes)
-        """)
+        """
+      )
     }
-    
-    let response = try await model.generateContent(prompt)
-    recipe = response.text ?? ""
-    isPresentingRecipe = true
+
+    do {
+      let response = try await model.generateContent(prompt)
+      recipe = response.text ?? ""
+      isPresentingRecipe = true
+    } catch {
+      recipe = "An error occurred while generating the recipe: \(error.localizedDescription)."
+      isPresentingRecipe = true
+    }
   }
 
 }
