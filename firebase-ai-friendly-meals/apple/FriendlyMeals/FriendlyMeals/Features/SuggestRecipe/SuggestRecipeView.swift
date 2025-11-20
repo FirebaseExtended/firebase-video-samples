@@ -41,7 +41,12 @@ struct SuggestRecipeView: View {
       Section {
         Button(action: {
           Task {
-            await viewModel.generateRecipe()
+            do {
+              try await viewModel.generateRecipe()
+            }
+            catch {
+              print(error.localizedDescription)
+            }
           }
         }) {
           if viewModel.isGenerating {
@@ -59,7 +64,7 @@ struct SuggestRecipeView: View {
     .navigationTitle("Suggest a recipe")
     .sheet(isPresented: $viewModel.isPresentingRecipe) {
       NavigationStack {
-        SuggestRecipeDetailsView(recipe: viewModel.recipe)
+        SuggestRecipeDetailsView(recipe: viewModel.recipe, image: viewModel.recipeImage)
           .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
               Button(action: { viewModel.isPresentingRecipe.toggle() }) {
