@@ -46,6 +46,7 @@ class MealPlannerChatViewModel {
     self.chat = chat
   }
 
+  // If you want to use non-streaming chat, use this method
   func sendMessageNonStreaming(_ userMessage: DefaultMessage) async {
     messages.append(userMessage)
     
@@ -73,20 +74,13 @@ class MealPlannerChatViewModel {
       let responseStream = try chat.sendMessageStream(userMessage.content ?? "")
       for try await chunk in responseStream {
         if let text = chunk.text {
-          if messages[responseIndex].content != nil {
-            let updatedContent = messages[responseIndex].content! + text
-            messages[responseIndex] = DefaultMessage(content: updatedContent, participant: .other)
-          }
-          else {
-            messages[responseIndex] = DefaultMessage(content: text, participant: .other)
-          }
+          let currentContent = messages[responseIndex].content ?? ""
+          messages[responseIndex] = DefaultMessage(content: currentContent + text, participant: .other)
         }
       }
     }
     catch {
-      let errorMessage = DefaultMessage(content: error.localizedDescription,
-                                        participant: .other)
-      messages.append(errorMessage)
+      messages[responseIndex] = DefaultMessage(content: error.localizedDescription, participant: .other)
     }
   }
 }
