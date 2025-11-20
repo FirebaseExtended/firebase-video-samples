@@ -16,26 +16,22 @@
 // limitations under the License.
 
 import SwiftUI
-import FirebaseCore
+import ConversationKit
+import FirebaseAI
 
-@main
-struct FriendlyMealsApp: App {
-  init () {
-    FirebaseApp.configure()
-  }
-  var body: some Scene {
-    WindowGroup {
-      TabView {
-        SuggestRecipeView()
-          .tabItem {
-            Label("Suggest Recipes", systemImage: "fork.knife")
-          }
-        
-        MealPlannerChatView()
-          .tabItem {
-            Label("Meal Planner", systemImage: "message")
-          }
+struct MealPlannerChatView: View {
+  @State private var viewModel = MealPlannerChatViewModel()
+
+  var body: some View {
+    ConversationView(messages: $viewModel.messages)
+      .onSendMessage { userMessage in
+        Task {
+          await viewModel.sendMessage(userMessage)
+        }
       }
-    }
   }
+}
+
+#Preview {
+  MealPlannerChatView()
 }

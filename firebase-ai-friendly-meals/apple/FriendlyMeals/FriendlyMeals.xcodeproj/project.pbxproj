@@ -7,7 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		8820A8C22ECF626F00DF6B0D /* ConversationKit in Frameworks */ = {isa = PBXBuildFile; productRef = 8820A8C12ECF626F00DF6B0D /* ConversationKit */; };
 		884B2CF22E144BA7007B2E0E /* MarkdownUI in Frameworks */ = {isa = PBXBuildFile; productRef = 884B2CF12E144BA7007B2E0E /* MarkdownUI */; };
+		88665A892E1D2DB00039990B /* ConversationKit in Frameworks */ = {isa = PBXBuildFile; productRef = 88665A882E1D2DB00039990B /* ConversationKit */; };
 		88BE941E2E1413D000C81FF5 /* FirebaseAI in Frameworks */ = {isa = PBXBuildFile; productRef = 88BE941D2E1413D000C81FF5 /* FirebaseAI */; };
 		88C8FB7A2E13DF62001B86C4 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 88C8FB792E13DF62001B86C4 /* FirebaseCore */; };
 /* End PBXBuildFile section */
@@ -31,6 +33,8 @@
 			files = (
 				884B2CF22E144BA7007B2E0E /* MarkdownUI in Frameworks */,
 				88C8FB7A2E13DF62001B86C4 /* FirebaseCore in Frameworks */,
+				88665A892E1D2DB00039990B /* ConversationKit in Frameworks */,
+				8820A8C22ECF626F00DF6B0D /* ConversationKit in Frameworks */,
 				88BE941E2E1413D000C81FF5 /* FirebaseAI in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -85,6 +89,8 @@
 				88C8FB792E13DF62001B86C4 /* FirebaseCore */,
 				88BE941D2E1413D000C81FF5 /* FirebaseAI */,
 				884B2CF12E144BA7007B2E0E /* MarkdownUI */,
+				88665A882E1D2DB00039990B /* ConversationKit */,
+				8820A8C12ECF626F00DF6B0D /* ConversationKit */,
 			);
 			productName = FriendlyMeals;
 			productReference = 88C8FB652E13D879001B86C4 /* FriendlyMeals.app */;
@@ -117,6 +123,7 @@
 			packageReferences = (
 				88C8FB772E13DEE1001B86C4 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				884B2CF02E144BA7007B2E0E /* XCRemoteSwiftPackageReference "swift-markdown-ui" */,
+				8820A8C02ECF626F00DF6B0D /* XCRemoteSwiftPackageReference "ConversationKit" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 88C8FB662E13D879001B86C4 /* Products */;
@@ -356,6 +363,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		8820A8C02ECF626F00DF6B0D /* XCRemoteSwiftPackageReference "ConversationKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/peterfriese/ConversationKit";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.0.3;
+			};
+		};
 		884B2CF02E144BA7007B2E0E /* XCRemoteSwiftPackageReference "swift-markdown-ui" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/gonzalezreal/swift-markdown-ui";
@@ -369,16 +384,25 @@
 			repositoryURL = "https://github.com/firebase/firebase-ios-sdk.git";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 11.15.0;
+				minimumVersion = 12.0.0;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		8820A8C12ECF626F00DF6B0D /* ConversationKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8820A8C02ECF626F00DF6B0D /* XCRemoteSwiftPackageReference "ConversationKit" */;
+			productName = ConversationKit;
+		};
 		884B2CF12E144BA7007B2E0E /* MarkdownUI */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 884B2CF02E144BA7007B2E0E /* XCRemoteSwiftPackageReference "swift-markdown-ui" */;
 			productName = MarkdownUI;
+		};
+		88665A882E1D2DB00039990B /* ConversationKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = ConversationKit;
 		};
 		88BE941D2E1413D000C81FF5 /* FirebaseAI */ = {
 			isa = XCSwiftPackageProductDependency;
