@@ -107,9 +107,10 @@ class MealPlannerChatViewModel {
       if !functionCalls.isEmpty {
         functionCalls.forEach { call in
           if call.name == "startTimer" {
-            guard case .number(let minutesValue) = call.args["minutes"] else { fatalError() }
-            let minutes = Int(minutesValue)
-
+            guard case .number(let minutesValue) = call.args["minutes"], let minutes = Int(exactly: minutesValue) else {
+              print("Error: Invalid 'minutes' argument received: \(String(describing: call.args["minutes"]))")
+              return // Skips this function call inside the forEach
+            }
             startTimer(minutes: minutes)
 
             functionResponses.append(FunctionResponsePart(name: call.name, response: .init()))
@@ -179,9 +180,10 @@ class MealPlannerChatViewModel {
 
         accumulatedFunctionCalls.forEach { call in
           if call.name == "startTimer" {
-            guard case .number(let minutesValue) = call.args["minutes"] else { fatalError() }
-            let minutes = Int(minutesValue)
-
+            guard case .number(let minutesValue) = call.args["minutes"], let minutes = Int(exactly: minutesValue) else {
+              print("Error: Invalid 'minutes' argument received: \(String(describing: call.args["minutes"]))")
+              return // Skips this function call inside the forEach
+            }
             startTimer(minutes: minutes)
 
             functionResponses.append(FunctionResponsePart(name: call.name, response: .init()))
