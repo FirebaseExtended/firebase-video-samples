@@ -41,7 +41,7 @@ class SuggestRecipeViewModel {
     )
   }()
 
-  func generateRecipe() async throws {
+  func generateRecipe() async {
     isGenerating = true
     defer { isGenerating = false }
 
@@ -68,11 +68,10 @@ class SuggestRecipeViewModel {
     do {
       let response = try await model.generateContent(prompt)
       recipe = response.text ?? ""
-      isPresentingRecipe = true
     } catch {
       recipe = "An error occurred while generating the recipe: \(error.localizedDescription)."
-      isPresentingRecipe = true
     }
+    isPresentingRecipe = true
   }
 
 }
