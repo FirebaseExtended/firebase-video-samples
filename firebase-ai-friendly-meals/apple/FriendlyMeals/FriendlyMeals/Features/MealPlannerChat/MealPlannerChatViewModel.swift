@@ -75,7 +75,6 @@ class MealPlannerChatViewModel {
     timer?.invalidate()
 
     remainingTime = minutes * 60
-    isTimerRunning = true
 
     timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
       Task { @MainActor [weak self] in
@@ -84,7 +83,6 @@ class MealPlannerChatViewModel {
         if self.remainingTime > 0 {
           self.remainingTime -= 1
         } else {
-          self.isTimerRunning = false
           self.timer?.invalidate()
           self.timer = nil
         }
