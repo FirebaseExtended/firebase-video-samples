@@ -70,7 +70,7 @@ class MealPlannerChatViewModel {
     self.model = model
     self.chat = chat
   }
-
+  
   func startTimer(minutes: Int) {
     timer?.invalidate()
 
