@@ -17,6 +17,7 @@
 
 import FirebaseAI
 import SwiftUI
+import UIKit
 
 @Observable
 class SuggestRecipeViewModel {
@@ -26,17 +27,19 @@ class SuggestRecipeViewModel {
   var ingredients = "Chopped tomatoes, aubergines, courgettes, parmesan cheese, garlic, olive oil"
   var notes = "Italian"
   var recipe = ""
+  var recipeImage: UIImage?
 
   private var model: GenerativeModel = {
     let generationConfig = GenerationConfig(
       temperature: 0.9,
       topP: 0.1,
       topK: 16,
-      maxOutputTokens: 4096
+      maxOutputTokens: 4096,
+      responseModalities: [.text, .image]
     )
-    let firebaseAI = FirebaseAI.firebaseAI(backend: .googleAI())
+    let firebaseAI = FirebaseAI.firebaseAI(backend: .vertexAI(location: "global"))
     return firebaseAI.generativeModel(
-      modelName: "gemini-2.5-flash",
+      modelName: "gemini-2.5-flash-image",
       generationConfig: generationConfig
     )
   }()
@@ -44,9 +47,12 @@ class SuggestRecipeViewModel {
   func generateRecipe() async {
     isGenerating = true
     defer { isGenerating = false }
+    recipeImage = nil
 
     var prompt = """
       Create a recipe using the following ingredients: \(ingredients).
+
+      Also generate an image that shows what the final dish will look like.
 
       Please include:
       1. A creative title that describes the dish
@@ -59,7 +65,7 @@ class SuggestRecipeViewModel {
     if !notes.isEmpty {
       prompt.append(
         """
-        Please make sure to consider the following notes 
+        Please make sure to consider the following notes
         when creating the recipe: \(notes)
         """
       )
@@ -68,6 +74,9 @@ class SuggestRecipeViewModel {
     do {
       let response = try await model.generateContent(prompt)
       recipe = response.text ?? ""
+      if let inlineDataPart = response.inlineDataParts.first {
+        recipeImage = UIImage(data: inlineDataPart.data)
+      }
     } catch {
       recipe = "An error occurred while generating the recipe: \(error.localizedDescription)."
     }

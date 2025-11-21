@@ -70,7 +70,7 @@ class MealPlannerChatViewModel {
     self.model = model
     self.chat = chat
   }
-
+  
   func startTimer(minutes: Int) {
     timer?.invalidate()
 
@@ -103,31 +103,9 @@ class MealPlannerChatViewModel {
     do {
       let response = try await chat.sendMessage(chatMessage.content ?? "")
 
-      var functionResponses = [FunctionResponsePart]()
       let functionCalls = response.functionCalls
       if !functionCalls.isEmpty {
-        functionCalls.forEach { call in
-          if call.name == "startTimer" {
-            guard case .number(let minutesValue) = call.args["minutes"], let minutes = Int(exactly: minutesValue) else {
-              print("Error: Invalid 'minutes' argument received: \(String(describing: call.args["minutes"]))")
-              return // Skips this function call inside the forEach
-            }
-            startTimer(minutes: minutes)
-
-            functionResponses.append(FunctionResponsePart(name: call.name, response: .init()))
-          } else if call.name == "getRemainingTime" {
-            let remainingSeconds = getRemainingTime()
-            let response: JSONObject
-
-            if let seconds = remainingSeconds {
-              response = ["remainingSeconds": .number(Double(seconds))]
-            } else {
-              response = ["status": .string("No timer is currently running")]
-            }
-
-            functionResponses.append(FunctionResponsePart(name: call.name, response: response))
-          }
-        }
+        let functionResponses = functionCalls.compactMap { handleFunctionCall($0) }
         let finalResponse = try await chat.sendMessage(
           [ModelContent(role: "function", parts: functionResponses)]
         )
@@ -177,30 +155,7 @@ class MealPlannerChatViewModel {
 
       // Check if the accumulated response contains function calls
       if !accumulatedFunctionCalls.isEmpty {
-        var functionResponses = [FunctionResponsePart]()
-
-        accumulatedFunctionCalls.forEach { call in
-          if call.name == "startTimer" {
-            guard case .number(let minutesValue) = call.args["minutes"], let minutes = Int(exactly: minutesValue) else {
-              print("Error: Invalid 'minutes' argument received: \(String(describing: call.args["minutes"]))")
-              return // Skips this function call inside the forEach
-            }
-            startTimer(minutes: minutes)
-
-            functionResponses.append(FunctionResponsePart(name: call.name, response: .init()))
-          } else if call.name == "getRemainingTime" {
-            let remainingSeconds = getRemainingTime()
-            let response: JSONObject
-
-            if let seconds = remainingSeconds {
-              response = ["remainingSeconds": .number(Double(seconds))]
-            } else {
-              response = ["status": .string("No timer is currently running")]
-            }
-
-            functionResponses.append(FunctionResponsePart(name: call.name, response: response))
-          }
-        }
+        let functionResponses = accumulatedFunctionCalls.compactMap { handleFunctionCall($0) }
 
         // Check if the first response is empty and remove it if so
         if responseIndex != nil, let content = messages[responseIndex!].content, content.isEmpty {
@@ -237,5 +192,26 @@ class MealPlannerChatViewModel {
       )
       messages.append(errorMessage)
     }
+  }
+  
+  private func handleFunctionCall(_ call: FunctionCallPart) -> FunctionResponsePart? {
+    if call.name == "startTimer" {
+      guard case .number(let minutesValue) = call.args["minutes"], let minutes = Int(exactly: minutesValue) else {
+        print("Error: Invalid 'minutes' argument received: \(String(describing: call.args["minutes"])))")
+        return nil
+      }
+      startTimer(minutes: minutes)
+      return FunctionResponsePart(name: call.name, response: .init())
+    } else if call.name == "getRemainingTime" {
+      let remainingSeconds = getRemainingTime()
+      let response: JSONObject
+      if let seconds = remainingSeconds {
+        response = ["remainingSeconds": .number(Double(seconds))]
+      } else {
+        response = ["status": .string("No timer is currently running")]
+      }
+      return FunctionResponsePart(name: call.name, response: response)
+    }
+    return nil
   }
 }

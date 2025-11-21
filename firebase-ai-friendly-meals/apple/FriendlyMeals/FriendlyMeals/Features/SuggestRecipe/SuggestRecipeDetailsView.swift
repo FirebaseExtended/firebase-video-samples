@@ -22,18 +22,28 @@ struct SuggestRecipeDetailsView {
   @Environment(\.dismiss) private var dismiss
 
   let recipe: String
+  let image: UIImage?
 }
 
 extension SuggestRecipeDetailsView: View {
   var body: some View {
     ScrollView {
-      Markdown(recipe)
-        .frame(
-          maxWidth: .infinity,
-          maxHeight: .infinity,
-          alignment: .topLeading
-        )
-        .padding(.horizontal)
+      VStack {
+        if let image {
+          Image(uiImage: image)
+            .resizable()
+            .scaledToFit()
+            .cornerRadius(8)
+            .padding(.horizontal)
+        }
+        Markdown(recipe)
+          .frame(
+            maxWidth: .infinity,
+            maxHeight: .infinity,
+            alignment: .topLeading
+          )
+          .padding(.horizontal)
+      }
     }
   }
 }
@@ -59,5 +69,7 @@ extension SuggestRecipeDetailsView: View {
       5. Stir in parmesan until smooth
       6. Add chicken and pasta to sauce
       7. Toss to coat and serve hot
-      """)
+      """,
+    image: UIImage(systemName: "photo")
+  )
 }

@@ -59,7 +59,7 @@ struct SuggestRecipeView: View {
     .navigationTitle("Suggest a recipe")
     .sheet(isPresented: $viewModel.isPresentingRecipe) {
       NavigationStack {
-        SuggestRecipeDetailsView(recipe: viewModel.recipe)
+        SuggestRecipeDetailsView(recipe: viewModel.recipe, image: viewModel.recipeImage)
           .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
               Button(action: { viewModel.isPresentingRecipe.toggle() }) {
