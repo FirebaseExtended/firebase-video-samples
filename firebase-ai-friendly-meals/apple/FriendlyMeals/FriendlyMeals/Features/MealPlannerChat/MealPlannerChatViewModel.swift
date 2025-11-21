@@ -26,7 +26,10 @@ class MealPlannerChatViewModel {
 
   private var timer: Timer?
   private var remainingTime: Int = 0
-  private var isTimerRunning: Bool = false
+  
+  private var isTimerRunning: Bool {
+    timer != nil
+  }
 
   private var model: GenerativeModel
   private var chat: Chat
@@ -54,7 +57,7 @@ class MealPlannerChatViewModel {
         tools: [.functionDeclarations([startTimerTool, getRemainingTimeTool])],
         systemInstruction: ModelContent(
           role: "system",
-          parts: "You are a meal planner. Please reply in the style of Gordon Ramsay."
+          parts: "You are a meal planner. Please reply in the style of a spicy celebrity chef."
         ),
       )
     let chat = model.startChat(history: [
@@ -72,7 +75,6 @@ class MealPlannerChatViewModel {
     timer?.invalidate()
 
     remainingTime = minutes * 60
-    isTimerRunning = true
 
     timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
       Task { @MainActor [weak self] in
@@ -81,7 +83,6 @@ class MealPlannerChatViewModel {
         if self.remainingTime > 0 {
           self.remainingTime -= 1
         } else {
-          self.isTimerRunning = false
           self.timer?.invalidate()
           self.timer = nil
         }
