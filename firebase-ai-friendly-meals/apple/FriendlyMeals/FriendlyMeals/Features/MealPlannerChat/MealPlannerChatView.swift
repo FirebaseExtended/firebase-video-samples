@@ -26,7 +26,7 @@ struct MealPlannerChatView: View {
     ConversationView(messages: $viewModel.messages)
       .onSendMessage { userMessage in
         Task {
-          await viewModel.sendMessage(userMessage)
+          await viewModel.sendMessageStreaming(userMessage)
         }
       }
   }
