@@ -44,7 +44,7 @@ class SuggestRecipeViewModel {
     )
   }()
 
-  func generateRecipe() async throws {
+  func generateRecipe() async {
     isGenerating = true
     defer { isGenerating = false }
     recipeImage = nil

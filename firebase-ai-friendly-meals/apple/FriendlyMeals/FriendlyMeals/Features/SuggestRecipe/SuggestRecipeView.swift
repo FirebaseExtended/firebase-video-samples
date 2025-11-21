@@ -41,12 +41,7 @@ struct SuggestRecipeView: View {
       Section {
         Button(action: {
           Task {
-            do {
-              try await viewModel.generateRecipe()
-            }
-            catch {
-              print(error.localizedDescription)
-            }
+            await viewModel.generateRecipe()
           }
         }) {
           if viewModel.isGenerating {
