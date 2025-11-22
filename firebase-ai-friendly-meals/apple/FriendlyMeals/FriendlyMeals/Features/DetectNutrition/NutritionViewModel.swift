@@ -1,6 +1,6 @@
-import FirebaseAI
 import Foundation
 import SwiftUI
+import FirebaseAI
 
 struct NutritionInfo: Identifiable, Codable {
   let id = UUID()
@@ -17,6 +17,7 @@ class NutritionViewModel {
   var isLoading = false
   var nutritionInfo: NutritionInfo? = nil
   var errorMessage: String? = nil
+  var currentThoughtStep: ThoughtStep? = nil
 
   private var model: GenerativeModel {
     let generationConfig = GenerationConfig(
@@ -26,13 +27,14 @@ class NutritionViewModel {
           "carbohydrates": .string(),
           "fat": .string(),
           "protein": .string(),
-          "kilocalories": .string(),
+          "kilocalories": .string()
         ]
-      )
+      ),
+      thinkingConfig: ThinkingConfig(thinkingBudget: 1024, includeThoughts: true),
     )
     let ai = FirebaseAI.firebaseAI(backend: .googleAI())
     return ai.generativeModel(
-      modelName: "gemini-2.5-flash",
+      modelName: "gemini-2.5-pro",
       generationConfig: generationConfig
     )
   }
@@ -42,20 +44,36 @@ class NutritionViewModel {
     self.errorMessage = nil
     self.nutritionInfo = nil
     self.isLoading = true
+    self.currentThoughtStep = nil
 
     Task {
       do {
-        let prompt =
-          "Analyze the nutritional values of the food in this image, including carbohydrates, fat, protein, and kilocalories. Provide a concise summary of each value."
-        let response = try await model.generateContent(image, prompt)
+        let prompt = """
+        Analyze the nutritional values of the food in this image, including carbohydrates, fat, protein, and kilocalories.
+        """
+        
+        let contentStream = try model.generateContentStream(image, prompt)
+        
+        var accumulatedText = ""
+        for try await chunk in contentStream {
+          if let thoughtSummary = chunk.thoughtSummary, let newStep = ThoughtStep(from: thoughtSummary) {
+            self.currentThoughtStep = newStep
+          }
+          
+          if let text = chunk.text {
+            accumulatedText += text
+          }
+        }
 
-        if let jsonString = response.text {
+        // After the stream, parse the accumulated text for the final JSON
+        if let jsonString = accumulatedText.isEmpty ? nil : accumulatedText {
           let jsonData = Data(jsonString.utf8)
           let decoder = JSONDecoder()
           self.nutritionInfo = try decoder.decode(NutritionInfo.self, from: jsonData)
         } else {
-          throw "No text in response"
+          throw NutritionError.responseDecodingFailed(nil)
         }
+
       } catch {
         self.errorMessage = error.localizedDescription
         print("Error processing image: \(error.localizedDescription)")
@@ -65,4 +83,3 @@ class NutritionViewModel {
   }
 }
 
-extension String: LocalizedError {}

@@ -1,4 +1,5 @@
 import SwiftUI
+import PhotosUI // For potential future photo library integration, though camera is primary
 
 struct NutritionView: View {
   @State private var isShowingCamera = false
@@ -33,7 +34,7 @@ struct NutritionView: View {
         .padding(.bottom)
 
         if viewModel.isLoading {
-          ProgressView("Analyzing nutrition...")
+          ThinkingView(thoughtStep: viewModel.currentThoughtStep)
             .padding()
         } else if let errorMessage = viewModel.errorMessage {
           Text("Error: \(errorMessage)")
@@ -82,3 +83,5 @@ struct NutritionView_Previews: PreviewProvider {
     NutritionView()
   }
 }
+
+
