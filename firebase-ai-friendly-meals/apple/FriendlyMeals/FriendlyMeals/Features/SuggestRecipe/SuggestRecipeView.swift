@@ -21,6 +21,8 @@ struct SuggestRecipeView: View {
   @State private var viewModel = SuggestRecipeViewModel()
   @Environment(RecipeService.self) private var recipeService
 
+  @State private var showSaveErrorAlert = false
+
   var body: some View {
     Form {
       Section("Ingredients") {
@@ -70,8 +72,9 @@ struct SuggestRecipeView: View {
             Task {
               do {
                 try await recipeService.save(recipe)
+                viewModel.isPresentingRecipe = false
               } catch {
-                print("Failed to save recipe: \(error.localizedDescription)")
+                showSaveErrorAlert = true
               }
             }
           }
@@ -82,6 +85,11 @@ struct SuggestRecipeView: View {
               Label("Close", systemImage: "xmark")
             }
           }
+        }
+        .alert("Error", isPresented: $showSaveErrorAlert) {
+          Button("OK", role: .cancel) {}
+        } message: {
+          Text("An error occurred while saving the recipe.")
         }
       }
     }

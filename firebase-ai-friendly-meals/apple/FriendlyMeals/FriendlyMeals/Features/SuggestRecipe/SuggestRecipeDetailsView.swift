@@ -93,7 +93,6 @@ extension SuggestRecipeDetailsView: View {
       if isNew {
         Button(action: {
           onSave?()
-          dismiss()
         }) {
           Label("Save", systemImage: "square.and.arrow.down")
         }

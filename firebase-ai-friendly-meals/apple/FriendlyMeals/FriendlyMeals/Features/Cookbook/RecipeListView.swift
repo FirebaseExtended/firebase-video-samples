@@ -19,6 +19,8 @@ import SwiftUI
 
 struct RecipeListView: View {
   @Environment(RecipeService.self) var recipeService
+  @State private var showDeleteErrorAlert = false
+  @State private var showUpdateErrorAlert = false
 
   var body: some View {
     List(recipeService.recipes) { recipe in
@@ -44,7 +46,7 @@ struct RecipeListView: View {
             do {
               try await recipeService.delete(recipe)
             } catch {
-              print("Error deleting recipe: \(error.localizedDescription)")
+              showDeleteErrorAlert = true
             }
           }
         } label: {
@@ -60,7 +62,7 @@ struct RecipeListView: View {
               try await recipeService.update(updatedRecipe)
             }
             catch {
-              print("Error updating recipe: \(error.localizedDescription)")
+              showUpdateErrorAlert = true
             }
           }
         } label: {
@@ -72,6 +74,16 @@ struct RecipeListView: View {
     .navigationTitle("Cookbook")
     .onAppear {
       recipeService.fetchRecipes()
+    }
+    .alert("Error", isPresented: $showDeleteErrorAlert) {
+      Button("OK", role: .cancel) {}
+    } message: {
+      Text("An error occurred while deleting the recipe.")
+    }
+    .alert("Error", isPresented: $showUpdateErrorAlert) {
+      Button("OK", role: .cancel) {}
+    } message: {
+      Text("An error occurred while updating the recipe.")
     }
     .navigationDestination(for: Recipe.self) { recipe in
       SuggestRecipeDetailsView(recipe: recipe, image: nil)

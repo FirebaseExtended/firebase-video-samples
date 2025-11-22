@@ -45,6 +45,7 @@ class RecipeService {
   }
   
   func fetchRecipes() {
+    guard listener == nil else { return }
     let query = db.collection(collectionName).order(by: "title")
     self.listener = query.addSnapshotListener { snapshot, error in
       if let error {
