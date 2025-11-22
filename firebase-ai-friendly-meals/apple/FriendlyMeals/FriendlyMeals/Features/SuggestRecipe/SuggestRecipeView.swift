@@ -19,6 +19,7 @@ import SwiftUI
 
 struct SuggestRecipeView: View {
   @State private var viewModel = SuggestRecipeViewModel()
+  @State private var recipeService = RecipeService()
 
   var body: some View {
     Form {
@@ -28,7 +29,7 @@ struct SuggestRecipeView: View {
           text: $viewModel.ingredients,
           axis: .vertical
         )
-        .lineLimit(10...10)
+        .lineLimit(8...8)
       }
       Section("Notes") {
         TextField(
@@ -36,7 +37,7 @@ struct SuggestRecipeView: View {
           text: $viewModel.notes,
           axis: .vertical
         )
-        .lineLimit(10...10)
+        .lineLimit(8...8)
       }
       Section {
         Button(action: {
@@ -48,7 +49,6 @@ struct SuggestRecipeView: View {
               print(error.localizedDescription)
             }
           }
-
         }) {
           if viewModel.isGenerating {
             ProgressView()
@@ -65,14 +65,20 @@ struct SuggestRecipeView: View {
     .navigationTitle("Suggest a recipe")
     .sheet(isPresented: $viewModel.isPresentingRecipe) {
       NavigationStack {
-        SuggestRecipeDetailsView(recipe: viewModel.recipe, image: viewModel.recipeImage, errorMessage: viewModel.errorMessage)
-          .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
-              Button(action: { viewModel.isPresentingRecipe.toggle() }) {
-                Label("Close", systemImage: "xmark")
-              }
+        SuggestRecipeDetailsView(recipe: viewModel.recipe, image: viewModel.recipeImage, errorMessage: viewModel.errorMessage, isNew: true) {
+          if let recipe = viewModel.recipe {
+            Task {
+              try await recipeService.save(recipe)
             }
           }
+        }
+        .toolbar {
+          ToolbarItem(placement: .navigationBarTrailing) {
+            Button(action: { viewModel.isPresentingRecipe.toggle() }) {
+              Label("Close", systemImage: "xmark")
+            }
+          }
+        }
       }
     }
     .sheet(isPresented: $viewModel.isPresentingPaywall) {

@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		883B942E2ED1F9E4004DB06E /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 883B942D2ED1F9E4004DB06E /* FirebaseFirestore */; };
 		884B2CF22E144BA7007B2E0E /* MarkdownUI in Frameworks */ = {isa = PBXBuildFile; productRef = 884B2CF12E144BA7007B2E0E /* MarkdownUI */; };
 		88662FF02ECF66EF001DA000 /* ConversationKit in Frameworks */ = {isa = PBXBuildFile; productRef = 88662FEF2ECF66EF001DA000 /* ConversationKit */; };
 		88AD6DDF2ED1EAF3004F8BAE /* FirebaseRemoteConfig in Frameworks */ = {isa = PBXBuildFile; productRef = 88AD6DDE2ED1EAF3004F8BAE /* FirebaseRemoteConfig */; };
@@ -36,6 +37,7 @@
 				88662FF02ECF66EF001DA000 /* ConversationKit in Frameworks */,
 				88BE941E2E1413D000C81FF5 /* FirebaseAI in Frameworks */,
 				88AD6DDF2ED1EAF3004F8BAE /* FirebaseRemoteConfig in Frameworks */,
+				883B942E2ED1F9E4004DB06E /* FirebaseFirestore in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -91,6 +93,7 @@
 				884B2CF12E144BA7007B2E0E /* MarkdownUI */,
 				88662FEF2ECF66EF001DA000 /* ConversationKit */,
 				88AD6DDE2ED1EAF3004F8BAE /* FirebaseRemoteConfig */,
+				883B942D2ED1F9E4004DB06E /* FirebaseFirestore */,
 			);
 			productName = FriendlyMeals;
 			productReference = 88C8FB652E13D879001B86C4 /* FriendlyMeals.app */;
@@ -390,6 +393,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		883B942D2ED1F9E4004DB06E /* FirebaseFirestore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 88C8FB772E13DEE1001B86C4 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFirestore;
+		};
 		884B2CF12E144BA7007B2E0E /* MarkdownUI */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 884B2CF02E144BA7007B2E0E /* XCRemoteSwiftPackageReference "swift-markdown-ui" */;

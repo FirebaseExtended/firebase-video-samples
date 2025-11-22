@@ -23,11 +23,15 @@ struct SuggestRecipeDetailsView {
   let recipe: Recipe?
   let image: UIImage?
   let errorMessage: String?
+  var isNew = false
+  var onSave: (() -> Void)? = nil
 
-  init(recipe: Recipe?, image: UIImage?, errorMessage: String? = nil) {
+  init(recipe: Recipe?, image: UIImage?, errorMessage: String? = nil, isNew: Bool = false, onSave: (() -> Void)? = nil) {
     self.recipe = recipe
     self.image = image
     self.errorMessage = errorMessage
+    self.isNew = isNew
+    self.onSave = onSave
   }
 }
 
@@ -85,6 +89,16 @@ extension SuggestRecipeDetailsView: View {
         }
       }
     }
+    .toolbar {
+      if isNew {
+        Button(action: {
+          onSave?()
+          dismiss()
+        }) {
+          Label("Save", systemImage: "square.and.arrow.down")
+        }
+      }
+    }
   }
 }
 
@@ -95,6 +109,7 @@ extension SuggestRecipeDetailsView: View {
       description: "A creamy and delicious risotto with mushrooms.",
       cookingTime: 45,
       ingredients: [
+        .init(name: "Chicken stock", amount: "1 cup"),
         .init(name: "Arborio rice", amount: "1 cup"),
         .init(name: "Mushrooms", amount: "200g"),
         .init(name: "Vegetable broth", amount: "4 cups"),

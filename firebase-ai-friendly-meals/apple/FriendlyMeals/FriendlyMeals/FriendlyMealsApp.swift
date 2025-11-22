@@ -27,22 +27,30 @@ struct FriendlyMealsApp: App {
   var body: some Scene {
     WindowGroup {
       TabView {
-        SuggestRecipeView()
-          .tabItem {
-            Label("Suggest Recipes", systemImage: "fork.knife")
-          }
-
-        MealPlannerChatView()
-          .tabItem {
-            Label("Meal Planner", systemImage: "message")
-          }
-      }
-      .task {
-        do {
-          try await RemoteConfigService.shared.fetchConfig()
+        NavigationStack {
+          RecipeListView()
         }
-        catch {
-          print(error)
+        .tabItem {
+          Label("Cookbook", systemImage: "book.closed")
+        }
+
+        NavigationStack {
+          SuggestRecipeView()
+        }
+        .tabItem {
+          Label("Suggest Recipe", systemImage: "wand.and.stars")
+        }
+
+        NavigationStack {
+          MealPlannerChatView()
+        }
+        .tabItem {
+          Label("Meal Planner", systemImage: "bubble.left.and.bubble.right")
+        }
+      }
+      .onAppear {
+        Task {
+          try await RemoteConfigService.shared.fetchConfig()
         }
       }
     }

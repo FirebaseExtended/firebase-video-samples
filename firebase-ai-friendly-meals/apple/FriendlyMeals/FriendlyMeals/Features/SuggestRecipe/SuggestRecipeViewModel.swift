@@ -51,7 +51,7 @@ class SuggestRecipeViewModel {
           "instructions": .array(items: .string())
         ]
       ),
-      responseModalities: [.text],
+      responseModalities: [.text]
     )
     let firebaseAI = FirebaseAI.firebaseAI(backend: .googleAI())
     return firebaseAI.generativeModel(
@@ -73,16 +73,14 @@ class SuggestRecipeViewModel {
       isPresentingPaywall = true
       return
     }
-    
+
     isGenerating = true
     defer { isGenerating = false }
     recipeImage = nil
     recipe = nil
     errorMessage = nil
 
-    var prompt = """
-      Create a recipe using the following ingredients: \(ingredients).
-      """
+    var prompt = "Create a recipe using the following ingredients: \(ingredients)."
 
     if !notes.isEmpty {
       prompt.append(
@@ -92,17 +90,19 @@ class SuggestRecipeViewModel {
         """
       )
     }
-    
+
     do {
       let response = try await model.generateContent(prompt)
       if let jsonString = response.text {
         let jsonData = Data(jsonString.utf8)
         let decoder = JSONDecoder()
-        let recipe = try decoder.decode(Recipe.self, from: jsonData)
-        self.recipe = recipe
-        await generateImage(for: recipe)
-        UsageTrackingService.shared.incrementGenerationCount()
+        let generatedRecipe = try decoder.decode(GeneratedRecipe.self, from: jsonData)
+        self.recipe = Recipe(from: generatedRecipe)
+        if let recipe {
+          await generateImage(for: recipe)
+        }
       }
+      UsageTrackingService.shared.incrementGenerationCount()
     } catch {
       errorMessage = "An error occurred while generating the recipe: \(error.localizedDescription)."
     }

@@ -16,32 +16,11 @@
 // limitations under the License.
 
 import Foundation
-import FirebaseFirestore
 
-import Foundation
-import FirebaseFirestore
-
-struct Recipe: Codable, Identifiable, Hashable, RecipeRepresentable {
-  @DocumentID var id: String?
-  
+struct GeneratedRecipe: Decodable, RecipeRepresentable {
   var title: String
   var description: String
   var cookingTime: Int
   var ingredients: [Ingredient]
   var instructions: [String]
-  var isFavorite: Bool? = false
-  
-  var userId: String?
-}
-
-extension Recipe {
-  init(from representable: RecipeRepresentable) {
-    self.init(
-      title: representable.title,
-      description: representable.description,
-      cookingTime: representable.cookingTime,
-      ingredients: representable.ingredients,
-      instructions: representable.instructions
-    )
-  }
 }
