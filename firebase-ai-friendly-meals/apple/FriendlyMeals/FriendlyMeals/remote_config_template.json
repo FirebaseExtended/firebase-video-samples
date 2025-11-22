@@ -1,0 +1,22 @@
+{
+  "parameters": {
+    "max_images_per_day": {
+      "defaultValue": {
+        "value": "7"
+      },
+      "valueType": "STRING"
+    },
+    "model_name": {
+      "defaultValue": {
+        "value": "gemini-2.5-flash-image-preview"
+      },
+      "valueType": "STRING"
+    },
+    "generation_config": {
+      "defaultValue": {
+        "value": "{\"temperature\":0.9,\"topP\":0.1,\"topK\":16,\"maxOutputTokens\":4096,\"responseModalities\":[\"TEXT\",\"IMAGE\"]}"
+      },
+      "valueType": "JSON"
+    }
+  }
+}

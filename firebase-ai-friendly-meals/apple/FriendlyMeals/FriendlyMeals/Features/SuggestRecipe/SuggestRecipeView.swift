@@ -41,8 +41,14 @@ struct SuggestRecipeView: View {
       Section {
         Button(action: {
           Task {
-            await viewModel.generateRecipe()
+            do {
+              try await viewModel.generateRecipe()
+            }
+            catch {
+              print(error.localizedDescription)
+            }
           }
+
         }) {
           if viewModel.isGenerating {
             ProgressView()
@@ -59,7 +65,7 @@ struct SuggestRecipeView: View {
     .navigationTitle("Suggest a recipe")
     .sheet(isPresented: $viewModel.isPresentingRecipe) {
       NavigationStack {
-        SuggestRecipeDetailsView(recipe: viewModel.recipe, image: viewModel.recipeImage)
+        SuggestRecipeDetailsView(recipe: viewModel.recipe, image: viewModel.recipeImage, errorMessage: viewModel.errorMessage)
           .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
               Button(action: { viewModel.isPresentingRecipe.toggle() }) {
@@ -68,6 +74,9 @@ struct SuggestRecipeView: View {
             }
           }
       }
+    }
+    .sheet(isPresented: $viewModel.isPresentingPaywall) {
+      PaywallView()
     }
 
   }

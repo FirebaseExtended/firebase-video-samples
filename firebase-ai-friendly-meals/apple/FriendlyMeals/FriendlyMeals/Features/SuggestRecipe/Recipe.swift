@@ -15,36 +15,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import SwiftUI
-import FirebaseCore
+import Foundation
 
-@main
-struct FriendlyMealsApp: App {
-  init () {
-    FirebaseApp.configure()
+struct Recipe: Decodable {
+  struct Ingredient: Decodable {
+    var name: String
+    var amount: String
   }
 
-  var body: some Scene {
-    WindowGroup {
-      TabView {
-        SuggestRecipeView()
-          .tabItem {
-            Label("Suggest Recipes", systemImage: "fork.knife")
-          }
-
-        MealPlannerChatView()
-          .tabItem {
-            Label("Meal Planner", systemImage: "message")
-          }
-      }
-      .task {
-        do {
-          try await RemoteConfigService.shared.fetchConfig()
-        }
-        catch {
-          print(error)
-        }
-      }
-    }
-  }
+  var title: String
+  var description: String
+  var cookingTime: Int
+  var ingredients: [Ingredient]
+  var instructions: [String]
 }
