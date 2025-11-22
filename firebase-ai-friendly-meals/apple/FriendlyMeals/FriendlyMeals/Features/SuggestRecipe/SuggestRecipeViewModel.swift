@@ -63,8 +63,8 @@ class SuggestRecipeViewModel {
   private var imageModel: GenerativeModel {
     let firebaseAI = FirebaseAI.firebaseAI(backend: .googleAI())
     return firebaseAI.generativeModel(
-      modelName: "gemini-2.5-flash-image",
-      generationConfig: GenerationConfig(responseModalities: [.image])
+      modelName: RemoteConfigService.shared.modelName,
+      generationConfig: RemoteConfigService.shared.generationConfig
     )
   }
 
