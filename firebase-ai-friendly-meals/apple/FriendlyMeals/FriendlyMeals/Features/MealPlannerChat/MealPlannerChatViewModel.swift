@@ -38,10 +38,6 @@ class MealPlannerChatViewModel {
     case startTimer
     case getRemainingTime
     
-    init?(_ value: String) {
-      self.init(rawValue: value)
-    }
-
     var declaration: FunctionDeclaration {
       switch self {
       case .startTimer:
@@ -199,7 +195,7 @@ class MealPlannerChatViewModel {
   }
   
   private func handleFunctionCall(_ call: FunctionCallPart) -> FunctionResponsePart? {
-    guard let tool = Tool(call.name) else { return nil }
+    guard let tool = Tool(rawValue: call.name) else { return nil }
 
     switch tool {
     case .startTimer:
