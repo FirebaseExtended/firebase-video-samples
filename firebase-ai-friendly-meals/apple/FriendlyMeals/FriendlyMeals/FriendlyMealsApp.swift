@@ -15,14 +15,28 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import SwiftUI
 import FirebaseCore
+import SwiftUI
 
 @main
 struct FriendlyMealsApp: App {
 
-  init () {
+  private func loadRocketSimConnect() {
+    #if DEBUG
+      guard
+        Bundle(path: "/Applications/RocketSim.app/Contents/Frameworks/RocketSimConnectLinker.nocache.framework")?.load()
+          == true
+      else {
+        print("Failed to load linker framework")
+        return
+      }
+      print("RocketSim Connect successfully linked")
+    #endif
+  }
+
+  init() {
     FirebaseApp.configure()
+    loadRocketSimConnect()
   }
 
   var body: some Scene {
@@ -48,6 +62,13 @@ struct FriendlyMealsApp: App {
         }
         .tabItem {
           Label("Meal Planner", systemImage: "bubble.left.and.bubble.right")
+        }
+
+        NavigationStack {
+          NutritionView()
+        }
+        .tabItem {
+          Label("Nutrition", systemImage: "camera.macro")
         }
       }
       .environment(recipeService)
