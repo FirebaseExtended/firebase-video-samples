@@ -2,8 +2,9 @@ import Foundation
 import SwiftUI
 import FirebaseAI
 
-struct NutritionInfo: Identifiable, Codable {
+struct NutritionInfo: Identifiable, Codable, Equatable {
   let id = UUID()
+  let detectedDish: String
   let carbohydrates: String
   let fat: String
   let protein: String
@@ -24,6 +25,7 @@ class NutritionViewModel {
       responseMIMEType: "application/json",
       responseSchema: .object(
         properties: [
+          "detectedDish": .string(),
           "carbohydrates": .string(),
           "fat": .string(),
           "protein": .string(),
@@ -49,7 +51,7 @@ class NutritionViewModel {
     Task {
       do {
         let prompt = """
-        Analyze the nutritional values of the food in this image, including carbohydrates, fat, protein, and kilocalories.
+        Identify the dish in this image and analyze its nutritional values, including carbohydrates, fat, protein, and kilocalories. Provide the detected dish name along with the nutritional information in the final structured JSON.
         """
         
         let contentStream = try model.generateContentStream(image, prompt)
@@ -70,6 +72,10 @@ class NutritionViewModel {
           let jsonData = Data(jsonString.utf8)
           let decoder = JSONDecoder()
           self.nutritionInfo = try decoder.decode(NutritionInfo.self, from: jsonData)
+
+          // Set final thought step on success
+          self.currentThoughtStep = ThoughtStep(headline: "Analysis Complete", description: "The nutritional analysis for \(self.nutritionInfo?.detectedDish ?? "your dish") is ready!")
+
         } else {
           throw NutritionError.responseDecodingFailed(nil)
         }

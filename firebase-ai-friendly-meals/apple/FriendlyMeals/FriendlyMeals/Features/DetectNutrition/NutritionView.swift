@@ -31,14 +31,22 @@ struct NutritionView: View {
           .listRowInsets(EdgeInsets())
           .listRowBackground(Color.clear)
 
-          if viewModel.isLoading {
-            Section(header: Text("Analyzing...")) {
+          if viewModel.isLoading || viewModel.nutritionInfo != nil || viewModel.errorMessage != nil {
+            Section(header: Text("Analysis Progress")) {
               DisclosureGroup(isExpanded: $isThinkingExpanded) {
                 Text(viewModel.currentThoughtStep?.description ?? "The model is preparing to analyze the image.")
               } label: {
                 HStack {
-                  Image(systemName: "arrow.clockwise")
-                    .symbolEffect(.rotate)
+                  if viewModel.isLoading {
+                    Image(systemName: "arrow.clockwise")
+                      .symbolEffect(.rotate, options: .repeating)
+                  } else if viewModel.nutritionInfo != nil {
+                    Image(systemName: "checkmark.circle.fill")
+                      .foregroundColor(.green)
+                  } else if viewModel.errorMessage != nil {
+                    Image(systemName: "exclamationmark.triangle.fill")
+                      .foregroundColor(.red)
+                  }
                   Text(viewModel.currentThoughtStep?.headline ?? "Thinking...")
                     .font(.headline)
                 }
@@ -54,6 +62,10 @@ struct NutritionView: View {
           }
           
           if let nutritionInfo = viewModel.nutritionInfo {
+            Section("Detected Dish") {
+              Text(nutritionInfo.detectedDish)
+            }
+
             Section("Nutrition Facts") {
               HStack {
                 Text("Carbohydrates")
@@ -78,11 +90,20 @@ struct NutritionView: View {
             }
           }
         }
+        .safeAreaInset(edge: .bottom) {
+          Spacer().frame(height: 80)
+        }
 
-        Button("Take Photo", systemImage: "camera") {
+        Button(action: {
           isShowingCamera = true
+        }) {
+          Image(systemName: "viewfinder")
+            .padding(8)
+            .background(Circle().fill(Color.accentColor.opacity(0.8)))
+            .foregroundColor(.white)
         }
         .buttonStyle(.glassProminent)
+        .clipShape(Circle())
         .padding()
       }
       .navigationTitle("Detect Nutrition")
@@ -92,11 +113,21 @@ struct NutritionView: View {
         }
       }
     }
+    .onChange(of: viewModel.isLoading) {
+      if viewModel.isLoading {
+        isThinkingExpanded = true
+      }
+    }
+    .onChange(of: viewModel.nutritionInfo) { oldValue, newValue in
+      if newValue != nil {
+        withAnimation {
+          isThinkingExpanded = false
+        }
+      }
+    }
   }
 }
 
 #Preview {
   NutritionView()
 }
-
-

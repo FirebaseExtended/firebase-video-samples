@@ -14,4 +14,9 @@ struct ThoughtStep: Identifiable {
     self.headline = String(headlinePart).trimmingCharacters(in: .init(charactersIn: "*"))
     self.description = parts.count > 1 ? String(parts[1]).trimmingCharacters(in: .whitespacesAndNewlines) : ""
   }
+  
+  init (headline: String, description: String) {
+    self.headline = headline
+    self.description = description
+  }
 }
