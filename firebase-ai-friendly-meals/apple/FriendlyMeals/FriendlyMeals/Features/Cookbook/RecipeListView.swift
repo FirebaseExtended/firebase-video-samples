@@ -18,7 +18,7 @@
 import SwiftUI
 
 struct RecipeListView: View {
-  @State var recipeService = RecipeService()
+  @Environment(RecipeService.self) var recipeService
 
   var body: some View {
     List(recipeService.recipes) { recipe in
@@ -41,7 +41,11 @@ struct RecipeListView: View {
       .swipeActions(edge: .trailing) {
         Button(role: .destructive) {
           Task {
-            try await recipeService.delete(recipe)
+            do {
+              try await recipeService.delete(recipe)
+            } catch {
+              print("Error deleting recipe: \(error.localizedDescription)")
+            }
           }
         } label: {
           Label("Delete", systemImage: "trash")
@@ -50,9 +54,14 @@ struct RecipeListView: View {
       .swipeActions(edge: .leading) {
         Button {
           Task {
-            var updatedRecipe = recipe
-            updatedRecipe.isFavorite = !(recipe.isFavorite ?? false)
-            try await recipeService.update(updatedRecipe)
+            do {
+              var updatedRecipe = recipe
+              updatedRecipe.isFavorite = !(recipe.isFavorite ?? false)
+              try await recipeService.update(updatedRecipe)
+            }
+            catch {
+              print("Error updating recipe: \(error.localizedDescription)")
+            }
           }
         } label: {
           Label("Favorite", systemImage: recipe.isFavorite ?? false ? "star.slash" : "star")
@@ -73,5 +82,6 @@ struct RecipeListView: View {
 #Preview {
   NavigationStack {
     RecipeListView()
+      .environment(RecipeService())
   }
 }

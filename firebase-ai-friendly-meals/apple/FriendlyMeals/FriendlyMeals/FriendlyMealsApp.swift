@@ -20,12 +20,14 @@ import FirebaseCore
 
 @main
 struct FriendlyMealsApp: App {
+
   init () {
     FirebaseApp.configure()
   }
 
   var body: some Scene {
-    WindowGroup {
+    let recipeService = RecipeService()
+    return WindowGroup {
       TabView {
         NavigationStack {
           RecipeListView()
@@ -48,9 +50,14 @@ struct FriendlyMealsApp: App {
           Label("Meal Planner", systemImage: "bubble.left.and.bubble.right")
         }
       }
+      .environment(recipeService)
       .onAppear {
         Task {
-          try await RemoteConfigService.shared.fetchConfig()
+          do {
+            try await RemoteConfigService.shared.fetchConfig()
+          } catch {
+            print("Error fetching remote config: \(error.localizedDescription)")
+          }
         }
       }
     }

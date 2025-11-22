@@ -19,7 +19,7 @@ import SwiftUI
 
 struct SuggestRecipeView: View {
   @State private var viewModel = SuggestRecipeViewModel()
-  @State private var recipeService = RecipeService()
+  @Environment(RecipeService.self) private var recipeService
 
   var body: some View {
     Form {
@@ -68,7 +68,11 @@ struct SuggestRecipeView: View {
         SuggestRecipeDetailsView(recipe: viewModel.recipe, image: viewModel.recipeImage, errorMessage: viewModel.errorMessage, isNew: true) {
           if let recipe = viewModel.recipe {
             Task {
-              try await recipeService.save(recipe)
+              do {
+                try await recipeService.save(recipe)
+              } catch {
+                print("Failed to save recipe: \(error.localizedDescription)")
+              }
             }
           }
         }
@@ -90,4 +94,5 @@ struct SuggestRecipeView: View {
 
 #Preview {
   SuggestRecipeView()
+    .environment(RecipeService())
 }

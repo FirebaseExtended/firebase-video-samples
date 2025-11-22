@@ -29,6 +29,15 @@ class RecipeService {
   private var listener: ListenerRegistration?
 
   var recipes = [Recipe]()
+  
+  deinit {
+    removeListener()
+  }
+
+  private func removeListener() {
+    listener?.remove()
+    listener = nil
+  }
 
   func save(_ recipe: Recipe) async throws {
     let collection = db.collection(collectionName)
@@ -39,7 +48,7 @@ class RecipeService {
     let query = db.collection(collectionName).order(by: "title")
     self.listener = query.addSnapshotListener { snapshot, error in
       if let error {
-        print("Error fetching recipes: \(error)")
+        print("Error fetching recipes: \(error.localizedDescription)")
         return
       }
 
@@ -48,8 +57,13 @@ class RecipeService {
         return
       }
 
-      self.recipes = snapshot.documents.compactMap {
-        try? $0.data(as: Recipe.self)
+      self.recipes = snapshot.documents.compactMap { document in
+        do {
+          return try document.data(as: Recipe.self)
+        } catch {
+          print("Failed to decode recipe with ID \(document.documentID): \(error.localizedDescription)")
+          return nil
+        }
       }
     }
   }

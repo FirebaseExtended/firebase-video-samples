@@ -101,8 +101,8 @@ class SuggestRecipeViewModel {
         if let recipe {
           await generateImage(for: recipe)
         }
+        UsageTrackingService.shared.incrementGenerationCount()
       }
-      UsageTrackingService.shared.incrementGenerationCount()
     } catch {
       errorMessage = "An error occurred while generating the recipe: \(error.localizedDescription)."
     }
