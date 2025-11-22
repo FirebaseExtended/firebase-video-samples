@@ -34,27 +34,37 @@ class MealPlannerChatViewModel {
   private var model: GenerativeModel
   private var chat: Chat
 
+  private enum Tool: String, CaseIterable {
+    case startTimer
+    case getRemainingTime
+    
+    var declaration: FunctionDeclaration {
+      switch self {
+      case .startTimer:
+        return FunctionDeclaration(
+          name: rawValue,
+          description: "Starts a timer for the specified number of minutes",
+          parameters: [
+            "minutes": .integer(description: "The number of minutes to count down")
+          ]
+        )
+      case .getRemainingTime:
+        return FunctionDeclaration(
+          name: rawValue,
+          description: "Gets the remaining time for the active timer in seconds",
+          parameters: [:]
+        )
+      }
+    }
+  }
+
   init() {
-    let startTimerTool = FunctionDeclaration(
-      name: "startTimer",
-      description: "Starts a timer for the specified number of minutes",
-      parameters: [
-        "minutes": .integer(description: "The number of minutes to count down")
-      ]
-    )
-
-    let getRemainingTimeTool = FunctionDeclaration(
-      name: "getRemainingTime",
-      description: "Gets the remaining time for the active timer in seconds",
-      parameters: [:]
-    )
-
     let model =
       FirebaseAI
       .firebaseAI(backend: .googleAI())
       .generativeModel(
         modelName: "gemini-2.5-flash",
-        tools: [.functionDeclarations([startTimerTool, getRemainingTimeTool])],
+        tools: [.functionDeclarations(Tool.allCases.map(\.declaration))],
         systemInstruction: ModelContent(
           role: "system",
           parts: "You are a meal planner. Please reply in the style of a spicy celebrity chef."
@@ -103,6 +113,12 @@ class MealPlannerChatViewModel {
     do {
       let response = try await chat.sendMessage(chatMessage.content ?? "")
 
+      // 1. If the model provided text alongside the function call, display it.
+      if let text = response.text, !text.isEmpty {
+        let responseMessage = DefaultMessage(content: text, participant: .other)
+        messages.append(responseMessage)
+      }
+
       let functionCalls = response.functionCalls
       if !functionCalls.isEmpty {
         let functionResponses = functionCalls.compactMap { handleFunctionCall($0) }
@@ -112,9 +128,6 @@ class MealPlannerChatViewModel {
         let responseMessage = DefaultMessage(content: finalResponse.text, participant: .other)
         messages.append(responseMessage)
         print(finalResponse)
-      } else {
-        let responseMessage = DefaultMessage(content: response.text, participant: .other)
-        messages.append(responseMessage)
       }
     } catch {
       let errorMessage = DefaultMessage(
@@ -136,16 +149,12 @@ class MealPlannerChatViewModel {
       var responseIndex: Int?
 
       for try await chunk in responseStream {
-        if let text = chunk.text {
-          // Only create the response message when we have actual text to display
-          if responseIndex == nil {
-            let responseMessage = DefaultMessage(content: text, participant: .other)
-            messages.append(responseMessage)
-            responseIndex = messages.count - 1
+        if let text = chunk.text, !text.isEmpty {
+          if let index = responseIndex {
+            messages[index].content?.append(text)
           } else {
-            var message = messages[responseIndex!]
-            message.content = (message.content ?? "") + text
-            messages[responseIndex!] = message
+            messages.append(DefaultMessage(content: text, participant: .other))
+            responseIndex = messages.endIndex - 1
           }
         }
 
@@ -157,11 +166,6 @@ class MealPlannerChatViewModel {
       if !accumulatedFunctionCalls.isEmpty {
         let functionResponses = accumulatedFunctionCalls.compactMap { handleFunctionCall($0) }
 
-        // Check if the first response is empty and remove it if so
-        if responseIndex != nil, let content = messages[responseIndex!].content, content.isEmpty {
-          messages.remove(at: responseIndex!)
-        }
-
         // Send function responses back to the AI and stream the final response
         let finalResponseStream = try chat.sendMessageStream(
           [ModelContent(role: "function", parts: functionResponses)]
@@ -170,16 +174,12 @@ class MealPlannerChatViewModel {
         var finalIndex: Int?
 
         for try await chunk in finalResponseStream {
-          if let text = chunk.text {
-            if finalIndex == nil {
-              // Create the final message only when we have text
-              let finalMessage = DefaultMessage(content: text, participant: .other)
-              messages.append(finalMessage)
-              finalIndex = messages.count - 1
+          if let text = chunk.text, !text.isEmpty {
+            if let index = finalIndex {
+              messages[index].content?.append(text)
             } else {
-              var message = messages[finalIndex!]
-              message.content = (message.content ?? "") + text
-              messages[finalIndex!] = message
+              messages.append(DefaultMessage(content: text, participant: .other))
+              finalIndex = messages.endIndex - 1
             }
           }
         }
@@ -195,14 +195,22 @@ class MealPlannerChatViewModel {
   }
   
   private func handleFunctionCall(_ call: FunctionCallPart) -> FunctionResponsePart? {
-    if call.name == "startTimer" {
-      guard case .number(let minutesValue) = call.args["minutes"], let minutes = Int(exactly: minutesValue) else {
-        print("Error: Invalid 'minutes' argument received: \(String(describing: call.args["minutes"])))")
+    guard let tool = Tool(rawValue: call.name) else { return nil }
+
+    switch tool {
+    case .startTimer:
+      guard case .number(let minutesValue) = call.args["minutes"],
+        let minutes = Int(exactly: minutesValue)
+      else {
+        print(
+          "Error: Invalid 'minutes' argument received: \(String(describing: call.args["minutes"])))"
+        )
         return nil
       }
       startTimer(minutes: minutes)
-      return FunctionResponsePart(name: call.name, response: .init())
-    } else if call.name == "getRemainingTime" {
+      return FunctionResponsePart(name: tool.rawValue, response: .init())
+
+    case .getRemainingTime:
       let remainingSeconds = getRemainingTime()
       let response: JSONObject
       if let seconds = remainingSeconds {
@@ -210,8 +218,7 @@ class MealPlannerChatViewModel {
       } else {
         response = ["status": .string("No timer is currently running")]
       }
-      return FunctionResponsePart(name: call.name, response: response)
+      return FunctionResponsePart(name: tool.rawValue, response: response)
     }
-    return nil
   }
 }
