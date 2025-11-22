@@ -1,74 +1,91 @@
 import SwiftUI
-import PhotosUI // For potential future photo library integration, though camera is primary
 
 struct NutritionView: View {
   @State private var isShowingCamera = false
   @State private var viewModel = NutritionViewModel()
+  @State private var isThinkingExpanded = true
 
   var body: some View {
-    NavigationView {
-      VStack {
-        if let image = viewModel.selectedImage {
-          Image(uiImage: image)
-            .resizable()
-            .scaledToFit()
-            .frame(maxHeight: 300)
-            .cornerRadius(10)
-            .padding()
-        } else {
-          Rectangle()
-            .fill(Color.gray.opacity(0.3))
-            .frame(maxHeight: 300)
-            .cornerRadius(10)
-            .padding()
-            .overlay(
-              Text("Take a photo of your meal")
-                .foregroundColor(.gray)
-            )
+    NavigationStack {
+      Form {
+        Section {
+          if let image = viewModel.selectedImage {
+            Image(uiImage: image)
+              .resizable()
+              .scaledToFit()
+              .frame(maxHeight: 300)
+              .cornerRadius(10)
+          } else {
+            Rectangle()
+              .fill(Color.gray.opacity(0.1))
+              .frame(height: 200)
+              .cornerRadius(10)
+              .overlay(
+                Image(systemName: "camera")
+                  .font(.largeTitle)
+                  .foregroundColor(.gray)
+              )
+          }
         }
-
-        Button("Take Photo") {
-          isShowingCamera = true
-        }
-        .buttonStyle(.borderedProminent)
-        .padding(.bottom)
+        .listRowInsets(EdgeInsets())
+        .listRowBackground(Color.clear)
 
         if viewModel.isLoading {
-          ThinkingView(thoughtStep: viewModel.currentThoughtStep)
-            .padding()
-        } else if let errorMessage = viewModel.errorMessage {
-          Text("Error: \(errorMessage)")
-            .foregroundColor(.red)
-            .padding()
-        } else if let nutritionInfo = viewModel.nutritionInfo {
-          Form {
-            Section("Nutrition Facts") {
+          Section(header: Text("Analyzing...")) {
+            DisclosureGroup(isExpanded: $isThinkingExpanded) {
+              Text(viewModel.currentThoughtStep?.description ?? "The model is preparing to analyze the image.")
+            } label: {
               HStack {
-                Text("Carbohydrates")
-                Spacer()
-                Text("\(nutritionInfo.carbohydrates)")
-              }
-              HStack {
-                Text("Fat")
-                Spacer()
-                Text("\(nutritionInfo.fat)")
-              }
-              HStack {
-                Text("Protein")
-                Spacer()
-                Text("\(nutritionInfo.protein)")
-              }
-              HStack {
-                Text("Kilocalories")
-                Spacer()
-                Text("\(nutritionInfo.kilocalories)")
+                Image(systemName: "arrow.clockwise")
+                  .symbolEffect(.rotate)
+                Text(viewModel.currentThoughtStep?.headline ?? "Thinking...")
+                  .font(.headline)
               }
             }
           }
         }
-        Spacer()
+        
+        if let errorMessage = viewModel.errorMessage {
+          Section {
+            Text("Error: \(errorMessage)")
+              .foregroundColor(.red)
+          }
+        }
+        
+        if let nutritionInfo = viewModel.nutritionInfo {
+          Section("Nutrition Facts") {
+            HStack {
+              Text("Carbohydrates")
+              Spacer()
+              Text(nutritionInfo.carbohydrates)
+            }
+            HStack {
+              Text("Fat")
+              Spacer()
+              Text(nutritionInfo.fat)
+            }
+            HStack {
+              Text("Protein")
+              Spacer()
+              Text(nutritionInfo.protein)
+            }
+            HStack {
+              Text("Kilocalories")
+              Spacer()
+              Text(nutritionInfo.kilocalories)
+            }
+          }
+        }
       }
       .navigationTitle("Detect Nutrition")
+      .toolbar {
+        ToolbarItem(placement: .automatic) {
+          Button("Take Photo", systemImage: "camera") {
+            isShowingCamera = true
+          }
+          .buttonStyle(.glass)
+        }
+      }
       .sheet(isPresented: $isShowingCamera) {
         CameraView(isPresented: $isShowingCamera) { image in
           viewModel.processImage(image)
@@ -78,10 +95,8 @@ struct NutritionView: View {
   }
 }
 
-struct NutritionView_Previews: PreviewProvider {
-  static var previews: some View {
-    NutritionView()
-  }
+#Preview {
+  NutritionView()
 }
 
 
