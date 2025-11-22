@@ -20,29 +20,44 @@ import FirebaseCore
 
 @main
 struct FriendlyMealsApp: App {
+
   init () {
     FirebaseApp.configure()
   }
 
   var body: some Scene {
-    WindowGroup {
+    let recipeService = RecipeService()
+    return WindowGroup {
       TabView {
-        SuggestRecipeView()
-          .tabItem {
-            Label("Suggest Recipes", systemImage: "fork.knife")
-          }
-
-        MealPlannerChatView()
-          .tabItem {
-            Label("Meal Planner", systemImage: "message")
-          }
-      }
-      .task {
-        do {
-          try await RemoteConfigService.shared.fetchConfig()
+        NavigationStack {
+          RecipeListView()
         }
-        catch {
-          print(error)
+        .tabItem {
+          Label("Cookbook", systemImage: "book.closed")
+        }
+
+        NavigationStack {
+          SuggestRecipeView()
+        }
+        .tabItem {
+          Label("Suggest Recipe", systemImage: "wand.and.stars")
+        }
+
+        NavigationStack {
+          MealPlannerChatView()
+        }
+        .tabItem {
+          Label("Meal Planner", systemImage: "bubble.left.and.bubble.right")
+        }
+      }
+      .environment(recipeService)
+      .onAppear {
+        Task {
+          do {
+            try await RemoteConfigService.shared.fetchConfig()
+          } catch {
+            print("Error fetching remote config: \(error.localizedDescription)")
+          }
         }
       }
     }

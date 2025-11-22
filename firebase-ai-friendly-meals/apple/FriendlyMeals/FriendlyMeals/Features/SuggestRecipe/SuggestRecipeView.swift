@@ -19,6 +19,9 @@ import SwiftUI
 
 struct SuggestRecipeView: View {
   @State private var viewModel = SuggestRecipeViewModel()
+  @Environment(RecipeService.self) private var recipeService
+
+  @State private var showSaveErrorAlert = false
 
   var body: some View {
     Form {
@@ -28,7 +31,7 @@ struct SuggestRecipeView: View {
           text: $viewModel.ingredients,
           axis: .vertical
         )
-        .lineLimit(10...10)
+        .lineLimit(8...8)
       }
       Section("Notes") {
         TextField(
@@ -36,7 +39,7 @@ struct SuggestRecipeView: View {
           text: $viewModel.notes,
           axis: .vertical
         )
-        .lineLimit(10...10)
+        .lineLimit(8...8)
       }
       Section {
         Button(action: {
@@ -48,7 +51,6 @@ struct SuggestRecipeView: View {
               print(error.localizedDescription)
             }
           }
-
         }) {
           if viewModel.isGenerating {
             ProgressView()
@@ -65,14 +67,30 @@ struct SuggestRecipeView: View {
     .navigationTitle("Suggest a recipe")
     .sheet(isPresented: $viewModel.isPresentingRecipe) {
       NavigationStack {
-        SuggestRecipeDetailsView(recipe: viewModel.recipe, image: viewModel.recipeImage, errorMessage: viewModel.errorMessage)
-          .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
-              Button(action: { viewModel.isPresentingRecipe.toggle() }) {
-                Label("Close", systemImage: "xmark")
+        SuggestRecipeDetailsView(recipe: viewModel.recipe, image: viewModel.recipeImage, errorMessage: viewModel.errorMessage, isNew: true) {
+          if let recipe = viewModel.recipe {
+            Task {
+              do {
+                try await recipeService.save(recipe)
+                viewModel.isPresentingRecipe = false
+              } catch {
+                showSaveErrorAlert = true
               }
             }
           }
+        }
+        .toolbar {
+          ToolbarItem(placement: .navigationBarTrailing) {
+            Button(action: { viewModel.isPresentingRecipe.toggle() }) {
+              Label("Close", systemImage: "xmark")
+            }
+          }
+        }
+        .alert("Error", isPresented: $showSaveErrorAlert) {
+          Button("OK", role: .cancel) {}
+        } message: {
+          Text("An error occurred while saving the recipe.")
+        }
       }
     }
     .sheet(isPresented: $viewModel.isPresentingPaywall) {
@@ -84,4 +102,5 @@ struct SuggestRecipeView: View {
 
 #Preview {
   SuggestRecipeView()
+    .environment(RecipeService())
 }
