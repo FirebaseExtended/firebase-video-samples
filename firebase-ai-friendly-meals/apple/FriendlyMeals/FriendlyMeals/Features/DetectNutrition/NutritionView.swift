@@ -13,9 +13,10 @@ struct NutritionView: View {
             if let image = viewModel.selectedImage {
               Image(uiImage: image)
                 .resizable()
-                .scaledToFit()
-                .frame(maxHeight: 300)
+                .scaledToFill()
+                .frame(height: 200)
                 .cornerRadius(10)
+                .clipped()
             } else {
               Rectangle()
                 .fill(Color.gray.opacity(0.1))
@@ -53,39 +54,32 @@ struct NutritionView: View {
               }
             }
           }
-          
+
           if let errorMessage = viewModel.errorMessage {
             Section {
               Text("Error: \(errorMessage)")
                 .foregroundColor(.red)
             }
           }
-          
+
           if let nutritionInfo = viewModel.nutritionInfo {
             Section("Detected Dish") {
               Text(nutritionInfo.detectedDish)
             }
 
             Section("Nutrition Facts") {
-              HStack {
-                Text("Carbohydrates")
-                Spacer()
-                Text(nutritionInfo.carbohydrates)
-              }
-              HStack {
-                Text("Fat")
-                Spacer()
-                Text(nutritionInfo.fat)
-              }
-              HStack {
-                Text("Protein")
-                Spacer()
-                Text(nutritionInfo.protein)
-              }
-              HStack {
-                Text("Kilocalories")
-                Spacer()
-                Text(nutritionInfo.kilocalories)
+              let facts = [
+                ("Carbohydrates", nutritionInfo.carbohydrates),
+                ("Fat", nutritionInfo.fat),
+                ("Protein", nutritionInfo.protein),
+                ("Kilocalories", nutritionInfo.kilocalories),
+              ]
+              ForEach(facts, id: \.0) { label, value in
+                HStack {
+                  Text(label)
+                  Spacer()
+                  Text(value)
+                }
               }
             }
           }
@@ -118,7 +112,7 @@ struct NutritionView: View {
         isThinkingExpanded = true
       }
     }
-    .onChange(of: viewModel.nutritionInfo) { oldValue, newValue in
+    .onChange(of: viewModel.nutritionInfo) { _, newValue in
       if newValue != nil {
         withAnimation {
           isThinkingExpanded = false
