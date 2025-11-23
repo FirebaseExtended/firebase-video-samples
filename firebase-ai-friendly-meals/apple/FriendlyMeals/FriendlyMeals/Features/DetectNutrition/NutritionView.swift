@@ -31,7 +31,7 @@ struct NutritionView: View {
           }
           .listRowInsets(EdgeInsets())
           .listRowBackground(Color.clear)
-
+          
           if viewModel.isLoading || viewModel.nutritionInfo != nil || viewModel.errorMessage != nil {
             Section(header: Text("Analysis Progress")) {
               DisclosureGroup(isExpanded: $isThinkingExpanded) {
@@ -54,19 +54,19 @@ struct NutritionView: View {
               }
             }
           }
-
+          
           if let errorMessage = viewModel.errorMessage {
             Section {
               Text("Error: \(errorMessage)")
                 .foregroundColor(.red)
             }
           }
-
+          
           if let nutritionInfo = viewModel.nutritionInfo {
             Section("Detected Dish") {
               Text(nutritionInfo.detectedDish)
             }
-
+            
             Section("Nutrition Facts") {
               let facts = [
                 ("Carbohydrates", nutritionInfo.carbohydrates),
@@ -87,7 +87,7 @@ struct NutritionView: View {
         .safeAreaInset(edge: .bottom) {
           Spacer().frame(height: 80)
         }
-
+        
         Button(action: {
           isShowingCamera = true
         }) {
@@ -105,17 +105,18 @@ struct NutritionView: View {
         CameraView(isPresented: $isShowingCamera) { image in
           viewModel.processImage(image)
         }
+        .ignoresSafeArea()
       }
-    }
-    .onChange(of: viewModel.isLoading) {
-      if viewModel.isLoading {
-        isThinkingExpanded = true
+      .onChange(of: viewModel.isLoading) {
+        if viewModel.isLoading {
+          isThinkingExpanded = true
+        }
       }
-    }
-    .onChange(of: viewModel.nutritionInfo) { _, newValue in
-      if newValue != nil {
-        withAnimation {
-          isThinkingExpanded = false
+      .onChange(of: viewModel.nutritionInfo) { _, newValue in
+        if newValue != nil {
+          withAnimation {
+            isThinkingExpanded = false
+          }
         }
       }
     }
