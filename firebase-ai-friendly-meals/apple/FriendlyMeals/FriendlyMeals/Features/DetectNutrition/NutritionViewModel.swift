@@ -34,7 +34,7 @@ class NutritionViewModel {
           "kilocalories": .string(),
         ]
       ),
-      thinkingConfig: ThinkingConfig(thinkingBudget: 1024, includeThoughts: true)
+      thinkingConfig: ThinkingConfig(thinkingBudget: -1, includeThoughts: true)
     )
     let ai = FirebaseAI.firebaseAI(backend: .googleAI())
     self.model = ai.generativeModel(
