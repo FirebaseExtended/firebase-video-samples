@@ -14,3 +14,7 @@ val LightFirebaseYellow = Color(0xFFFFFDF4)
 val MediumFirebaseYellow = Color(0xFFFFF3CC)
 val DarkFirebaseYellow = Color(0xFFFFC400)
 val ContainerGrey = Color(0xFF5F6368)
+
+val TealColor = Color(0xFF1EB980)
+val BackgroundColor = Color(0xFFF8F9FA)
+val TextColor = Color(0xFF1F2937)

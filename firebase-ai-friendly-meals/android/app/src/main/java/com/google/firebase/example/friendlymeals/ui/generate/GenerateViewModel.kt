@@ -1,4 +1,4 @@
-package com.google.firebase.example.friendlymeals.ui.home
+package com.google.firebase.example.friendlymeals.ui.generate
 
 import android.graphics.Bitmap
 import com.google.firebase.example.friendlymeals.MainViewModel
@@ -11,11 +11,11 @@ import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 
 @HiltViewModel
-class HomeViewModel @Inject constructor(
+class GenerateViewModel @Inject constructor(
     private val aiRepository: AIRepository
 ) : MainViewModel() {
-    private val _viewState = MutableStateFlow<HomeViewState>(HomeViewState())
-    val viewState: StateFlow<HomeViewState>
+    private val _viewState = MutableStateFlow(GenerateViewState())
+    val viewState: StateFlow<GenerateViewState>
         get() = _viewState.asStateFlow()
 
     fun onIngredientsUpdated(ingredients: String) {
