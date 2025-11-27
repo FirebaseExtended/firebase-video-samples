@@ -25,7 +25,7 @@ fun FriendlyMealsTheme(
             if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
 
-        darkTheme -> DarkColorScheme
+        darkTheme -> DarkColorScheme //TODO: add dark theme
         else -> LightColorScheme
     }
 

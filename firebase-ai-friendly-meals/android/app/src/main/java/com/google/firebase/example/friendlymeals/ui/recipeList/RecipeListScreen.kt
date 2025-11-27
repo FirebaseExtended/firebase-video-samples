@@ -53,7 +53,7 @@ data class RecipeUiModel(
 )
 
 @Composable
-fun RecipeListScreen() {
+fun RecipeListScreen(openRecipeScreen: (String) -> Unit) {
     val recipes = listOf(
         RecipeUiModel("Creamy Tomato and Basil Pasta", 4, Color(0xFFE57373)),
         RecipeUiModel("Grilled Chicken Salad", 5, Color(0xFF81C784)),
@@ -154,6 +154,8 @@ fun RecipeCard(recipe: RecipeUiModel) {
 @Composable
 fun RecipeListScreenPreview() {
     FriendlyMealsTheme {
-        RecipeListScreen()
+        RecipeListScreen(
+            openRecipeScreen = {}
+        )
     }
 }

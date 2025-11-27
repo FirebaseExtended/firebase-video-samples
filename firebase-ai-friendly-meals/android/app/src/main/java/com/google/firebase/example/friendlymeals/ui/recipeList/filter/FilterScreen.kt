@@ -65,9 +65,11 @@ private val BorderColor = Color(0xFFE5E7EB)
 @Serializable
 object FilterRoute
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FilterScreen() {
+fun FilterScreen(
+    navigateBack: () -> Unit
+) {
     var recipeName by remember { mutableStateOf("") }
     var selectedRating by remember { mutableStateOf(4) }
     val selectedTags = remember { mutableStateOf(setOf("Quick & Easy", "High Protein")) }
@@ -371,6 +373,8 @@ fun FilterChip(
 @Composable
 fun FilterScreenPreview() {
     FriendlyMealsTheme {
-        FilterScreen()
+        FilterScreen(
+            navigateBack = {}
+        )
     }
 }

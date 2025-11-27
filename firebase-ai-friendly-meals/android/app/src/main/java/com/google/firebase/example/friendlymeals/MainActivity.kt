@@ -18,8 +18,9 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.google.firebase.example.friendlymeals.ui.auth.AuthRoute
-import com.google.firebase.example.friendlymeals.ui.auth.AuthScreen
+import com.google.firebase.example.friendlymeals.ui.auth.signIn.SignInRoute
+import com.google.firebase.example.friendlymeals.ui.auth.signIn.SignInScreen
+import com.google.firebase.example.friendlymeals.ui.auth.signUp.SignUpScreen
 import com.google.firebase.example.friendlymeals.ui.generate.GenerateRoute
 import com.google.firebase.example.friendlymeals.ui.generate.GenerateScreen
 import com.google.firebase.example.friendlymeals.ui.recipe.RecipeRoute
@@ -31,7 +32,6 @@ import com.google.firebase.example.friendlymeals.ui.recipeList.filter.FilterScre
 import com.google.firebase.example.friendlymeals.ui.scanMeal.ScanMealRoute
 import com.google.firebase.example.friendlymeals.ui.scanMeal.ScanMealScreen
 import com.google.firebase.example.friendlymeals.ui.shared.BottomNavBar
-import com.google.firebase.example.friendlymeals.ui.shared.BottomNavItem
 import com.google.firebase.example.friendlymeals.ui.theme.FriendlyMealsTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -54,19 +54,36 @@ class MainActivity : ComponentActivity() {
                     Scaffold(
                         modifier = Modifier.fillMaxSize(),
                         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
-                        bottomBar = { BottomNavBar { navigateTo(navController, it) } }
+                        bottomBar = { BottomNavBar { navigateTo(navController, route = it) } }
                     ) { innerPadding ->
                         NavHost(
                             navController = navController,
-                            startDestination = BottomNavItem.Generate.route,
+                            startDestination = GenerateRoute,
                             modifier = Modifier.padding(innerPadding)
                         ) {
-                            composable<AuthRoute> { AuthScreen() }
+                            composable<SignInRoute> { SignInScreen() }
+                            composable<SignInRoute> { SignUpScreen() }
                             composable<ScanMealRoute> { ScanMealScreen() }
-                            composable<GenerateRoute> { GenerateScreen() }
-                            composable<RecipeListRoute> { RecipeListScreen() }
-                            composable<RecipeRoute> { RecipeScreen() }
-                            composable<FilterRoute> { FilterScreen() }
+                            composable<GenerateRoute> { GenerateScreen(
+                                openRecipeScreen = { recipeId ->
+                                    navController.navigate(RecipeRoute(recipeId)) {
+                                        launchSingleTop = true
+                                    }
+                                }
+                            ) }
+                            composable<RecipeListRoute> { RecipeListScreen(
+                                openRecipeScreen = { recipeId ->
+                                    navController.navigate(RecipeRoute(recipeId)) {
+                                        launchSingleTop = true
+                                    }
+                                }
+                            ) }
+                            composable<RecipeRoute> { RecipeScreen(
+                                navigateBack = { navController.popBackStack() }
+                            ) }
+                            composable<FilterRoute> { FilterScreen(
+                                navigateBack = { navController.popBackStack() }
+                            ) }
                         }
                     }
                 }

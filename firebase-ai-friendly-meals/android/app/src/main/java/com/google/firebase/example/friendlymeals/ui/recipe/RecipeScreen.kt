@@ -24,34 +24,34 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.firebase.example.friendlymeals.R
+import com.google.firebase.example.friendlymeals.ui.theme.BackgroundColor
+import com.google.firebase.example.friendlymeals.ui.theme.CardBackgroundColor
 import com.google.firebase.example.friendlymeals.ui.theme.FriendlyMealsTheme
+import com.google.firebase.example.friendlymeals.ui.theme.LightGrayColor
+import com.google.firebase.example.friendlymeals.ui.theme.TealColor
+import com.google.firebase.example.friendlymeals.ui.theme.TextColor
+import com.halilibo.richtext.commonmark.Markdown
+import com.halilibo.richtext.ui.BasicRichText
 import kotlinx.serialization.Serializable
 
 @Serializable
-object RecipeRoute
-
-// Define colors locally to match the design
-private val TealColor = Color(0xFF1EB980)
-private val BackgroundColor = Color(0xFFF8F9FA)
-private val TextColor = Color(0xFF1F2937)
-private val CardBackgroundColor = Color.White
-private val LightGrayColor = Color(0xFFF3F4F6)
+data class RecipeRoute(val recipeId: String)
 
 @Composable
-fun RecipeScreen() {
+fun RecipeScreen(
+    navigateBack: () -> Unit
+) {
     Scaffold(
         containerColor = BackgroundColor
     ) { innerPadding ->
@@ -202,32 +202,10 @@ fun RecipeScreen() {
                                     color = TealColor
                                 )
                                 Spacer(modifier = Modifier.height(12.dp))
-                                InstructionStep(
-                                    "1. ",
-                                    "Boil",
-                                    " water in a large pot. Add a generous pinch of salt and cook the pasta according to package directions until al dente."
-                                )
-                                InstructionStep(
-                                    "2. ",
-                                    "While the pasta cooks, ",
-                                    "sauté",
-                                    " the minced garlic in olive oil over medium heat in a large skillet until fragrant."
-                                )
-                                InstructionStep(
-                                    "3. ",
-                                    "Add",
-                                    " the diced tomatoes to the skillet. Cook for 5–7 minutes, until they start to break down."
-                                )
-                                InstructionStep(
-                                    "4. ",
-                                    "Reduce",
-                                    " heat to low and stir in the heavy cream. Season with salt and pepper to taste. Let it simmer gently."
-                                )
-                                InstructionStep(
-                                    "5. ",
-                                    "Drain",
-                                    " the pasta and add it to the skillet with the sauce. Toss to combine. Stir in a handful of fresh, chopped basil leaves. Serve immediately."
-                                )
+
+                                BasicRichText {
+                                    Markdown("**description**")
+                                }
                             }
                         }
                         
@@ -236,6 +214,10 @@ fun RecipeScreen() {
                 }
             }
         }
+    }
+
+    LaunchedEffect(true) {
+        //loadRecipe()
     }
 }
 
@@ -298,71 +280,12 @@ fun IngredientRow(text: String) {
     }
 }
 
-@Composable
-fun InstructionStep(number: String, boldText: String? = null, text: String, boldText2: String? = null) {
-     Text(
-        text = buildAnnotatedString {
-            append(number)
-            if (boldText != null) {
-                withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                    append(boldText)
-                }
-            }
-            append(text)
-             if (boldText2 != null) {
-                withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                    append(boldText2)
-                }
-            }
-        },
-        fontSize = 15.sp,
-        color = TextColor,
-        lineHeight = 22.sp,
-        modifier = Modifier.padding(bottom = 12.dp)
-    )
-}
-
-// Overload for the specific structure of the instructions in the prompt
-@Composable
-fun InstructionStep(prefix: String, boldPart: String, suffix: String) {
-    Text(
-        text = buildAnnotatedString {
-            append(prefix)
-            withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                append(boldPart)
-            }
-            append(suffix)
-        },
-        fontSize = 15.sp,
-        color = TextColor,
-        lineHeight = 22.sp,
-        modifier = Modifier.padding(bottom = 12.dp)
-    )
-}
-
-@Composable
-fun InstructionStep(prefix: String, part1: String, boldPart: String, suffix: String) {
-    Text(
-        text = buildAnnotatedString {
-            append(prefix)
-            append(part1)
-            withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                append(boldPart)
-            }
-            append(suffix)
-        },
-        fontSize = 15.sp,
-        color = TextColor,
-        lineHeight = 22.sp,
-        modifier = Modifier.padding(bottom = 12.dp)
-    )
-}
-
-
 @Preview
 @Composable
 fun RecipeScreenPreview() {
     FriendlyMealsTheme {
-        RecipeScreen()
+        RecipeScreen(
+            navigateBack = {}
+        )
     }
 }

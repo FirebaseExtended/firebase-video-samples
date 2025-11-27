@@ -1,4 +1,4 @@
-package com.google.firebase.example.friendlymeals.ui.auth
+package com.google.firebase.example.friendlymeals.ui.auth.signUp
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
@@ -47,7 +47,7 @@ import com.google.firebase.example.friendlymeals.ui.theme.FriendlyMealsTheme
 import kotlinx.serialization.Serializable
 
 @Serializable
-object AuthRoute
+object SignUpRoute
 
 // Define colors locally to match the design
 private val TealColor = Color(0xFF1EB980)
@@ -58,7 +58,7 @@ private val PlaceholderColor = Color(0xFF9CA3AF)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AuthScreen() {
+fun SignUpScreen() {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
@@ -125,7 +125,7 @@ fun AuthScreen() {
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Sign In Button
+            // Sign Up Button
             Button(
                 onClick = { /* TODO */ },
                 modifier = Modifier
@@ -138,7 +138,7 @@ fun AuthScreen() {
                 )
             ) {
                 Text(
-                    text = "Sign In",
+                    text = "Sign Up",
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold
                 )
@@ -171,7 +171,7 @@ fun AuthScreen() {
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Google Sign In Button
+            // Google Sign Up Button
             OutlinedButton(
                 onClick = { /* TODO */ },
                 modifier = Modifier
@@ -194,29 +194,20 @@ fun AuthScreen() {
                     modifier = Modifier.padding(end = 8.dp)
                 )
                 Text(
-                    text = "Sign in with Google",
+                    text = "Sign Up with Google",
                     fontSize = 16.sp,
                     fontWeight = FontWeight.SemiBold
                 )
             }
-
-            Spacer(modifier = Modifier.height(32.dp))
-
-            Text(
-                text = "Forgot Password?",
-                color = TealColor,
-                fontWeight = FontWeight.Medium,
-                modifier = Modifier.clickable { /* TODO */ }
-            )
 
             Spacer(modifier = Modifier.weight(1f))
 
             // Bottom Sign Up Link
             Text(
                 text = buildAnnotatedString {
-                    append("Don't have an account? ")
+                    append("Already have an account? ")
                     withStyle(style = SpanStyle(color = TealColor, fontWeight = FontWeight.Bold)) {
-                        append("Sign up")
+                        append("Sign In")
                     }
                 },
                 modifier = Modifier
@@ -231,8 +222,8 @@ fun AuthScreen() {
 
 @Preview
 @Composable
-fun AuthScreenPreview() {
+fun SignUpScreenPreview() {
     FriendlyMealsTheme {
-        AuthScreen()
+        SignUpScreen()
     }
 }

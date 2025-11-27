@@ -8,9 +8,7 @@ import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts.RequestPermission
 import androidx.activity.result.contract.ActivityResultContracts.TakePicture
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -45,7 +43,6 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -57,14 +54,11 @@ import androidx.core.content.FileProvider
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.firebase.example.friendlymeals.R
-import com.google.firebase.example.friendlymeals.data.model.Recipe
 import com.google.firebase.example.friendlymeals.ui.shared.LoadingIndicator
 import com.google.firebase.example.friendlymeals.ui.theme.BackgroundColor
 import com.google.firebase.example.friendlymeals.ui.theme.FriendlyMealsTheme
 import com.google.firebase.example.friendlymeals.ui.theme.TealColor
 import com.google.firebase.example.friendlymeals.ui.theme.TextColor
-import com.halilibo.richtext.commonmark.Markdown
-import com.halilibo.richtext.ui.BasicRichText
 import kotlinx.serialization.Serializable
 import java.io.File
 
@@ -73,7 +67,8 @@ object GenerateRoute
 
 @Composable
 fun GenerateScreen(
-    viewModel: GenerateViewModel = hiltViewModel()
+    viewModel: GenerateViewModel = hiltViewModel(),
+    openRecipeScreen: (String) -> Unit
 ) {
     val viewState = viewModel.viewState.collectAsStateWithLifecycle()
 
@@ -81,6 +76,7 @@ fun GenerateScreen(
         onIngredientsUpdated = viewModel::onIngredientsUpdated,
         onImageTaken = viewModel::onImageTaken,
         onGenerateClick = viewModel::generateRecipe,
+        openRecipeScreen = openRecipeScreen,
         viewState = viewState.value
     )
 }
@@ -91,7 +87,8 @@ fun GenerateScreenContent(
     modifier: Modifier = Modifier,
     onIngredientsUpdated: (String) -> Unit,
     onImageTaken: (Bitmap?) -> Unit,
-    onGenerateClick: (String, String) -> Unit,
+    onGenerateClick: (String, String, (String) -> Unit) -> Unit,
+    openRecipeScreen: (String) -> Unit,
     viewState: GenerateViewState
 ) {
     Scaffold(
@@ -121,6 +118,7 @@ fun GenerateScreenContent(
                 onIngredientsUpdated = onIngredientsUpdated,
                 onImageTaken = onImageTaken,
                 onGenerateClick = onGenerateClick,
+                openRecipeScreen = openRecipeScreen,
                 viewState = viewState
             )
 
@@ -134,11 +132,6 @@ fun GenerateScreenContent(
                     LoadingIndicator()
                 }
             }
-
-            if (viewState.recipe != null) {
-                RecipeBox(recipe = viewState.recipe)
-                Spacer(modifier = Modifier.size(24.dp))
-            }
         }
     }
 }
@@ -148,7 +141,8 @@ fun IngredientsSection(
     modifier: Modifier = Modifier,
     onIngredientsUpdated: (String) -> Unit,
     onImageTaken: (Bitmap?) -> Unit,
-    onGenerateClick: (String, String) -> Unit,
+    onGenerateClick: (String, String, (String) -> Unit) -> Unit,
+    openRecipeScreen: (String) -> Unit,
     viewState: GenerateViewState
 ) {
     val context = LocalContext.current
@@ -307,51 +301,13 @@ fun IngredientsSection(
                 disabledContentColor = Color.Gray
             ),
             enabled = generateButtonEnabled,
-            onClick = { onGenerateClick(viewState.ingredients, notes) }
+            onClick = { onGenerateClick(viewState.ingredients, notes, openRecipeScreen) }
         ) {
             Text(
                 text = "Generate Recipe",
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold
             )
-        }
-    }
-}
-
-@Composable
-fun RecipeBox(
-    modifier: Modifier = Modifier,
-    recipe: Recipe
-) {
-    Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(24.dp))
-            .border(1.dp, Color.LightGray, RoundedCornerShape(24.dp))
-            .background(Color.White)
-            .padding(16.dp)
-    ) {
-        Column(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            val image = recipe.image?.asImageBitmap()
-
-            if (image != null) {
-                Image(
-                    bitmap = image,
-                    contentDescription = "Recipe image",
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(16.dp))
-                )
-            }
-
-            Spacer(modifier = Modifier.size(16.dp))
-
-            BasicRichText {
-                Markdown(recipe.description)
-            }
         }
     }
 }
@@ -385,7 +341,8 @@ fun HomeScreenPreview() {
         GenerateScreenContent(
             onIngredientsUpdated = {},
             onImageTaken = {},
-            onGenerateClick = { _, _ -> },
+            onGenerateClick = { _, _, _ -> },
+            openRecipeScreen = {},
             viewState = GenerateViewState()
         )
     }

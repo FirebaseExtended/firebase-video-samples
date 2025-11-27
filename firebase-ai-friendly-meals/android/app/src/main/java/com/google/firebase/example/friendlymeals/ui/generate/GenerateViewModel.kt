@@ -2,7 +2,6 @@ package com.google.firebase.example.friendlymeals.ui.generate
 
 import android.graphics.Bitmap
 import com.google.firebase.example.friendlymeals.MainViewModel
-import com.google.firebase.example.friendlymeals.data.model.Recipe
 import com.google.firebase.example.friendlymeals.data.repository.AIRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -41,7 +40,7 @@ class GenerateViewModel @Inject constructor(
         }
     }
 
-    fun generateRecipe(ingredients: String, notes: String) {
+    fun generateRecipe(ingredients: String, notes: String, openRecipeScreen: (String) -> Unit) {
         launchCatching {
             _viewState.value = _viewState.value.copy(
                 recipeLoading = true
@@ -49,14 +48,13 @@ class GenerateViewModel @Inject constructor(
 
             val generatedRecipe = aiRepository.generateRecipe(ingredients, notes)
             val recipeImage = aiRepository.generateRecipePhoto(generatedRecipe)
+            //TODO: save recipe to database and recipe image to storage
 
             _viewState.value = _viewState.value.copy(
-                recipeLoading = false,
-                recipe = Recipe(
-                    description = generatedRecipe,
-                    image = recipeImage
-                )
+                recipeLoading = false
             )
+
+            openRecipeScreen("") //TODO: Add Recipe id returned by Firestore
         }
     }
 }

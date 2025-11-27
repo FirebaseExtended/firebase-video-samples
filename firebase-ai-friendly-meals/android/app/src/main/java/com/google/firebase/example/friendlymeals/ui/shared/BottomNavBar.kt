@@ -26,7 +26,7 @@ sealed class BottomNavItem(val route: Any, val icon: Int, val label: String) {
 
 @Composable
 fun BottomNavBar(navigateTo: (Any) -> Unit) {
-    var selectedItemIndex by remember { mutableIntStateOf(0) }
+    var selectedItemIndex by remember { mutableIntStateOf(1) }
     val items = listOf(BottomNavItem.ScanMeal, BottomNavItem.Generate, BottomNavItem.Recipes)
 
     NavigationBar {
