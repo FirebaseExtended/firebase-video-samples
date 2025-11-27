@@ -20,6 +20,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.google.firebase.example.friendlymeals.ui.auth.signIn.SignInRoute
 import com.google.firebase.example.friendlymeals.ui.auth.signIn.SignInScreen
+import com.google.firebase.example.friendlymeals.ui.auth.signUp.SignUpRoute
 import com.google.firebase.example.friendlymeals.ui.auth.signUp.SignUpScreen
 import com.google.firebase.example.friendlymeals.ui.generate.GenerateRoute
 import com.google.firebase.example.friendlymeals.ui.generate.GenerateScreen
@@ -61,8 +62,12 @@ class MainActivity : ComponentActivity() {
                             startDestination = GenerateRoute,
                             modifier = Modifier.padding(innerPadding)
                         ) {
-                            composable<SignInRoute> { SignInScreen() }
-                            composable<SignInRoute> { SignUpScreen() }
+                            composable<SignInRoute> { SignInScreen(
+                                openSignUpScreen = { navigateTo(navController, SignUpRoute) }
+                            ) }
+                            composable<SignUpRoute> { SignUpScreen(
+                                openSignInScreen = { navigateTo(navController, SignInRoute) }
+                            ) }
                             composable<ScanMealRoute> { ScanMealScreen() }
                             composable<GenerateRoute> { GenerateScreen(
                                 openRecipeScreen = { recipeId ->

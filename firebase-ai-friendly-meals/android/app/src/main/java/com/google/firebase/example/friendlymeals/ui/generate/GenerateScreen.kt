@@ -57,7 +57,7 @@ import com.google.firebase.example.friendlymeals.R
 import com.google.firebase.example.friendlymeals.ui.shared.LoadingIndicator
 import com.google.firebase.example.friendlymeals.ui.theme.BackgroundColor
 import com.google.firebase.example.friendlymeals.ui.theme.FriendlyMealsTheme
-import com.google.firebase.example.friendlymeals.ui.theme.TealColor
+import com.google.firebase.example.friendlymeals.ui.theme.Teal
 import com.google.firebase.example.friendlymeals.ui.theme.TextColor
 import kotlinx.serialization.Serializable
 import java.io.File
@@ -84,11 +84,10 @@ fun GenerateScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GenerateScreenContent(
-    modifier: Modifier = Modifier,
-    onIngredientsUpdated: (String) -> Unit,
-    onImageTaken: (Bitmap?) -> Unit,
-    onGenerateClick: (String, String, (String) -> Unit) -> Unit,
-    openRecipeScreen: (String) -> Unit,
+    onIngredientsUpdated: (String) -> Unit = {},
+    onImageTaken: (Bitmap?) -> Unit = {},
+    onGenerateClick: (String, String, (String) -> Unit) -> Unit = { _, _, _ -> },
+    openRecipeScreen: (String) -> Unit = {},
     viewState: GenerateViewState
 ) {
     Scaffold(
@@ -106,7 +105,7 @@ fun GenerateScreenContent(
         containerColor = BackgroundColor
     ) { innerPadding ->
         Column(
-            modifier = modifier
+            modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
                 .padding(horizontal = 24.dp)
@@ -121,17 +120,6 @@ fun GenerateScreenContent(
                 openRecipeScreen = openRecipeScreen,
                 viewState = viewState
             )
-
-            Spacer(modifier = Modifier.size(24.dp))
-
-            if (viewState.recipeLoading) {
-                Box(
-                    modifier = Modifier.fillMaxWidth(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    LoadingIndicator()
-                }
-            }
         }
     }
 }
@@ -174,6 +162,12 @@ fun IngredientsSection(
             modifier = Modifier.padding(bottom = 8.dp)
         )
 
+        val ingredientsHint = if (viewState.ingredientsLoading) {
+            "Loading..."
+        } else {
+            "e.g., pasta, tomato, garlic, bacon, eggs"
+        }
+
         OutlinedTextField(
             value = viewState.ingredients,
             onValueChange = onIngredientsUpdated,
@@ -190,7 +184,7 @@ fun IngredientsSection(
             enabled = !viewState.ingredientsLoading,
             placeholder = {
                 Text(
-                    text = "e.g., pasta, tomato, garlic, bacon, eggs",
+                    text = ingredientsHint,
                     color = Color.Gray
                 )
             }
@@ -198,7 +192,6 @@ fun IngredientsSection(
 
         Spacer(modifier = Modifier.size(24.dp))
 
-        // Dashed Camera Button
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -230,25 +223,17 @@ fun IngredientsSection(
                 Icon(
                     painter = painterResource(R.drawable.ic_camera),
                     contentDescription = "Camera",
-                    tint = TealColor,
+                    tint = Teal,
                     modifier = Modifier.size(24.dp)
                 )
+
                 Spacer(modifier = Modifier.size(8.dp))
+
                 Text(
                     text = "Take a picture of ingredients",
-                    color = TealColor,
+                    color = Teal,
                     fontWeight = FontWeight.Medium
                 )
-            }
-        }
-
-        if (viewState.ingredientsLoading) {
-            Spacer(modifier = Modifier.size(16.dp))
-            Box(
-                modifier = Modifier.fillMaxWidth(),
-                contentAlignment = Alignment.Center
-            ) {
-                LoadingIndicator()
             }
         }
 
@@ -295,7 +280,7 @@ fun IngredientsSection(
                 .height(56.dp),
             shape = RoundedCornerShape(16.dp),
             colors = ButtonDefaults.buttonColors(
-                containerColor = TealColor,
+                containerColor = Teal,
                 contentColor = Color.White,
                 disabledContainerColor = Color.LightGray,
                 disabledContentColor = Color.Gray
@@ -308,6 +293,19 @@ fun IngredientsSection(
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold
             )
+        }
+
+        Spacer(modifier = Modifier.size(24.dp))
+
+        if (viewState.recipeLoading || viewState.ingredientsLoading) {
+            Spacer(modifier = Modifier.size(24.dp))
+
+            Box(
+                modifier = Modifier.fillMaxWidth(),
+                contentAlignment = Alignment.Center
+            ) {
+                LoadingIndicator()
+            }
         }
     }
 }
@@ -337,12 +335,8 @@ private fun createImageBitmap(context: Context, tempFileUrl: Uri?): Bitmap? {
 @Composable
 @Preview
 fun HomeScreenPreview() {
-    FriendlyMealsTheme(darkTheme = false) {
+    FriendlyMealsTheme {
         GenerateScreenContent(
-            onIngredientsUpdated = {},
-            onImageTaken = {},
-            onGenerateClick = { _, _, _ -> },
-            openRecipeScreen = {},
             viewState = GenerateViewState()
         )
     }

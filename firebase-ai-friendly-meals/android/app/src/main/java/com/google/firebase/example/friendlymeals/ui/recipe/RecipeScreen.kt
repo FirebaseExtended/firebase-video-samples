@@ -1,5 +1,6 @@
 package com.google.firebase.example.friendlymeals.ui.recipe
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -17,8 +18,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Checkbox
-import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
@@ -28,18 +27,22 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.firebase.example.friendlymeals.R
+import com.google.firebase.example.friendlymeals.data.model.Recipe
 import com.google.firebase.example.friendlymeals.ui.theme.BackgroundColor
-import com.google.firebase.example.friendlymeals.ui.theme.CardBackgroundColor
 import com.google.firebase.example.friendlymeals.ui.theme.FriendlyMealsTheme
-import com.google.firebase.example.friendlymeals.ui.theme.LightGrayColor
-import com.google.firebase.example.friendlymeals.ui.theme.TealColor
+import com.google.firebase.example.friendlymeals.ui.theme.LightGray
+import com.google.firebase.example.friendlymeals.ui.theme.LightTeal
+import com.google.firebase.example.friendlymeals.ui.theme.Teal
 import com.google.firebase.example.friendlymeals.ui.theme.TextColor
 import com.halilibo.richtext.commonmark.Markdown
 import com.halilibo.richtext.ui.BasicRichText
@@ -50,7 +53,27 @@ data class RecipeRoute(val recipeId: String)
 
 @Composable
 fun RecipeScreen(
+    viewModel: RecipeViewModel = hiltViewModel(),
     navigateBack: () -> Unit
+) {
+    val recipe = viewModel.recipe.collectAsStateWithLifecycle()
+
+    RecipeScreenContent(
+        navigateBack = navigateBack,
+        toggleFavorite = viewModel::toggleFavorite,
+        recipe = recipe.value
+    )
+
+    LaunchedEffect(true) {
+        viewModel.loadRecipe()
+    }
+}
+
+@Composable
+fun RecipeScreenContent(
+    navigateBack: () -> Unit = {},
+    toggleFavorite: () -> Unit = {},
+    recipe: Recipe
 ) {
     Scaffold(
         containerColor = BackgroundColor
@@ -62,27 +85,29 @@ fun RecipeScreen(
                     .padding(innerPadding)
             ) {
                 item {
-                    // Header Image Section
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(300.dp)
                     ) {
-                        // Placeholder for the food image
                         Box(
                             modifier = Modifier
                                 .fillMaxSize()
                                 .background(Color.DarkGray)
                         ) {
-                            // In a real app, use Image composable here
-                             Text(
-                                 "Food Image Placeholder",
-                                 color = Color.White,
-                                 modifier = Modifier.align(Alignment.Center)
-                             )
+                            val image = recipe.image?.asImageBitmap()
+
+                            if (image != null) {
+                                Image(bitmap = image, "Recipe image")
+                            } else {
+                                Text(
+                                    text = "Could not load image",
+                                    color = Color.White,
+                                    modifier = Modifier.align(Alignment.Center)
+                                )
+                            }
                         }
 
-                        // Top Buttons
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -90,7 +115,7 @@ fun RecipeScreen(
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
                             IconButton(
-                                onClick = { /* TODO */ },
+                                onClick = { navigateBack() },
                                 modifier = Modifier
                                     .background(Color.White.copy(alpha = 0.8f), CircleShape)
                                     .size(40.dp)
@@ -102,14 +127,14 @@ fun RecipeScreen(
                                 )
                             }
                             IconButton(
-                                onClick = { /* TODO */ },
+                                onClick = { toggleFavorite() },
                                 modifier = Modifier
                                     .background(Color.White.copy(alpha = 0.8f), CircleShape)
                                     .size(40.dp)
                             ) {
                                 Icon(
                                     painter = painterResource(R.drawable.ic_favorite_outline),
-                                    contentDescription = "Share",
+                                    contentDescription = "Favorite",
                                     tint = TextColor
                                 )
                             }
@@ -123,10 +148,10 @@ fun RecipeScreen(
                             .fillMaxWidth()
                             .padding(horizontal = 24.dp)
                     ) {
-                        Spacer(modifier = Modifier.height(24.dp)) // Space for FAB overlap
+                        Spacer(modifier = Modifier.height(24.dp))
 
                         Text(
-                            text = "Creamy Tomato and Basil Pasta",
+                            text = recipe.title,
                             fontSize = 28.sp,
                             fontWeight = FontWeight.Bold,
                             color = TextColor,
@@ -135,7 +160,6 @@ fun RecipeScreen(
 
                         Spacer(modifier = Modifier.height(24.dp))
 
-                        // Info Cards
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween
@@ -143,30 +167,33 @@ fun RecipeScreen(
                             InfoCard(
                                 icon = painterResource(R.drawable.ic_timer),
                                 label = "Prep Time",
-                                value = "10 mins",
+                                value = recipe.prepTime,
                                 modifier = Modifier.weight(1f)
                             )
+
                             Spacer(modifier = Modifier.width(12.dp))
+
                             InfoCard(
                                 icon = painterResource(R.drawable.ic_cook),
                                 label = "Cook Time",
-                                value = "20 mins",
+                                value = recipe.cookTime,
                                 modifier = Modifier.weight(1f)
                             )
+
                             Spacer(modifier = Modifier.width(12.dp))
+
                             InfoCard(
                                 icon = painterResource(R.drawable.ic_serving),
                                 label = "Servings",
-                                value = "2",
+                                value = recipe.servings,
                                 modifier = Modifier.weight(1f)
                             )
                         }
 
                         Spacer(modifier = Modifier.height(24.dp))
 
-                        // Ingredients Section
                         Card(
-                            colors = CardDefaults.cardColors(containerColor = CardBackgroundColor),
+                            colors = CardDefaults.cardColors(containerColor = Color.White),
                             shape = RoundedCornerShape(16.dp),
                             modifier = Modifier.fillMaxWidth()
                         ) {
@@ -175,22 +202,21 @@ fun RecipeScreen(
                                     text = "Ingredients",
                                     fontSize = 18.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = TealColor
+                                    color = Teal
                                 )
+
                                 Spacer(modifier = Modifier.height(12.dp))
-                                IngredientRow("200g Pasta")
-                                IngredientRow("4 ripe tomatoes")
-                                IngredientRow("2 cloves garlic")
-                                IngredientRow("1/2 cup heavy cream")
-                                IngredientRow("Fresh basil leaves")
+
+                                recipe.ingredients.forEach {
+                                    IngredientRow(it)
+                                }
                             }
                         }
 
                         Spacer(modifier = Modifier.height(24.dp))
 
-                        // Instructions Section
                         Card(
-                            colors = CardDefaults.cardColors(containerColor = CardBackgroundColor),
+                            colors = CardDefaults.cardColors(containerColor = Color.White),
                             shape = RoundedCornerShape(16.dp),
                             modifier = Modifier.fillMaxWidth()
                         ) {
@@ -199,12 +225,12 @@ fun RecipeScreen(
                                     text = "Instructions",
                                     fontSize = 18.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = TealColor
+                                    color = Teal
                                 )
                                 Spacer(modifier = Modifier.height(12.dp))
 
                                 BasicRichText {
-                                    Markdown("**description**")
+                                    Markdown(recipe.instructions)
                                 }
                             }
                         }
@@ -214,10 +240,6 @@ fun RecipeScreen(
                 }
             }
         }
-    }
-
-    LaunchedEffect(true) {
-        //loadRecipe()
     }
 }
 
@@ -230,23 +252,27 @@ fun InfoCard(
 ) {
     Column(
         modifier = modifier
-            .background(LightGrayColor, RoundedCornerShape(12.dp))
+            .background(LightGray, RoundedCornerShape(12.dp))
             .padding(vertical = 12.dp, horizontal = 4.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Icon(
             painter = icon,
             contentDescription = null,
-            tint = TealColor,
+            tint = Teal,
             modifier = Modifier.size(20.dp)
         )
+
         Spacer(modifier = Modifier.height(4.dp))
+
         Text(
             text = label,
             fontSize = 12.sp,
             color = Color.Gray
         )
+
         Spacer(modifier = Modifier.height(2.dp))
+
         Text(
             text = value,
             fontSize = 14.sp,
@@ -264,14 +290,22 @@ fun IngredientRow(text: String) {
             .fillMaxWidth()
             .padding(vertical = 4.dp)
     ) {
-        Checkbox(
-            checked = false,
-            onCheckedChange = { },
-            colors = CheckboxDefaults.colors(
-                uncheckedColor = Color.LightGray,
-                checkedColor = TealColor
+        Box(
+            modifier = Modifier
+                .size(24.dp)
+                .background(LightTeal, CircleShape),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                painter = painterResource(R.drawable.ic_check),
+                contentDescription = null,
+                tint = Teal,
+                modifier = Modifier.size(14.dp)
             )
-        )
+        }
+
+        Spacer(modifier = Modifier.width(12.dp))
+
         Text(
             text = text,
             fontSize = 15.sp,
@@ -284,8 +318,8 @@ fun IngredientRow(text: String) {
 @Composable
 fun RecipeScreenPreview() {
     FriendlyMealsTheme {
-        RecipeScreen(
-            navigateBack = {}
+        RecipeScreenContent(
+            recipe = Recipe()
         )
     }
 }

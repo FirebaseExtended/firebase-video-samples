@@ -16,7 +16,7 @@ import com.google.firebase.example.friendlymeals.R
 import com.google.firebase.example.friendlymeals.ui.generate.GenerateRoute
 import com.google.firebase.example.friendlymeals.ui.recipeList.RecipeListRoute
 import com.google.firebase.example.friendlymeals.ui.scanMeal.ScanMealRoute
-import com.google.firebase.example.friendlymeals.ui.theme.TealColor
+import com.google.firebase.example.friendlymeals.ui.theme.Teal
 
 sealed class BottomNavItem(val route: Any, val icon: Int, val label: String) {
     object ScanMeal : BottomNavItem(ScanMealRoute, R.drawable.ic_camera, "Scan Meal")
@@ -42,9 +42,9 @@ fun BottomNavBar(navigateTo: (Any) -> Unit) {
                     contentDescription = item.label
                 ) },
                 colors = NavigationBarItemDefaults.colors(
-                    selectedIconColor = TealColor,
+                    selectedIconColor = Teal,
                     indicatorColor = Color.Transparent,
-                    selectedTextColor = TealColor
+                    selectedTextColor = Teal
                 ),
                 label = { Text(item.label) }
             )
