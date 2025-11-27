@@ -54,12 +54,15 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.FileProvider
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.firebase.example.friendlymeals.R
 import com.google.firebase.example.friendlymeals.data.model.Recipe
 import com.google.firebase.example.friendlymeals.ui.shared.LoadingIndicator
+import com.google.firebase.example.friendlymeals.ui.theme.BackgroundColor
 import com.google.firebase.example.friendlymeals.ui.theme.FriendlyMealsTheme
+import com.google.firebase.example.friendlymeals.ui.theme.TealColor
+import com.google.firebase.example.friendlymeals.ui.theme.TextColor
 import com.halilibo.richtext.commonmark.Markdown
 import com.halilibo.richtext.ui.BasicRichText
 import kotlinx.serialization.Serializable
@@ -67,10 +70,6 @@ import java.io.File
 
 @Serializable
 object GenerateRoute
-
-private val TealColor = Color(0xFF1EB980)
-private val BackgroundColor = Color(0xFFF8F9FA)
-private val TextColor = Color(0xFF1F2937)
 
 @Composable
 fun GenerateScreen(
@@ -101,7 +100,7 @@ fun GenerateScreenContent(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 24.dp, vertical = 16.dp),
-                text = "New recipe ✨",
+                text = "New recipe",
                 fontSize = 28.sp,
                 fontWeight = FontWeight.Bold,
                 color = TextColor

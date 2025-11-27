@@ -3,15 +3,20 @@ package com.google.firebase.example.friendlymeals.ui.shared
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.navigation.NavController
-import androidx.navigation.compose.currentBackStackEntryAsState
 import com.google.firebase.example.friendlymeals.R
 import com.google.firebase.example.friendlymeals.ui.generate.GenerateRoute
 import com.google.firebase.example.friendlymeals.ui.recipeList.RecipeListRoute
 import com.google.firebase.example.friendlymeals.ui.scanMeal.ScanMealRoute
+import com.google.firebase.example.friendlymeals.ui.theme.TealColor
 
 sealed class BottomNavItem(val route: Any, val icon: Int, val label: String) {
     object ScanMeal : BottomNavItem(ScanMealRoute, R.drawable.ic_camera, "Scan Meal")
@@ -20,31 +25,27 @@ sealed class BottomNavItem(val route: Any, val icon: Int, val label: String) {
 }
 
 @Composable
-fun BottomNavBar(navController: NavController) {
+fun BottomNavBar(navigateTo: (Any) -> Unit) {
+    var selectedItemIndex by remember { mutableIntStateOf(0) }
     val items = listOf(BottomNavItem.ScanMeal, BottomNavItem.Generate, BottomNavItem.Recipes)
 
     NavigationBar {
-        val currentBackStackEntry = navController.currentBackStackEntryAsState().value
-        val currentRoute = currentBackStackEntry?.destination?.route
-
-        items.forEach { item ->
-            val selected = currentRoute == item.route
-
+        items.forEachIndexed { index, item ->
             NavigationBarItem(
-                selected = selected,
+                selected = selectedItemIndex == index,
                 onClick = {
-                    if (currentRoute != item.route) {
-                        navController.navigate(item.route) {
-                            popUpTo(navController.graph.startDestinationId) { saveState = true }
-                            launchSingleTop = true
-                            restoreState = true
-                        }
-                    }
+                    selectedItemIndex = index
+                    navigateTo(item.route)
                 },
                 icon = { Icon(
                     painter = painterResource(item.icon),
                     contentDescription = item.label
                 ) },
+                colors = NavigationBarItemDefaults.colors(
+                    selectedIconColor = TealColor,
+                    indicatorColor = Color.Transparent,
+                    selectedTextColor = TealColor
+                ),
                 label = { Text(item.label) }
             )
         }
