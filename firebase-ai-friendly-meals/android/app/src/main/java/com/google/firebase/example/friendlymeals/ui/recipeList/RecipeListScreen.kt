@@ -32,6 +32,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -85,7 +86,7 @@ fun RecipeListScreenContent(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "My Recipes",
+                    text = stringResource(id = R.string.recipe_list_title),
                     fontSize = 28.sp,
                     fontWeight = FontWeight.Bold,
                     color = TextColor
@@ -93,7 +94,7 @@ fun RecipeListScreenContent(
                 IconButton(onClick = { openFilterScreen() }) {
                     Icon(
                         painter = painterResource(R.drawable.ic_filter),
-                        contentDescription = "Filter",
+                        contentDescription = stringResource(id = R.string.recipe_list_filter_button_content_description),
                         tint = TextColor
                     )
                 }
@@ -144,13 +145,13 @@ fun RecipeCard(
                 if (image != null) {
                     Image(
                         bitmap = image,
-                        contentDescription = "Recipe image",
+                        contentDescription = stringResource(id = R.string.recipe_list_item_image_content_description),
                         modifier = Modifier.fillMaxSize()
                     )
                 } else {
                     Image(
                         painter = painterResource(R.mipmap.ic_launcher_no_bg),
-                        contentDescription = "App icon",
+                        contentDescription = stringResource(id = R.string.recipe_list_app_icon_content_description),
                         modifier = Modifier.fillMaxSize()
                     )
                 }

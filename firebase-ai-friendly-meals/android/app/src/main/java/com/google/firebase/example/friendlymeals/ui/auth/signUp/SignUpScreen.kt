@@ -28,6 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -95,7 +96,7 @@ fun SignUpScreenContent(
 
             Image(
                 painter = painterResource(id = R.mipmap.ic_launcher_round),
-                contentDescription = "",
+                contentDescription = stringResource(id = R.string.logo_content_description),
                 contentScale = ContentScale.Fit,
                 modifier = Modifier.size(150.dp)
             )
@@ -106,7 +107,7 @@ fun SignUpScreenContent(
                 value = viewState.email,
                 onValueChange = { updateEmail(it) },
                 modifier = Modifier.fillMaxWidth(),
-                placeholder = { Text("Email address", color = PlaceholderColor) },
+                placeholder = { Text(stringResource(id = R.string.sign_in_email_hint), color = PlaceholderColor) },
                 shape = RoundedCornerShape(12.dp),
                 colors = TextFieldDefaults.colors(
                     focusedContainerColor = LightGray,
@@ -125,7 +126,7 @@ fun SignUpScreenContent(
                 value = viewState.password,
                 onValueChange = { updatePassword(it) },
                 modifier = Modifier.fillMaxWidth(),
-                placeholder = { Text("Password", color = PlaceholderColor) },
+                placeholder = { Text(stringResource(id = R.string.sign_in_password_hint), color = PlaceholderColor) },
                 shape = RoundedCornerShape(12.dp),
                 colors = TextFieldDefaults.colors(
                     focusedContainerColor = LightGray,
@@ -153,7 +154,7 @@ fun SignUpScreenContent(
                 )
             ) {
                 Text(
-                    text = "Sign Up",
+                    text = stringResource(id = R.string.sign_up_button),
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold
                 )
@@ -171,7 +172,7 @@ fun SignUpScreenContent(
                     thickness = 1.dp
                 )
                 Text(
-                    text = "OR",
+                    text = stringResource(id = R.string.sign_in_or),
                     modifier = Modifier.padding(horizontal = 16.dp),
                     color = Color.Gray,
                     fontSize = 14.sp
@@ -198,14 +199,14 @@ fun SignUpScreenContent(
                 )
             ) {
                 Text(
-                    text = "G", 
+                    text = stringResource(id = R.string.sign_in_google_g),
                     fontWeight = FontWeight.Bold, 
                     color = GoogleRed,
                     fontSize = 20.sp,
                     modifier = Modifier.padding(end = 8.dp)
                 )
                 Text(
-                    text = "Sign Up with Google",
+                    text = stringResource(id = R.string.sign_up_with_google_button),
                     fontSize = 16.sp,
                     fontWeight = FontWeight.SemiBold
                 )
@@ -215,9 +216,9 @@ fun SignUpScreenContent(
 
             Text(
                 text = buildAnnotatedString {
-                    append("Already have an account? ")
+                    append(stringResource(id = R.string.sign_up_already_have_account))
                     withStyle(style = SpanStyle(color = Teal, fontWeight = FontWeight.Bold)) {
-                        append("Sign In")
+                        append(stringResource(id = R.string.sign_in_button))
                     }
                 },
                 modifier = Modifier

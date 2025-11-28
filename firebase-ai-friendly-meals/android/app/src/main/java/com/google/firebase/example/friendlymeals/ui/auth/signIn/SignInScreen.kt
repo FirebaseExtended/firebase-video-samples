@@ -28,6 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -97,7 +98,7 @@ fun SignInScreenContent(
 
             Image(
                 painter = painterResource(id = R.mipmap.ic_launcher_round),
-                contentDescription = "",
+                contentDescription = stringResource(id = R.string.logo_content_description),
                 contentScale = ContentScale.Fit,
                 modifier = Modifier.size(150.dp)
             )
@@ -108,7 +109,7 @@ fun SignInScreenContent(
                 value = viewState.email,
                 onValueChange = { updateEmail(it) },
                 modifier = Modifier.fillMaxWidth(),
-                placeholder = { Text("Email address", color = PlaceholderColor) },
+                placeholder = { Text(stringResource(id = R.string.sign_in_email_hint), color = PlaceholderColor) },
                 shape = RoundedCornerShape(12.dp),
                 colors = TextFieldDefaults.colors(
                     focusedContainerColor = LightGray,
@@ -127,7 +128,7 @@ fun SignInScreenContent(
                 value = viewState.password,
                 onValueChange = { updatePassword(it) },
                 modifier = Modifier.fillMaxWidth(),
-                placeholder = { Text("Password", color = PlaceholderColor) },
+                placeholder = { Text(stringResource(id = R.string.sign_in_password_hint), color = PlaceholderColor) },
                 shape = RoundedCornerShape(12.dp),
                 colors = TextFieldDefaults.colors(
                     focusedContainerColor = LightGray,
@@ -155,7 +156,7 @@ fun SignInScreenContent(
                 )
             ) {
                 Text(
-                    text = "Sign In",
+                    text = stringResource(id = R.string.sign_in_button),
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold
                 )
@@ -173,7 +174,7 @@ fun SignInScreenContent(
                     thickness = 1.dp
                 )
                 Text(
-                    text = "OR",
+                    text = stringResource(id = R.string.sign_in_or),
                     modifier = Modifier.padding(horizontal = 16.dp),
                     color = Color.Gray,
                     fontSize = 14.sp
@@ -200,14 +201,14 @@ fun SignInScreenContent(
                 )
             ) {
                 Text(
-                    text = "G", 
-                    fontWeight = FontWeight.Bold, 
+                    text = stringResource(id = R.string.sign_in_google_g),
+                    fontWeight = FontWeight.Bold,
                     color = GoogleRed,
                     fontSize = 20.sp,
                     modifier = Modifier.padding(end = 8.dp)
                 )
                 Text(
-                    text = "Sign In with Google",
+                    text = stringResource(id = R.string.sign_in_with_google_button),
                     fontSize = 16.sp,
                     fontWeight = FontWeight.SemiBold
                 )
@@ -216,7 +217,7 @@ fun SignInScreenContent(
             Spacer(modifier = Modifier.height(32.dp))
 
             Text(
-                text = "Forgot Password?",
+                text = stringResource(id = R.string.sign_in_forgot_password),
                 color = Teal,
                 fontWeight = FontWeight.Medium,
                 modifier = Modifier.clickable { forgotPassword() }
@@ -226,9 +227,9 @@ fun SignInScreenContent(
 
             Text(
                 text = buildAnnotatedString {
-                    append("Don't have an account? ")
+                    append(stringResource(id = R.string.sign_in_no_account))
                     withStyle(style = SpanStyle(color = Teal, fontWeight = FontWeight.Bold)) {
-                        append("Sign Up")
+                        append(stringResource(id = R.string.sign_in_sign_up))
                     }
                 },
                 modifier = Modifier

@@ -40,6 +40,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringArrayResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -102,7 +104,7 @@ fun FilterScreenContent(
             CenterAlignedTopAppBar(
                 title = {
                     Text(
-                        "Filter Recipes",
+                        stringResource(id = R.string.filter_title),
                         fontWeight = FontWeight.Bold,
                         fontSize = 20.sp,
                         color = TextColor
@@ -112,7 +114,7 @@ fun FilterScreenContent(
                     IconButton(onClick = { navigateBack() }) {
                         Icon(
                             painter = painterResource(R.drawable.ic_arrow_back),
-                            contentDescription = "Back",
+                            contentDescription = stringResource(id = R.string.recipe_back_button_content_description),
                             tint = TextColor
                         )
                     }
@@ -134,7 +136,7 @@ fun FilterScreenContent(
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                text = "Recipe Name",
+                text = stringResource(id = R.string.filter_recipe_name_label),
                 fontWeight = FontWeight.Medium,
                 color = TextColor,
                 modifier = Modifier.padding(bottom = 8.dp)
@@ -144,7 +146,7 @@ fun FilterScreenContent(
                 value = viewState.recipeName,
                 onValueChange = { updateRecipeName(it) },
                 modifier = Modifier.fillMaxWidth(),
-                placeholder = { Text("e.g. Arrabbiata sauce", color = Color.Gray) },
+                placeholder = { Text(stringResource(id = R.string.filter_recipe_name_hint), color = Color.Gray) },
                 shape = RoundedCornerShape(12.dp),
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = BorderColor,
@@ -157,7 +159,7 @@ fun FilterScreenContent(
             Spacer(modifier = Modifier.height(24.dp))
 
             Text(
-                text = "Username",
+                text = stringResource(id = R.string.filter_username_label),
                 fontWeight = FontWeight.Medium,
                 color = TextColor,
                 modifier = Modifier.padding(bottom = 8.dp)
@@ -166,7 +168,7 @@ fun FilterScreenContent(
                 value = viewState.username,
                 onValueChange = { updateUsername(it) },
                 modifier = Modifier.fillMaxWidth(),
-                placeholder = { Text("e.g. John Doe", color = Color.Gray) },
+                placeholder = { Text(stringResource(id = R.string.filter_username_hint), color = Color.Gray) },
                 shape = RoundedCornerShape(12.dp),
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = BorderColor,
@@ -179,7 +181,7 @@ fun FilterScreenContent(
             Spacer(modifier = Modifier.height(24.dp))
 
             Text(
-                text = "Rating",
+                text = stringResource(id = R.string.filter_rating_label),
                 fontWeight = FontWeight.Medium,
                 color = TextColor,
                 modifier = Modifier.padding(bottom = 8.dp)
@@ -204,7 +206,7 @@ fun FilterScreenContent(
             Spacer(modifier = Modifier.height(24.dp))
 
             Text(
-                text = "Tags",
+                text = stringResource(id = R.string.filter_tags_label),
                 fontWeight = FontWeight.Medium,
                 color = TextColor,
                 modifier = Modifier.padding(bottom = 8.dp)
@@ -215,7 +217,8 @@ fun FilterScreenContent(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                val tags = listOf("Quick & Easy", "Vegan", "Gluten-Free", "High Protein", "Low Carb", "Dessert")
+                val tags = stringArrayResource(id = R.array.filter_tags)
+                //TODO: use ENUM here in the future
 
                 tags.forEach { tag ->
                     val isSelected = viewState.tags.contains(tag)
@@ -237,45 +240,48 @@ fun FilterScreenContent(
             Spacer(modifier = Modifier.height(24.dp))
 
             Text(
-                text = "Sort By",
+                text = stringResource(id = R.string.filter_sort_by_label),
                 fontWeight = FontWeight.Medium,
                 color = TextColor,
                 modifier = Modifier.padding(bottom = 8.dp)
             )
+            //TODO: use ENUM for sortBy in the future
+            //TODO: fix changing the selected radio button
+
             Row(verticalAlignment = Alignment.CenterVertically) {
                 RadioButton(
-                    selected = viewState.sortBy == "Rating",
-                    onClick = { updateSortBy("Rating") },
+                    selected = viewState.sortBy == stringResource(id = R.string.filter_sort_by_rating),
+                    onClick = { updateSortBy(viewState.sortBy) },
                     colors = RadioButtonDefaults.colors(selectedColor = Teal)
                 )
-                Text("Rating", color = TextColor)
+                Text(stringResource(id = R.string.filter_sort_by_rating), color = TextColor)
                 
                 Spacer(modifier = Modifier.width(24.dp))
                 
                 RadioButton(
-                    selected = viewState.sortBy == "Alphabetical",
-                    onClick = { updateSortBy("Alphabetical") },
+                    selected = viewState.sortBy == stringResource(id = R.string.filter_sort_by_alphabetical),
+                    onClick = { updateSortBy(viewState.sortBy) },
                     colors = RadioButtonDefaults.colors(selectedColor = Teal)
                 )
-                Text("Alphabetical", color = TextColor)
+                Text(stringResource(id = R.string.filter_sort_by_alphabetical), color = TextColor)
             }
 
             Row(verticalAlignment = Alignment.CenterVertically) {
                 RadioButton(
-                    selected = viewState.sortBy == "Popularity",
-                    onClick = { updateSortBy("Popularity") },
+                    selected = viewState.sortBy == stringResource(id = R.string.filter_sort_by_popularity),
+                    onClick = { updateSortBy(viewState.sortBy) },
                     colors = RadioButtonDefaults.colors(selectedColor = Teal)
                 )
-                Text("Popularity", color = TextColor)
+                Text(stringResource(id = R.string.filter_sort_by_popularity), color = TextColor)
 
                 Spacer(modifier = Modifier.width(24.dp))
 
                 RadioButton(
-                    selected = viewState.sortBy == "Date added",
-                    onClick = { updateSortBy("Date added") },
+                    selected = viewState.sortBy == stringResource(id = R.string.filter_sort_by_date_added),
+                    onClick = { updateSortBy(viewState.sortBy) },
                     colors = RadioButtonDefaults.colors(selectedColor = Teal)
                 )
-                Text("Date added", color = TextColor)
+                Text(stringResource(id = R.string.filter_sort_by_date_added), color = TextColor)
             }
 
             Spacer(modifier = Modifier.weight(1f))
@@ -294,7 +300,7 @@ fun FilterScreenContent(
                     border = BorderStroke(1.dp, Teal),
                     colors = ButtonDefaults.outlinedButtonColors(contentColor = Teal)
                 ) {
-                    Text("Reset", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                    Text(stringResource(id = R.string.filter_reset_button), fontWeight = FontWeight.Bold, fontSize = 16.sp)
                 }
 
                 Button(
@@ -311,7 +317,7 @@ fun FilterScreenContent(
                         contentColor = Color.White
                     )
                 ) {
-                    Text("Apply Filters", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                    Text(stringResource(id = R.string.filter_apply_button), fontWeight = FontWeight.Bold, fontSize = 16.sp)
                 }
             }
             
@@ -342,7 +348,7 @@ fun RatingButton(
     ) {
         Icon(
             painter = painterResource(R.drawable.ic_star),
-            contentDescription = "$rating Stars",
+            contentDescription = stringResource(id = R.string.filter_rating_content_description, rating),
             tint = when {
                 isSelected -> Color.White
                 isFilled -> SelectedStarColor

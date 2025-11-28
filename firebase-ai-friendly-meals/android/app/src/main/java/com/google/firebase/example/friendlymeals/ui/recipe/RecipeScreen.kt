@@ -30,6 +30,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -98,10 +99,10 @@ fun RecipeScreenContent(
                             val image = recipe.image?.asImageBitmap()
 
                             if (image != null) {
-                                Image(bitmap = image, "Recipe image")
+                                Image(bitmap = image, stringResource(id = R.string.recipe_image_content_description))
                             } else {
                                 Text(
-                                    text = "Could not load image",
+                                    text = stringResource(id = R.string.recipe_image_load_error),
                                     color = Color.White,
                                     modifier = Modifier.align(Alignment.Center)
                                 )
@@ -122,7 +123,7 @@ fun RecipeScreenContent(
                             ) {
                                 Icon(
                                     painter = painterResource(R.drawable.ic_arrow_back),
-                                    contentDescription = "Back",
+                                    contentDescription = stringResource(id = R.string.recipe_back_button_content_description),
                                     tint = TextColor
                                 )
                             }
@@ -134,7 +135,7 @@ fun RecipeScreenContent(
                             ) {
                                 Icon(
                                     painter = painterResource(R.drawable.ic_favorite_outline),
-                                    contentDescription = "Favorite",
+                                    contentDescription = stringResource(id = R.string.recipe_favorite_button_content_description),
                                     tint = TextColor
                                 )
                             }
@@ -166,7 +167,7 @@ fun RecipeScreenContent(
                         ) {
                             InfoCard(
                                 icon = painterResource(R.drawable.ic_timer),
-                                label = "Prep Time",
+                                label = stringResource(id = R.string.recipe_prep_time_label),
                                 value = recipe.prepTime,
                                 modifier = Modifier.weight(1f)
                             )
@@ -175,7 +176,7 @@ fun RecipeScreenContent(
 
                             InfoCard(
                                 icon = painterResource(R.drawable.ic_cook),
-                                label = "Cook Time",
+                                label = stringResource(id = R.string.recipe_cook_time_label),
                                 value = recipe.cookTime,
                                 modifier = Modifier.weight(1f)
                             )
@@ -184,7 +185,7 @@ fun RecipeScreenContent(
 
                             InfoCard(
                                 icon = painterResource(R.drawable.ic_serving),
-                                label = "Servings",
+                                label = stringResource(id = R.string.recipe_servings_label),
                                 value = recipe.servings,
                                 modifier = Modifier.weight(1f)
                             )
@@ -199,7 +200,7 @@ fun RecipeScreenContent(
                         ) {
                             Column(modifier = Modifier.padding(16.dp)) {
                                 Text(
-                                    text = "Ingredients",
+                                    text = stringResource(id = R.string.recipe_ingredients_title),
                                     fontSize = 18.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = Teal
@@ -222,7 +223,7 @@ fun RecipeScreenContent(
                         ) {
                             Column(modifier = Modifier.padding(16.dp)) {
                                 Text(
-                                    text = "Instructions",
+                                    text = stringResource(id = R.string.recipe_instructions_title),
                                     fontSize = 18.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = Teal

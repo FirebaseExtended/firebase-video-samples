@@ -29,6 +29,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -76,7 +77,7 @@ fun ScanMealScreenContent(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Scan Meal",
+                    text = stringResource(id = R.string.scan_meal_title),
                     fontSize = 28.sp,
                     fontWeight = FontWeight.Bold,
                     color = TextColor
@@ -106,12 +107,12 @@ fun ScanMealScreenContent(
                     if (image != null) {
                         Image(
                             bitmap = image,
-                            contentDescription = "Recipe image",
+                            contentDescription = stringResource(id = R.string.recipe_image_content_description),
                             modifier = Modifier.fillMaxSize()
                         )
                     } else {
                         Text(
-                            text = "Could not load image",
+                            text = stringResource(id = R.string.recipe_image_load_error),
                             color = Color.White,
                             modifier = Modifier.align(Alignment.Center)
                         )
@@ -123,7 +124,7 @@ fun ScanMealScreenContent(
 
             item {
                 Text(
-                    text = "Nutritional Facts",
+                    text = stringResource(id = R.string.scan_meal_nutritional_facts_title),
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
                     color = TextColor,
@@ -134,26 +135,26 @@ fun ScanMealScreenContent(
                     Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                         NutrientCard(
                             modifier = Modifier.weight(1f),
-                            label = "Protein",
+                            label = stringResource(id = R.string.scan_meal_protein_label),
                             value = viewState.protein
                         )
 
                         NutrientCard(
                             modifier = Modifier.weight(1f),
-                            label = "Fat",
+                            label = stringResource(id = R.string.scan_meal_fat_label),
                             value = viewState.fat
                         )
                     }
                     Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                         NutrientCard(
                             modifier = Modifier.weight(1f),
-                            label = "Carbs",
+                            label = stringResource(id = R.string.scan_meal_carbs_label),
                             value = viewState.carbs
                         )
 
                         NutrientCard(
                             modifier = Modifier.weight(1f),
-                            label = "Sugar",
+                            label = stringResource(id = R.string.scan_meal_sugar_label),
                             value = viewState.sugar
                         )
                     }
@@ -165,7 +166,7 @@ fun ScanMealScreenContent(
             if (viewState.ingredients.isNotEmpty()) {
                 item {
                     Text(
-                        text = "Identified Ingredients",
+                        text = stringResource(id = R.string.scan_meal_identified_ingredients_title),
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
                         color = TextColor,

@@ -27,12 +27,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.google.firebase.example.friendlymeals.R
 import com.google.firebase.example.friendlymeals.ui.shared.CameraComponent
 import com.google.firebase.example.friendlymeals.ui.shared.LoadingIndicator
 import com.google.firebase.example.friendlymeals.ui.theme.BackgroundColor
@@ -75,7 +77,7 @@ fun GenerateScreenContent(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 24.dp, vertical = 16.dp),
-                text = "New recipe",
+                text = stringResource(id = R.string.generate_new_recipe_title),
                 fontSize = 28.sp,
                 fontWeight = FontWeight.Bold,
                 color = TextColor
@@ -113,10 +115,11 @@ fun IngredientsSection(
     viewState: GenerateViewState
 ) {
     var notes by remember { mutableStateOf("") }
+    //TODO: use viewState to store this
 
     Column(modifier = modifier.fillMaxWidth()) {
         Text(
-            text = "List your ingredients",
+            text = stringResource(id = R.string.generate_ingredients_label),
             fontSize = 16.sp,
             fontWeight = FontWeight.Medium,
             color = TextColor,
@@ -124,9 +127,9 @@ fun IngredientsSection(
         )
 
         val ingredientsHint = if (viewState.ingredientsLoading) {
-            "Loading..."
+            stringResource(id = R.string.generate_ingredients_loading_hint)
         } else {
-            "e.g., pasta, tomato, garlic, bacon, eggs"
+            stringResource(id = R.string.generate_ingredients_hint)
         }
 
         OutlinedTextField(
@@ -158,7 +161,7 @@ fun IngredientsSection(
         Spacer(modifier = Modifier.size(24.dp))
 
         Text(
-            text = "Any special notes or cuisines?",
+            text = stringResource(id = R.string.generate_notes_label),
             fontSize = 16.sp,
             fontWeight = FontWeight.Medium,
             color = TextColor,
@@ -180,7 +183,7 @@ fun IngredientsSection(
             ),
             placeholder = {
                 Text(
-                    text = "e.g., vegetarian, gluten-free, Italian",
+                    text = stringResource(id = R.string.generate_notes_hint),
                     color = Color.Gray
                 )
             }
@@ -207,7 +210,7 @@ fun IngredientsSection(
             onClick = { onGenerateClick(viewState.ingredients, notes, openRecipeScreen) }
         ) {
             Text(
-                text = "Generate Recipe",
+                text = stringResource(id = R.string.generate_recipe_button_text),
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold
             )
