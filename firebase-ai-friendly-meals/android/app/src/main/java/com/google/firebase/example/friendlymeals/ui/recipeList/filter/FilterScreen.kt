@@ -7,7 +7,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -36,10 +35,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -49,18 +44,19 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.firebase.example.friendlymeals.R
+import com.google.firebase.example.friendlymeals.ui.recipeList.RecipeListViewModel
+import com.google.firebase.example.friendlymeals.ui.theme.BackgroundColor
+import com.google.firebase.example.friendlymeals.ui.theme.BorderColor
 import com.google.firebase.example.friendlymeals.ui.theme.FriendlyMealsTheme
+import com.google.firebase.example.friendlymeals.ui.theme.LightTeal
+import com.google.firebase.example.friendlymeals.ui.theme.SelectedStarColor
+import com.google.firebase.example.friendlymeals.ui.theme.Teal
+import com.google.firebase.example.friendlymeals.ui.theme.TextColor
+import com.google.firebase.example.friendlymeals.ui.theme.UnselectedStarColor
 import kotlinx.serialization.Serializable
-
-// Define colors locally to match the design
-private val TealColor = Color(0xFF009688) // Adjusted to match image closer
-private val LightTealBackground = Color(0xFFE0F2F1) // For selected chips
-private val BackgroundColor = Color.White
-private val TextColor = Color(0xFF1F2937)
-private val StarColor = Color(0xFFFFC107)
-private val UnselectedStarColor = Color(0xFF9CA3AF)
-private val BorderColor = Color(0xFFE5E7EB)
 
 @Serializable
 object FilterRoute
@@ -68,13 +64,39 @@ object FilterRoute
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FilterScreen(
+    viewModel: RecipeListViewModel = hiltViewModel(),
     navigateBack: () -> Unit
 ) {
-    var recipeName by remember { mutableStateOf("") }
-    var selectedRating by remember { mutableStateOf(4) }
-    val selectedTags = remember { mutableStateOf(setOf("Quick & Easy", "High Protein")) }
-    var sortBy by remember { mutableStateOf("Rating") }
+    val filterState = viewModel.filterState.collectAsStateWithLifecycle()
 
+    FilterScreenContent(
+        navigateBack = navigateBack,
+        updateRecipeName = viewModel::updateRecipeName,
+        updateUsername = viewModel::updateUsername,
+        updateRating = viewModel::updateRating,
+        removeTag = viewModel::removeTag,
+        addTag = viewModel::addTag,
+        updateSortBy = viewModel::updateSortBy,
+        resetFilters = viewModel::resetFilters,
+        applyFilters = viewModel::applyFilters,
+        viewState = filterState.value
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun FilterScreenContent(
+    navigateBack: () -> Unit = {},
+    updateRecipeName: (String) -> Unit = {},
+    updateUsername: (String) -> Unit = {},
+    updateRating: (Int) -> Unit = {},
+    removeTag: (String) -> Unit = {},
+    addTag: (String) -> Unit = {},
+    updateSortBy: (String) -> Unit = {},
+    resetFilters: () -> Unit = {},
+    applyFilters: () -> Unit = {},
+    viewState: FilterViewState
+) {
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
@@ -87,7 +109,7 @@ fun FilterScreen(
                     )
                 },
                 navigationIcon = {
-                    IconButton(onClick = { /* TODO */ }) {
+                    IconButton(onClick = { navigateBack() }) {
                         Icon(
                             painter = painterResource(R.drawable.ic_arrow_back),
                             contentDescription = "Back",
@@ -95,7 +117,7 @@ fun FilterScreen(
                         )
                     }
                 },
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = BackgroundColor
                 )
             )
@@ -111,16 +133,16 @@ fun FilterScreen(
         ) {
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Recipe Name Input
             Text(
                 text = "Recipe Name",
                 fontWeight = FontWeight.Medium,
                 color = TextColor,
                 modifier = Modifier.padding(bottom = 8.dp)
             )
+
             OutlinedTextField(
-                value = recipeName,
-                onValueChange = { recipeName = it },
+                value = viewState.recipeName,
+                onValueChange = { updateRecipeName(it) },
                 modifier = Modifier.fillMaxWidth(),
                 placeholder = { Text("e.g. Arrabbiata sauce", color = Color.Gray) },
                 shape = RoundedCornerShape(12.dp),
@@ -134,7 +156,6 @@ fun FilterScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // User Name Input
             Text(
                 text = "Username",
                 fontWeight = FontWeight.Medium,
@@ -142,8 +163,8 @@ fun FilterScreen(
                 modifier = Modifier.padding(bottom = 8.dp)
             )
             OutlinedTextField(
-                value = recipeName,
-                onValueChange = { recipeName = it },
+                value = viewState.username,
+                onValueChange = { updateUsername(it) },
                 modifier = Modifier.fillMaxWidth(),
                 placeholder = { Text("e.g. John Doe", color = Color.Gray) },
                 shape = RoundedCornerShape(12.dp),
@@ -157,7 +178,6 @@ fun FilterScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Rating Filter
             Text(
                 text = "Rating",
                 fontWeight = FontWeight.Medium,
@@ -169,50 +189,45 @@ fun FilterScreen(
             ) {
                 repeat(5) { index ->
                     val rating = index + 1
-                    val isSelected = rating == selectedRating
-                    val isFilled = rating <= selectedRating // Logic for stars before selected? 
-                    // Looking at image: 
-                    // Stars 1, 2, 3 are yellow (filled) but white bg.
-                    // Star 4 is white (filled) with teal bg.
-                    // Star 5 is grey (unfilled) with white bg.
-                    // This implies selecting "4" highlights it specifically, 
-                    // or maybe it's just a visual state for "4 Stars".
-                    // Let's implement: Click to select a specific rating.
+                    val isSelected = rating == viewState.rating
+                    val isFilled = rating < viewState.rating
                     
                     RatingButton(
                         rating = rating,
                         isSelected = isSelected,
-                        isFilled = rating < selectedRating, // Stars before selected are yellow
-                        onClick = { selectedRating = rating }
+                        isFilled = isFilled,
+                        onClick = { updateRating(rating) }
                     )
                 }
             }
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Tags Filter
             Text(
                 text = "Tags",
                 fontWeight = FontWeight.Medium,
                 color = TextColor,
                 modifier = Modifier.padding(bottom = 8.dp)
             )
+
             FlowRow(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 val tags = listOf("Quick & Easy", "Vegan", "Gluten-Free", "High Protein", "Low Carb", "Dessert")
+
                 tags.forEach { tag ->
-                    val isSelected = selectedTags.value.contains(tag)
+                    val isSelected = viewState.tags.contains(tag)
+
                     FilterChip(
                         text = tag,
                         isSelected = isSelected,
                         onClick = {
                             if (isSelected) {
-                                selectedTags.value -= tag
+                                removeTag(tag)
                             } else {
-                                selectedTags.value += tag
+                                addTag(tag)
                             }
                         }
                     )
@@ -221,7 +236,6 @@ fun FilterScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Sort By
             Text(
                 text = "Sort By",
                 fontWeight = FontWeight.Medium,
@@ -230,36 +244,36 @@ fun FilterScreen(
             )
             Row(verticalAlignment = Alignment.CenterVertically) {
                 RadioButton(
-                    selected = sortBy == "Rating",
-                    onClick = { sortBy = "Rating" },
-                    colors = RadioButtonDefaults.colors(selectedColor = TealColor)
+                    selected = viewState.sortBy == "Rating",
+                    onClick = { updateSortBy("Rating") },
+                    colors = RadioButtonDefaults.colors(selectedColor = Teal)
                 )
                 Text("Rating", color = TextColor)
                 
                 Spacer(modifier = Modifier.width(24.dp))
                 
                 RadioButton(
-                    selected = sortBy == "Alphabetical",
-                    onClick = { sortBy = "Alphabetical" },
-                    colors = RadioButtonDefaults.colors(selectedColor = TealColor)
+                    selected = viewState.sortBy == "Alphabetical",
+                    onClick = { updateSortBy("Alphabetical") },
+                    colors = RadioButtonDefaults.colors(selectedColor = Teal)
                 )
                 Text("Alphabetical", color = TextColor)
             }
 
             Row(verticalAlignment = Alignment.CenterVertically) {
                 RadioButton(
-                    selected = sortBy == "Popularity",
-                    onClick = { sortBy = "Popularity" },
-                    colors = RadioButtonDefaults.colors(selectedColor = TealColor)
+                    selected = viewState.sortBy == "Popularity",
+                    onClick = { updateSortBy("Popularity") },
+                    colors = RadioButtonDefaults.colors(selectedColor = Teal)
                 )
                 Text("Popularity", color = TextColor)
 
                 Spacer(modifier = Modifier.width(24.dp))
 
                 RadioButton(
-                    selected = sortBy == "Date added",
-                    onClick = { sortBy = "Date added" },
-                    colors = RadioButtonDefaults.colors(selectedColor = TealColor)
+                    selected = viewState.sortBy == "Date added",
+                    onClick = { updateSortBy("Date added") },
+                    colors = RadioButtonDefaults.colors(selectedColor = Teal)
                 )
                 Text("Date added", color = TextColor)
             }
@@ -267,37 +281,33 @@ fun FilterScreen(
             Spacer(modifier = Modifier.weight(1f))
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Bottom Buttons
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 OutlinedButton(
-                    onClick = { 
-                        // Reset logic
-                        recipeName = ""
-                        selectedRating = 0
-                        selectedTags.value = emptySet()
-                        sortBy = "Rating"
-                    },
+                    onClick = { resetFilters() },
                     modifier = Modifier
                         .weight(1f)
                         .height(56.dp),
                     shape = RoundedCornerShape(12.dp),
-                    border = BorderStroke(1.dp, TealColor),
-                    colors = ButtonDefaults.outlinedButtonColors(contentColor = TealColor)
+                    border = BorderStroke(1.dp, Teal),
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = Teal)
                 ) {
                     Text("Reset", fontWeight = FontWeight.Bold, fontSize = 16.sp)
                 }
 
                 Button(
-                    onClick = { /* Apply logic */ },
+                    onClick = {
+                        applyFilters()
+                        navigateBack()
+                    },
                     modifier = Modifier
                         .weight(1f)
                         .height(56.dp),
                     shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = TealColor,
+                        containerColor = Teal,
                         contentColor = Color.White
                     )
                 ) {
@@ -321,10 +331,10 @@ fun RatingButton(
         modifier = Modifier
             .size(48.dp)
             .clip(CircleShape)
-            .background(if (isSelected) TealColor else Color.White)
+            .background(if (isSelected) Teal else Color.White)
             .border(
                 width = 1.dp,
-                color = if (isSelected) TealColor else BorderColor,
+                color = if (isSelected) Teal else BorderColor,
                 shape = CircleShape
             )
             .clickable(onClick = onClick),
@@ -335,7 +345,7 @@ fun RatingButton(
             contentDescription = "$rating Stars",
             tint = when {
                 isSelected -> Color.White
-                isFilled -> StarColor
+                isFilled -> SelectedStarColor
                 else -> UnselectedStarColor
             },
             modifier = Modifier.size(24.dp)
@@ -352,10 +362,10 @@ fun FilterChip(
     Box(
         modifier = Modifier
             .clip(RoundedCornerShape(24.dp))
-            .background(if (isSelected) LightTealBackground else Color.White)
+            .background(if (isSelected) LightTeal else Color.White)
             .border(
                 width = 1.dp,
-                color = if (isSelected) LightTealBackground else BorderColor,
+                color = if (isSelected) LightTeal else BorderColor,
                 shape = RoundedCornerShape(24.dp)
             )
             .clickable(onClick = onClick)
@@ -363,7 +373,7 @@ fun FilterChip(
     ) {
         Text(
             text = text,
-            color = if (isSelected) TealColor else TextColor,
+            color = if (isSelected) Teal else TextColor,
             fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal
         )
     }
@@ -373,8 +383,8 @@ fun FilterChip(
 @Composable
 fun FilterScreenPreview() {
     FriendlyMealsTheme {
-        FilterScreen(
-            navigateBack = {}
+        FilterScreenContent(
+            viewState = FilterViewState()
         )
     }
 }

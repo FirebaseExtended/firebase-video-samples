@@ -81,6 +81,11 @@ class MainActivity : ComponentActivity() {
                                     navController.navigate(RecipeRoute(recipeId)) {
                                         launchSingleTop = true
                                     }
+                                },
+                                openFilterScreen = {
+                                    navController.navigate(FilterRoute) {
+                                        launchSingleTop = true
+                                    }
                                 }
                             ) }
                             composable<RecipeRoute> { RecipeScreen(

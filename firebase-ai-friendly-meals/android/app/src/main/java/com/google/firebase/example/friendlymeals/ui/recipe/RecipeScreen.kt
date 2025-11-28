@@ -93,7 +93,7 @@ fun RecipeScreenContent(
                         Box(
                             modifier = Modifier
                                 .fillMaxSize()
-                                .background(Color.DarkGray)
+                                .background(Color.LightGray)
                         ) {
                             val image = recipe.image?.asImageBitmap()
 

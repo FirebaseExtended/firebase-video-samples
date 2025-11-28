@@ -3,6 +3,7 @@ package com.google.firebase.example.friendlymeals.data.model
 import android.graphics.Bitmap
 
 data class Recipe(
+    val id: String = "",
     val title: String = "",
     val instructions: String = "",
     val ingredients: List<String> = listOf(),

@@ -1,6 +1,8 @@
 package com.google.firebase.example.friendlymeals.ui.recipeList
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -23,44 +25,56 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.firebase.example.friendlymeals.R
+import com.google.firebase.example.friendlymeals.data.model.Recipe
+import com.google.firebase.example.friendlymeals.ui.theme.BackgroundColor
 import com.google.firebase.example.friendlymeals.ui.theme.FriendlyMealsTheme
+import com.google.firebase.example.friendlymeals.ui.theme.SelectedStarColor
+import com.google.firebase.example.friendlymeals.ui.theme.TextColor
+import com.google.firebase.example.friendlymeals.ui.theme.UnselectedStarColor
 import kotlinx.serialization.Serializable
 
 @Serializable
 object RecipeListRoute
 
-// Define colors locally to match the design
-private val TealColor = Color(0xFF1EB980)
-private val BackgroundColor = Color(0xFFF8F9FA)
-private val TextColor = Color(0xFF1F2937)
-private val StarColor = Color(0xFFFFC107)
-private val UnselectedStarColor = Color(0xFFE5E7EB)
-
-data class RecipeUiModel(
-    val title: String,
-    val rating: Int,
-    val imageColor: Color // Placeholder for image
-)
-
 @Composable
-fun RecipeListScreen(openRecipeScreen: (String) -> Unit) {
-    val recipes = listOf(
-        RecipeUiModel("Creamy Tomato and Basil Pasta", 4, Color(0xFFE57373)),
-        RecipeUiModel("Grilled Chicken Salad", 5, Color(0xFF81C784)),
-        RecipeUiModel("Avocado Toast with Egg", 4, Color(0xFFFFF176)),
-        RecipeUiModel("Berry Smoothie Bowl", 5, Color(0xFFBA68C8))
+fun RecipeListScreen(
+    viewModel: RecipeListViewModel = hiltViewModel(),
+    openRecipeScreen: (String) -> Unit,
+    openFilterScreen: () -> Unit
+) {
+    val recipes = viewModel.recipes.collectAsStateWithLifecycle()
+
+    RecipeListScreenContent(
+        openRecipeScreen = openRecipeScreen,
+        openFilterScreen = openFilterScreen,
+        recipes = recipes.value,
     )
 
+    LaunchedEffect(true) {
+        viewModel.loadRecipes()
+    }
+}
+
+@Composable
+fun RecipeListScreenContent(
+    openRecipeScreen: (String) -> Unit = {},
+    openFilterScreen: () -> Unit = {},
+    recipes: List<Recipe>
+) {
     Scaffold(
         topBar = {
             Row(
@@ -76,7 +90,7 @@ fun RecipeListScreen(openRecipeScreen: (String) -> Unit) {
                     fontWeight = FontWeight.Bold,
                     color = TextColor
                 )
-                IconButton(onClick = { /* TODO */ }) {
+                IconButton(onClick = { openFilterScreen() }) {
                     Icon(
                         painter = painterResource(R.drawable.ic_filter),
                         contentDescription = "Filter",
@@ -96,19 +110,22 @@ fun RecipeListScreen(openRecipeScreen: (String) -> Unit) {
             contentPadding = PaddingValues(bottom = 24.dp)
         ) {
             items(recipes) { recipe ->
-                RecipeCard(recipe)
+                RecipeCard(openRecipeScreen = openRecipeScreen, recipe = recipe)
             }
         }
     }
 }
 
 @Composable
-fun RecipeCard(recipe: RecipeUiModel) {
+fun RecipeCard(
+    openRecipeScreen: (String) -> Unit = {},
+    recipe: Recipe
+) {
     Card(
         shape = RoundedCornerShape(24.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth().clickable { openRecipeScreen(recipe.id) }
     ) {
         Row(
             modifier = Modifier
@@ -116,13 +133,20 @@ fun RecipeCard(recipe: RecipeUiModel) {
                 .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Image Placeholder
             Box(
                 modifier = Modifier
                     .size(80.dp)
                     .clip(RoundedCornerShape(16.dp))
-                    .background(recipe.imageColor)
-            )
+                    .background(Color.LightGray)
+            ) {
+                val image = recipe.image?.asImageBitmap()
+
+                if (image != null) {
+                    Image(bitmap = image, "Recipe image")
+                } else {
+                    Image(painter = painterResource(R.mipmap.ic_launcher), "App icon")
+                }
+            }
 
             Spacer(modifier = Modifier.width(16.dp))
 
@@ -134,13 +158,16 @@ fun RecipeCard(recipe: RecipeUiModel) {
                     color = TextColor,
                     lineHeight = 20.sp
                 )
+
                 Spacer(modifier = Modifier.height(8.dp))
+
                 Row {
                     repeat(5) { index ->
                         Icon(
                             painter = painterResource(R.drawable.ic_star),
+                            //TODO: Add ic_star_half when rating is not exact
                             contentDescription = null,
-                            tint = if (index < recipe.rating) StarColor else UnselectedStarColor,
+                            tint = if (index < recipe.averageRating) SelectedStarColor else UnselectedStarColor,
                             modifier = Modifier.size(16.dp)
                         )
                     }
@@ -154,8 +181,8 @@ fun RecipeCard(recipe: RecipeUiModel) {
 @Composable
 fun RecipeListScreenPreview() {
     FriendlyMealsTheme {
-        RecipeListScreen(
-            openRecipeScreen = {}
+        RecipeListScreenContent(
+            recipes = listOf()
         )
     }
 }
