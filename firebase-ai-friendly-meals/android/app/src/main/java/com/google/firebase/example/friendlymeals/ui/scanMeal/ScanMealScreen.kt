@@ -83,6 +83,7 @@ fun ScanMealScreenContent(
                 )
 
                 CameraComponent(onImageTaken)
+                //TODO: add loading indicator when scanning
             }
         },
         containerColor = BackgroundColor
@@ -98,12 +99,16 @@ fun ScanMealScreenContent(
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(300.dp)
+                        .height(275.dp)
                         .clip(RoundedCornerShape(24.dp))
                         .background(Color.LightGray)
                 ) {
                     if (image != null) {
-                        Image(bitmap = image, "Recipe image")
+                        Image(
+                            bitmap = image,
+                            contentDescription = "Recipe image",
+                            modifier = Modifier.fillMaxSize()
+                        )
                     } else {
                         Text(
                             text = "Could not load image",

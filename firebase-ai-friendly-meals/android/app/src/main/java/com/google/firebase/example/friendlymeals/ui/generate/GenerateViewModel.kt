@@ -49,6 +49,8 @@ class GenerateViewModel @Inject constructor(
             val generatedRecipe = aiRepository.generateRecipe(ingredients, notes)
             val recipeImage = aiRepository.generateRecipePhoto(generatedRecipe)
             //TODO: save recipe to database and recipe image to storage
+            //TODO: need to create storageDataSource and repository
+            //TODO: need to create firestoreDataSource and repository
 
             _viewState.value = _viewState.value.copy(
                 recipeLoading = false

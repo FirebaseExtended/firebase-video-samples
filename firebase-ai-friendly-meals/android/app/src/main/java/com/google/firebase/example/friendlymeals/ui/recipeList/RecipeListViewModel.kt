@@ -28,7 +28,7 @@ class RecipeListViewModel @Inject constructor() : MainViewModel() {
                 prepTime = "20 mins",
                 cookTime = "30 mins",
                 servings = "4",
-                averageRating = 4.5,
+                averageRating = 3.0,
                 image = null
             ))
             //_recipes.value = repository.loadRecipes()

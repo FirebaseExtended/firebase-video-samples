@@ -13,6 +13,11 @@ class AuthViewModel @Inject constructor() : MainViewModel() {
     val viewState: StateFlow<AuthViewState>
         get() = _viewState.asStateFlow()
 
+    fun loadUser() {
+        //TODO: load current user and navigate to generate screen if already authenticated
+        //TODO: need to create authDataSource and repository
+    }
+
     fun updateEmail(email: String) {
         _viewState.value = _viewState.value.copy(email = email)
     }
@@ -36,6 +41,7 @@ class AuthViewModel @Inject constructor() : MainViewModel() {
     fun signInWithGoogle() {
         launchCatching {
             //TODO: sign in user with Google, add loading state
+            //TODO: add credential manager library and code
         }
     }
 

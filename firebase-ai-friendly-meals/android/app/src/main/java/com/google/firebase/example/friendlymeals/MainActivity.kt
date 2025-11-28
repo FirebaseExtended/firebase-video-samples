@@ -56,10 +56,11 @@ class MainActivity : ComponentActivity() {
                         modifier = Modifier.fillMaxSize(),
                         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
                         bottomBar = { BottomNavBar { navigateTo(navController, route = it) } }
+                        //TODO: move bottom bar to main screen to be shown after authentication
                     ) { innerPadding ->
                         NavHost(
                             navController = navController,
-                            startDestination = GenerateRoute,
+                            startDestination = GenerateRoute, //TODO: Start with Sign in
                             modifier = Modifier.padding(innerPadding)
                         ) {
                             composable<SignInRoute> { SignInScreen(

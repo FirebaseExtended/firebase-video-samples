@@ -142,9 +142,17 @@ fun RecipeCard(
                 val image = recipe.image?.asImageBitmap()
 
                 if (image != null) {
-                    Image(bitmap = image, "Recipe image")
+                    Image(
+                        bitmap = image,
+                        contentDescription = "Recipe image",
+                        modifier = Modifier.fillMaxSize()
+                    )
                 } else {
-                    Image(painter = painterResource(R.mipmap.ic_launcher), "App icon")
+                    Image(
+                        painter = painterResource(R.mipmap.ic_launcher_no_bg),
+                        contentDescription = "App icon",
+                        modifier = Modifier.fillMaxSize()
+                    )
                 }
             }
 
