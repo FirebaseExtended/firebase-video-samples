@@ -42,7 +42,7 @@ class UsageTrackingService {
   
   private func resetCountIfNeeded() {
     let lastGenerationDate = userDefaults.object(forKey: lastGenerationDateKey) as? Date
-    let needsReset = lastGenerationDate == nil || !Calendar.current.isDateInToday(lastGenerationDate!)
+    let needsReset = lastGenerationDate.map { !Calendar.current.isDateInToday($0) } ?? true
 
     if needsReset {
       userDefaults.set(Date(), forKey: lastGenerationDateKey)
