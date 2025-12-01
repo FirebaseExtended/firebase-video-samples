@@ -39,15 +39,12 @@ class UsageTrackingService {
     let count = userDefaults.integer(forKey: generationCountKey)
     userDefaults.set(count + 1, forKey: generationCountKey)
   }
-
+  
   private func resetCountIfNeeded() {
-    guard let lastGenerationDate = userDefaults.object(forKey: lastGenerationDateKey) as? Date else {
-      userDefaults.set(Date(), forKey: lastGenerationDateKey)
-      userDefaults.set(0, forKey: generationCountKey)
-      return
-    }
+    let lastGenerationDate = userDefaults.object(forKey: lastGenerationDateKey) as? Date
+    let needsReset = lastGenerationDate == nil || !Calendar.current.isDateInToday(lastGenerationDate!)
 
-    if !Calendar.current.isDateInToday(lastGenerationDate) {
+    if needsReset {
       userDefaults.set(Date(), forKey: lastGenerationDateKey)
       userDefaults.set(0, forKey: generationCountKey)
     }

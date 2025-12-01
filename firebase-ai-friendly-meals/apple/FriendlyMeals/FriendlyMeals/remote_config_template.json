@@ -4,7 +4,7 @@
       "defaultValue": {
         "value": "7"
       },
-      "valueType": "STRING"
+      "valueType": "NUMBER"
     },
     "model_name": {
       "defaultValue": {
