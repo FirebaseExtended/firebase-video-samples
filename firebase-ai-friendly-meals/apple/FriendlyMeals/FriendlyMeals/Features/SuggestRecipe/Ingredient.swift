@@ -15,26 +15,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import SwiftUI
-import ConversationKit
-import FirebaseAI
+import Foundation
 
-struct MealPlannerChatView: View {
-  @State private var viewModel = MealPlannerChatViewModel()
-
-  var body: some View {
-    NavigationStack {
-      ConversationView(messages: $viewModel.messages)
-        .onSendMessage { userMessage in
-          Task {
-            await viewModel.sendMessageStreaming(userMessage)
-          }
-        }
-        .navigationTitle("Meal Planner")
-    }
-  }
+protocol RecipeIngredient {
+  var name: String { get }
+  var amount: String { get }
 }
 
-#Preview {
-  MealPlannerChatView()
+struct Ingredient: Codable, Hashable, RecipeIngredient {
+  var name: String
+  var amount: String
 }

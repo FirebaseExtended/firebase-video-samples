@@ -20,21 +20,46 @@ import FirebaseCore
 
 @main
 struct FriendlyMealsApp: App {
+  @State private var recipeService: RecipeService
+
   init () {
     FirebaseApp.configure()
+    _recipeService = State(initialValue: RecipeService())
   }
+
   var body: some Scene {
     WindowGroup {
       TabView {
-        SuggestRecipeView()
-          .tabItem {
-            Label("Suggest Recipes", systemImage: "fork.knife")
+        NavigationStack {
+          RecipeListView()
+        }
+        .tabItem {
+          Label("Cookbook", systemImage: "book.closed")
+        }
+
+        NavigationStack {
+          SuggestRecipeView()
+        }
+        .tabItem {
+          Label("Suggest Recipe", systemImage: "wand.and.stars")
+        }
+
+        NavigationStack {
+          MealPlannerChatView()
+        }
+        .tabItem {
+          Label("Meal Planner", systemImage: "bubble.left.and.bubble.right")
+        }
+      }
+      .environment(recipeService)
+      .onAppear {
+        Task {
+          do {
+            try await RemoteConfigService.shared.fetchConfig()
+          } catch {
+            print("Failed to fetch remote config: \(error)")
           }
-        
-        MealPlannerChatView()
-          .tabItem {
-            Label("Meal Planner", systemImage: "message")
-          }
+        }
       }
     }
   }
