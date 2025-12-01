@@ -49,7 +49,7 @@ struct NutritionView: View {
           .listRowInsets(EdgeInsets())
           .listRowBackground(Color.clear)
           
-          if viewModel.isLoading || viewModel.nutritionInfo != nil || viewModel.errorMessage != nil {
+          if viewModel.hasAnalysisStarted {
             Section(header: Text("Analysis Progress")) {
               DisclosureGroup(isExpanded: $isThinkingExpanded) {
                 Text(viewModel.currentThoughtStep?.description ?? "The model is preparing to analyze the image.")

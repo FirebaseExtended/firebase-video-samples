@@ -47,6 +47,10 @@ class NutritionViewModel {
   var errorMessage: String? = nil
   var currentThoughtStep: ThoughtStep? = nil
 
+  var hasAnalysisStarted: Bool {
+    isLoading || nutritionInfo != nil || errorMessage != nil
+  }
+
   private let model: GenerativeModel
   init() {
     let nutritionSchema = Schema.object(
@@ -55,11 +59,11 @@ class NutritionViewModel {
         "carbohydrates": .integer(description: "The carbs in the dish, in grams",
                                   title: "Carbohydrates (g)"),
         "fat": .integer(description: "The fat in the dish, in grams",
-                        title: "Fat (g"),
+                        title: "Fat (g)"),
         "protein": .integer(description: "The protein in the dish, in grams",
-                            title: "Protein (g"),
+                            title: "Protein (g)"),
         "energy": .integer(description: "The total calories in the dish",
-                           title: "Energy (kcal"),
+                           title: "Energy (kcal)"),
       ]
     )
 
@@ -119,8 +123,6 @@ class NutritionViewModel {
           )
         } catch let error as DecodingError {
           throw NutritionError.responseDecodingFailed(error)
-        } catch {
-          throw error  // Re-throw other errors
         }
 
       } catch let error as NutritionError {
