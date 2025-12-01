@@ -14,9 +14,9 @@
     "preact-router": "^4.0.1"
   },
   "devDependencies": {
-    "@preact/preset-vite": "^2.1.5",
+    "@preact/preset-vite": "^2.10.2",
     "concurrently": "^7.1.0",
     "firebase-tools": "^10.5.0",
-    "vite": "^2.9.16"
+    "vite": "^7.2.6"
   }
 }
