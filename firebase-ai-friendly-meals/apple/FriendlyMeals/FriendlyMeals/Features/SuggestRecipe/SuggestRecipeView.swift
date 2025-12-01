@@ -42,12 +42,7 @@ struct SuggestRecipeView: View {
       Section {
         Button(action: {
           Task {
-            do {
-              try await viewModel.generateRecipe()
-            }
-            catch {
-              print(error.localizedDescription)
-            }
+            await viewModel.generateRecipe()
           }
         }) {
           if viewModel.isGenerating {
@@ -68,7 +63,12 @@ struct SuggestRecipeView: View {
         SuggestRecipeDetailsView(recipe: viewModel.recipe, image: viewModel.recipeImage, errorMessage: viewModel.errorMessage, isNew: true) {
           if let recipe = viewModel.recipe {
             Task {
-              try await recipeService.save(recipe)
+              do {
+                try await recipeService.save(recipe)
+              }
+              catch {
+                print("Error saving recipe: \(error)")
+              }
             }
           }
         }

@@ -32,7 +32,8 @@ class SuggestRecipeViewModel {
   var recipeImage: UIImage?
   var errorMessage: String?
 
-  private var model: GenerativeModel {
+  @ObservationIgnored
+  private lazy var model: GenerativeModel = {
     let generationConfig = GenerationConfig(
       temperature: 0.9,
       topP: 0.1,
@@ -58,15 +59,16 @@ class SuggestRecipeViewModel {
       modelName: "gemini-2.5-flash",
       generationConfig: generationConfig
     )
-  }
+  }()
 
-  private var imageModel: GenerativeModel {
+  @ObservationIgnored
+  private lazy var imageModel: GenerativeModel = {
     let firebaseAI = FirebaseAI.firebaseAI(backend: .googleAI())
     return firebaseAI.generativeModel(
       modelName: "gemini-2.5-flash-image-preview",
       generationConfig: GenerationConfig(responseModalities: [.image])
     )
-  }
+  }()
 
   func generateRecipe() async {
     if !UsageTrackingService.shared.canGenerate() {

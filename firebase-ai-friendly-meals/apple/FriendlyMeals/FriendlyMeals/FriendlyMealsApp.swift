@@ -55,7 +55,11 @@ struct FriendlyMealsApp: App {
       .environment(recipeService)
       .onAppear {
         Task {
-          try await RemoteConfigService.shared.fetchConfig()
+          do {
+            try await RemoteConfigService.shared.fetchConfig()
+          } catch {
+            print("Failed to fetch remote config: \(error)")
+          }
         }
       }
     }

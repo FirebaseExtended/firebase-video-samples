@@ -26,7 +26,7 @@ struct Recipe: Codable, Identifiable, Hashable, RecipeRepresentable {
   var cookingTime: Int
   var ingredients: [Ingredient]
   var instructions: [String]
-  var isFavorite: Bool? = false
+  var isFavorite: Bool = false
   
   var userId: String?
 }

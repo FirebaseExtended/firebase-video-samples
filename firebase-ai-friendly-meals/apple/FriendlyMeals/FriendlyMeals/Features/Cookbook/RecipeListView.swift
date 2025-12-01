@@ -32,7 +32,7 @@ struct RecipeListView: View {
               .lineLimit(2)
           }
           Spacer()
-          if recipe.isFavorite ?? false {
+          if recipe.isFavorite {
             Image(systemName: "star.fill")
               .foregroundColor(.yellow)
           }
@@ -41,7 +41,11 @@ struct RecipeListView: View {
       .swipeActions(edge: .trailing) {
         Button(role: .destructive) {
           Task {
-            try await recipeService.delete(recipe)
+            do {
+              try await recipeService.delete(recipe)
+            } catch {
+              print("Error deleting recipe: \(error)")
+            }
           }
         } label: {
           Label("Delete", systemImage: "trash")
@@ -51,13 +55,18 @@ struct RecipeListView: View {
         Button {
           Task {
             var updatedRecipe = recipe
-            updatedRecipe.isFavorite = !(recipe.isFavorite ?? false)
-            try await recipeService.update(updatedRecipe)
+            updatedRecipe.isFavorite = !recipe.isFavorite
+            do {
+              try await recipeService.update(updatedRecipe)
+            }
+            catch {
+              print("Error favoriting recipe: \(error)")
+            }
           }
         } label: {
-          Label("Favorite", systemImage: recipe.isFavorite ?? false ? "star.slash" : "star")
+          Label("Favorite", systemImage: recipe.isFavorite ? "star.slash" : "star")
         }
-        .tint(recipe.isFavorite ?? false ? .gray : .yellow)
+        .tint(recipe.isFavorite ? .gray : .yellow)
       }
     }
     .navigationTitle("Cookbook")

@@ -37,6 +37,7 @@ class RecipeService {
   }
   
   func fetchRecipes() {
+    listener?.remove()
     let query = db.collection(collectionName).order(by: "title")
     self.listener = query.addSnapshotListener { snapshot, error in
       if let error {
@@ -49,8 +50,13 @@ class RecipeService {
         return
       }
 
-      self.recipes = snapshot.documents.compactMap {
-        try? $0.data(as: Recipe.self)
+      self.recipes = snapshot.documents.compactMap { document in
+        do {
+          return try document.data(as: Recipe.self)
+        } catch {
+          print("Failed to decode recipe with ID \(document.documentID): \(error)")
+          return nil
+        }
       }
     }
   }
