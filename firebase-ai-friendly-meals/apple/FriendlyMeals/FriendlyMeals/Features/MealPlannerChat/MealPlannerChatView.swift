@@ -23,12 +23,15 @@ struct MealPlannerChatView: View {
   @State private var viewModel = MealPlannerChatViewModel()
 
   var body: some View {
-    ConversationView(messages: $viewModel.messages)
-      .onSendMessage { userMessage in
-        Task {
-          await viewModel.sendMessageStreaming(userMessage)
+    NavigationStack {
+      ConversationView(messages: $viewModel.messages)
+        .onSendMessage { userMessage in
+          Task {
+            await viewModel.sendMessageStreaming(userMessage)
+          }
         }
-      }
+        .navigationTitle("Meal Planner")
+    }
   }
 }
 
