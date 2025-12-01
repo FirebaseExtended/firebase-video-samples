@@ -19,7 +19,7 @@ import SwiftUI
 
 struct SuggestRecipeView: View {
   @State private var viewModel = SuggestRecipeViewModel()
-  @State private var recipeService = RecipeService()
+  @Environment(RecipeService.self) private var recipeService
 
   var body: some View {
     Form {
@@ -90,4 +90,5 @@ struct SuggestRecipeView: View {
 
 #Preview {
   SuggestRecipeView()
+    .environment(RecipeService())
 }

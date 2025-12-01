@@ -18,7 +18,7 @@
 import SwiftUI
 
 struct RecipeListView: View {
-  @State var recipeService = RecipeService()
+  @Environment(RecipeService.self) private var recipeService
 
   var body: some View {
     List(recipeService.recipes) { recipe in
@@ -73,5 +73,6 @@ struct RecipeListView: View {
 #Preview {
   NavigationStack {
     RecipeListView()
+      .environment(RecipeService())
   }
 }

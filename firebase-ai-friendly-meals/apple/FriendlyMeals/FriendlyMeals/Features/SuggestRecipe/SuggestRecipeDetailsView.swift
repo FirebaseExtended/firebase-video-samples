@@ -63,7 +63,7 @@ extension SuggestRecipeDetailsView: View {
             .foregroundStyle(.secondary)
 
             Section("Ingredients") {
-              ForEach(recipe.ingredients, id: \.name) { ingredient in
+              ForEach(recipe.ingredients, id: \.self) { ingredient in
                 HStack(alignment: .top) {
                   Text("•")
                   Text("\(ingredient.amount) \(ingredient.name)")

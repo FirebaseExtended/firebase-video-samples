@@ -21,8 +21,11 @@ import FirebaseCore
 
 @main
 struct FriendlyMealsApp: App {
+  @State private var recipeService: RecipeService
+
   init () {
     FirebaseApp.configure()
+    _recipeService = State(initialValue: RecipeService())
   }
 
   var body: some Scene {
@@ -49,6 +52,7 @@ struct FriendlyMealsApp: App {
           Label("Meal Planner", systemImage: "bubble.left.and.bubble.right")
         }
       }
+      .environment(recipeService)
       .onAppear {
         Task {
           try await RemoteConfigService.shared.fetchConfig()

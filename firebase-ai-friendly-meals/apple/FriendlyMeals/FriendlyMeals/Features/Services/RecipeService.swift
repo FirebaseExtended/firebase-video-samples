@@ -16,6 +16,7 @@
 // limitations under the License.
 
 import Foundation
+import Observation
 import FirebaseFirestore
 
 enum RecipeServiceError: Error {

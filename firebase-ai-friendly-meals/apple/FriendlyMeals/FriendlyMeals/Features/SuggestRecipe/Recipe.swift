@@ -18,9 +18,6 @@
 import Foundation
 import FirebaseFirestore
 
-import Foundation
-import FirebaseFirestore
-
 struct Recipe: Codable, Identifiable, Hashable, RecipeRepresentable {
   @DocumentID var id: String?
   

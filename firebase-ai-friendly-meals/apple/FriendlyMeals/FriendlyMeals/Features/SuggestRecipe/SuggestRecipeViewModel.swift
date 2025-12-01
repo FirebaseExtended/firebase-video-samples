@@ -68,7 +68,7 @@ class SuggestRecipeViewModel {
     )
   }
 
-  func generateRecipe() async throws {
+  func generateRecipe() async {
     if !UsageTrackingService.shared.canGenerate() {
       isPresentingPaywall = true
       return
