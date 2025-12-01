@@ -85,6 +85,6 @@ class RemoteConfigService {
   func fetchConfig() async throws {
     try await remoteConfig.fetch()
     try await remoteConfig.activate()
-    self.updateParameters()
+    updateParameters()
   }
 }
