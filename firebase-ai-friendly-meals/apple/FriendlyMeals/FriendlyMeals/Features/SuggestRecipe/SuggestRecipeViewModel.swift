@@ -16,6 +16,7 @@
 // limitations under the License.
 
 import FirebaseAI
+import FirebaseRemoteConfig
 import SwiftUI
 import UIKit
 
@@ -26,41 +27,60 @@ class SuggestRecipeViewModel {
 
   var ingredients = "Chopped tomatoes, aubergines, courgettes, parmesan cheese, garlic, olive oil"
   var notes = "Italian"
-  var recipe = ""
+  var recipe: Recipe?
+  var isPresentingPaywall = false
   var recipeImage: UIImage?
+  var errorMessage: String?
 
-  private var model: GenerativeModel = {
+  private var model: GenerativeModel {
     let generationConfig = GenerationConfig(
       temperature: 0.9,
       topP: 0.1,
       topK: 16,
       maxOutputTokens: 4096,
-      responseModalities: [.text, .image]
+      responseMIMEType: "application/json",
+      responseSchema: .object(
+        properties: [
+          "title": .string(),
+          "description": .string(),
+          "cookingTime": .integer(),
+          "ingredients": .array(items: .object(properties: [
+            "name": .string(),
+            "amount": .string()
+          ])),
+          "instructions": .array(items: .string())
+        ]
+      ),
+      responseModalities: [.text]
     )
-    let firebaseAI = FirebaseAI.firebaseAI(backend: .vertexAI(location: "global"))
+    let firebaseAI = FirebaseAI.firebaseAI(backend: .googleAI())
     return firebaseAI.generativeModel(
-      modelName: "gemini-2.5-flash-image",
+      modelName: "gemini-2.5-flash",
       generationConfig: generationConfig
     )
-  }()
+  }
 
-  func generateRecipe() async {
+  private var imageModel: GenerativeModel {
+    let firebaseAI = FirebaseAI.firebaseAI(backend: .googleAI())
+    return firebaseAI.generativeModel(
+      modelName: "gemini-2.5-flash-image-preview",
+      generationConfig: GenerationConfig(responseModalities: [.image])
+    )
+  }
+
+  func generateRecipe() async throws {
+    if !UsageTrackingService.shared.canGenerate() {
+      isPresentingPaywall = true
+      return
+    }
+
     isGenerating = true
     defer { isGenerating = false }
     recipeImage = nil
+    recipe = nil
+    errorMessage = nil
 
-    var prompt = """
-      Create a recipe using the following ingredients: \(ingredients).
-
-      Also generate an image that shows what the final dish will look like.
-
-      Please include:
-      1. A creative title that describes the dish
-      2. A brief, appetizing description
-      3. Estimated cooking time in minutes
-      4. List of ingredients with measurements
-      5. Step-by-step cooking instructions
-      """
+    var prompt = "Create a recipe using the following ingredients: \(ingredients)."
 
     if !notes.isEmpty {
       prompt.append(
@@ -73,14 +93,34 @@ class SuggestRecipeViewModel {
 
     do {
       let response = try await model.generateContent(prompt)
-      recipe = response.text ?? ""
+      if let jsonString = response.text {
+        let jsonData = Data(jsonString.utf8)
+        let decoder = JSONDecoder()
+        let generatedRecipe = try decoder.decode(GeneratedRecipe.self, from: jsonData)
+        self.recipe = Recipe(from: generatedRecipe)
+        if let recipe {
+          await generateImage(for: recipe)
+        }
+      }
+      UsageTrackingService.shared.incrementGenerationCount()
+      isPresentingRecipe = true
+    } catch {
+      errorMessage = "An error occurred while generating the recipe: \(error.localizedDescription)."
+      isPresentingRecipe = true
+    }
+  }
+
+  func generateImage(for recipe: Recipe) async {
+    let prompt = "A photo of \(recipe.title), \(recipe.description)"
+    do {
+      let response = try await imageModel.generateContent(prompt)
       if let inlineDataPart = response.inlineDataParts.first {
         recipeImage = UIImage(data: inlineDataPart.data)
       }
-    } catch {
-      recipe = "An error occurred while generating the recipe: \(error.localizedDescription)."
     }
-    isPresentingRecipe = true
+    catch {
+      print("Error generating image: \(error.localizedDescription)")
+    }
   }
 
 }

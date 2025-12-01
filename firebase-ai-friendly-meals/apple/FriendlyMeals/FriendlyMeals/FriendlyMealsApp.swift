@@ -1,7 +1,8 @@
 //
+// FriendlyMealsApp.swift
 // FriendlyMeals
 //
-// Copyright © 2025 Google LLC.
+// Created by Peter Friese on 01.07.25.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -23,18 +24,35 @@ struct FriendlyMealsApp: App {
   init () {
     FirebaseApp.configure()
   }
+
   var body: some Scene {
     WindowGroup {
       TabView {
-        SuggestRecipeView()
-          .tabItem {
-            Label("Suggest Recipes", systemImage: "fork.knife")
-          }
-        
-        MealPlannerChatView()
-          .tabItem {
-            Label("Meal Planner", systemImage: "message")
-          }
+        NavigationStack {
+          RecipeListView()
+        }
+        .tabItem {
+          Label("Cookbook", systemImage: "book.closed")
+        }
+
+        NavigationStack {
+          SuggestRecipeView()
+        }
+        .tabItem {
+          Label("Suggest Recipe", systemImage: "wand.and.stars")
+        }
+
+        NavigationStack {
+          MealPlannerChatView()
+        }
+        .tabItem {
+          Label("Meal Planner", systemImage: "bubble.left.and.bubble.right")
+        }
+      }
+      .onAppear {
+        Task {
+          try await RemoteConfigService.shared.fetchConfig()
+        }
       }
     }
   }
