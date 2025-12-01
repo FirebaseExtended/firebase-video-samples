@@ -50,6 +50,14 @@ struct FriendlyMealsApp: App {
         .tabItem {
           Label("Meal Planner", systemImage: "bubble.left.and.bubble.right")
         }
+        
+        NavigationStack {
+          NutritionView()
+        }
+        .tabItem {
+          Label("Nutrition", systemImage: "camera.macro")
+        }
+
       }
       .environment(recipeService)
       .onAppear {
