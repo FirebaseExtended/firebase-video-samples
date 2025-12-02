@@ -40,60 +40,67 @@ FriendlyMeals/
 
 ## 🛠️ Getting Started
 
-1. **Clone this repository**
-   ```sh
-   git clone <repo-url>
-   ```
-2. **Open the project**
-   - Open `FriendlyMeals.xcodeproj` in Xcode.
+Follow these steps to get the app running on your machine.
 
-## 🔥 Setting Up Firebase
+### 1. Clone the repository
 
-1. **Create a Firebase Project**
-   - Go to the [Firebase Console](https://console.firebase.google.com/).
-   - Click **Add project** and follow the prompts.
+```sh
+git clone <repo-url>
+```
 
-2. **Register the iOS App**
-   - Click **Add app** > **iOS**.
-   - Enter the bundle ID: `com.google.firebase.samples.FriendlyMeals`
-   - (Optional) Enter an app nickname and App Store ID.
-   - Click **Register app**.
+### 2. Set up a Firebase Project
 
-3. **Download the `GoogleService-Info.plist`**
-   - Download the file from the Firebase Console.
-   - Drag and drop it into the `FriendlyMeals/FriendlyMeals` folder in Xcode.
-   - Ensure **Copy items if needed** is checked and the file is added to the "FriendlyMeals" target.
+1.  Go to the [Firebase Console](https://console.firebase.google.com/).
+2.  Click **Add project** and follow the prompts.
 
-4. **Enable Backend Services**
-   To make the app fully functional, enable these services in your Firebase Console:
-   - **Vertex AI in Firebase**: Required for all AI features. Ensure the "Blaze" (Pay as you go) plan is enabled if required by the models you choose, though many features work on the Spark plan depending on current offerings.
-   - **Cloud Firestore**: Create a database. Start in **Test Mode** for quick setup (remember to secure your rules later!).
-   - **Remote Config**: Enable Remote Config to manage app behavior dynamically.
+### 3. Register the iOS App
 
-5. **Configure Remote Config**
-   The app uses two files to manage Remote Config parameters:
+1.  In the Firebase Console, click **Add app** > **iOS**.
+2.  Enter the bundle ID: `com.google.firebase.samples.FriendlyMeals`
+3.  (Optional) Enter an app nickname and App Store ID.
+4.  Click **Register app**.
 
-   - **`remote_config_defaults.plist`**: This file, located in the Xcode project, contains **in-app default values**. These are used immediately when the app launches, before any values are fetched from the server, or if the device is offline.
-   - **`remote_config_template.json`**: This file contains the **server-side configuration**. You can import this template into the Firebase Console to quickly set up all the parameters and their default values on the server.
+### 4. Configure `GoogleService-Info.plist`
 
-   **To import the template:**
-   1. Go to **Remote Config** in the Firebase Console.
-   2. Click on the **menu (three dots)** in the top right corner of the Remote Config dashboard.
-   3. Select **Import configurations**.
-   4. Upload the `FriendlyMeals/FriendlyMeals/remote_config_template.json` file from this repository.
-   5. Review the changes and click **Publish**.
+1.  Download the `GoogleService-Info.plist` file from the Firebase Console.
+2.  Open `FriendlyMeals.xcodeproj` in Xcode.
+3.  Drag and drop the downloaded file into the `FriendlyMeals/FriendlyMeals` folder in the Xcode Project Navigator.
+4.  **Important:** Ensure **Copy items if needed** is checked and the file is added to the "FriendlyMeals" target.
 
-   *Alternatively, if you have the [Firebase CLI](https://firebase.google.com/docs/cli) installed, you can run:*
-   ```bash
-   firebase remoteconfig:get --version-number 1  # Backup existing config if needed
-   firebase remoteconfig:versions:list           # Check current versions
-   firebase remoteconfig:rollback <version>      # Rollback if needed
-   # To deploy the template:
-   firebase remoteconfig:deploy --template remote_config_template.json
-   ```
+### 5. Enable Backend Services
 
-6. **Run the App**
-   - Build and run in Xcode on a simulator or device.
+To make the app fully functional, enable these services in your Firebase Console:
+
+*   **Vertex AI in Firebase**: Required for all AI features.
+    *   *Note: Ensure the "Blaze" (Pay as you go) plan is enabled if required by the models you choose.*
+*   **Cloud Firestore**: Create a database. Start in **Test Mode** for quick setup (remember to secure your rules later!).
+*   **Remote Config**: Enable Remote Config to manage app behavior dynamically.
+
+### 6. Configure Remote Config
+
+The app uses two files to manage Remote Config parameters:
+
+*   **`remote_config_defaults.plist`**: This file (already in the Xcode project) contains **in-app default values**. These are used immediately when the app launches.
+*   **`remote_config_template.json`**: This file contains the **server-side configuration**.
+
+**Option A: Import via Console (Recommended)**
+1.  Go to **Remote Config** in the Firebase Console.
+2.  Click on the **menu (three dots)** in the top right corner of the Remote Config dashboard.
+3.  Select **Import configurations**.
+4.  Upload the `FriendlyMeals/FriendlyMeals/remote_config_template.json` file from this repository.
+5.  Review the changes and click **Publish**.
+
+**Option B: Use Firebase CLI**
+If you have the [Firebase CLI](https://firebase.google.com/docs/cli) installed and initialized, you can publish the template directly:
+
+```bash
+firebase remoteconfig:publish FriendlyMeals/FriendlyMeals/remote_config_template.json
+```
+
+### 7. Run the App
+
+1.  Select a simulator or connected device in Xcode.
+2.  Build and run the project (`Cmd + R`).
 
 ## 🤝 Contributing
 
