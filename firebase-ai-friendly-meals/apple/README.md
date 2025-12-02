@@ -5,7 +5,7 @@ Welcome to **FriendlyMeals**, a sample iOS project accompanying the [Firebase Fu
 ![App Screenshot](assets/screenshot-hero.png)
 *FriendlyMeals app – Hero screenshot with gradient background*
 
-This repository demonstrates how to integrate Firebase features into an iOS app, with a current focus on **Firebase AI Logic**. As the video series progresses, we will add more examples covering additional Firebase services and best practices for iOS development.
+This repository demonstrates how to integrate Firebase features into an iOS app, with a strong focus on **Firebase AI Logic** (Vertex AI in Firebase), **Cloud Firestore**, and **Remote Config**.
 
 ## 📺 Video Series
 
@@ -13,18 +13,29 @@ This repository demonstrates how to integrate Firebase features into an iOS app,
 
 ## 🚀 Features
 
-- **Firebase AI Logic**: Learn how to use Firebase's AI-powered features to enhance your app's functionality.
-- **Modular Structure**: The project is organized by feature, making it easy to follow along and extend.
-- **Upcoming**: More Firebase features (such as Authentication, Firestore, Storage, and more) will be added soon!
+### 🧠 AI-Powered Features (Firebase AI Logic)
+- **Nutrition Detective**: Take a photo of a meal, and the app uses multimodal generative AI (Gemini) to analyze its nutritional content (calories, protein, fats, carbs) and explain its reasoning stream-by-stream.
+- **Recipe Wizard**: Suggests complete recipes based on ingredients you have. It uses structured output (JSON mode) for reliable data parsing and can generate visual previews of the dish using image generation models.
+- **Chef Chat**: An interactive meal planner chat with a "spicy celebrity chef" persona. It demonstrates **Function Calling** capabilities by allowing the AI to start and manage cooking timers within the app.
+
+### ☁️ Cloud Features
+- **Cookbook (Firestore)**: Save, view, and manage your favorite recipes. Data is persisted securely using **Cloud Firestore**.
+- **Dynamic Settings (Remote Config)**: The app allows you to change behavior on the fly—such as the maximum number of daily image generations or the specific AI model version—using **Firebase Remote Config**, without needing an App Store update.
 
 ## 🏗️ Project Structure
+
+The project is organized by feature, keeping related SwiftUI Views, ViewModels, and logic together:
 
 ```
 FriendlyMeals/
   └── FriendlyMeals/
       └── Features/
-          ├── MealPlannerChat/
-          └── SuggestRecipe/
+          ├── Camera/           # Camera integration for nutrition scanning
+          ├── Cookbook/         # Firestore-backed recipe list
+          ├── DetectNutrition/  # Multimodal AI analysis of food photos
+          ├── MealPlannerChat/  # AI Chat with Function Calling (Timers)
+          ├── Services/         # Core services (RecipeService, RemoteConfigService)
+          └── SuggestRecipe/    # AI Recipe generation (Text & Image)
 ```
 
 ## 🛠️ Getting Started
@@ -49,13 +60,39 @@ FriendlyMeals/
    - Click **Register app**.
 
 3. **Download the `GoogleService-Info.plist`**
-   - Download from Firebase Console.
-   - Add to `FriendlyMeals/FriendlyMeals` in Xcode (select 'Copy items if needed').
+   - Download the file from the Firebase Console.
+   - Drag and drop it into the `FriendlyMeals/FriendlyMeals` folder in Xcode.
+   - Ensure **Copy items if needed** is checked and the file is added to the "FriendlyMeals" target.
 
-4. **Firebase SDKs**
-   - The project uses Swift Package Manager. Firebase dependencies are already included.
+4. **Enable Backend Services**
+   To make the app fully functional, enable these services in your Firebase Console:
+   - **Vertex AI in Firebase**: Required for all AI features. Ensure the "Blaze" (Pay as you go) plan is enabled if required by the models you choose, though many features work on the Spark plan depending on current offerings.
+   - **Cloud Firestore**: Create a database. Start in **Test Mode** for quick setup (remember to secure your rules later!).
+   - **Remote Config**: Enable Remote Config to manage app behavior dynamically.
 
-5. **Run the App**
+5. **Configure Remote Config**
+   The app uses two files to manage Remote Config parameters:
+
+   - **`remote_config_defaults.plist`**: This file, located in the Xcode project, contains **in-app default values**. These are used immediately when the app launches, before any values are fetched from the server, or if the device is offline.
+   - **`remote_config_template.json`**: This file contains the **server-side configuration**. You can import this template into the Firebase Console to quickly set up all the parameters and their default values on the server.
+
+   **To import the template:**
+   1. Go to **Remote Config** in the Firebase Console.
+   2. Click on the **menu (three dots)** in the top right corner of the Remote Config dashboard.
+   3. Select **Import configurations**.
+   4. Upload the `FriendlyMeals/FriendlyMeals/remote_config_template.json` file from this repository.
+   5. Review the changes and click **Publish**.
+
+   *Alternatively, if you have the [Firebase CLI](https://firebase.google.com/docs/cli) installed, you can run:*
+   ```bash
+   firebase remoteconfig:get --version-number 1  # Backup existing config if needed
+   firebase remoteconfig:versions:list           # Check current versions
+   firebase remoteconfig:rollback <version>      # Rollback if needed
+   # To deploy the template:
+   firebase remoteconfig:deploy --template remote_config_template.json
+   ```
+
+6. **Run the App**
    - Build and run in Xcode on a simulator or device.
 
 ## 🤝 Contributing
