@@ -21,7 +21,7 @@ import SwiftUI
 import UIKit
 
 @Observable
-class SuggestRecipeViewModel {
+class MealPlannerSuggestionViewModel {
   var isGenerating = false
   var isPresentingRecipe = false
 

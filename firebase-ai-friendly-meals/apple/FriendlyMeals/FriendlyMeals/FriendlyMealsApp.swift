@@ -20,11 +20,11 @@ import FirebaseCore
 
 @main
 struct FriendlyMealsApp: App {
-  @State private var recipeService: RecipeService
+  @State private var recipeStore: RecipeStore
 
   init () {
     FirebaseApp.configure()
-    _recipeService = State(initialValue: RecipeService())
+    _recipeStore = State(initialValue: RecipeStore())
   }
 
   var body: some Scene {
@@ -38,7 +38,7 @@ struct FriendlyMealsApp: App {
         }
 
         NavigationStack {
-          SuggestRecipeView()
+          MealPlannerSuggestionView()
         }
         .tabItem {
           Label("Suggest Recipe", systemImage: "wand.and.stars")
@@ -59,7 +59,7 @@ struct FriendlyMealsApp: App {
         }
 
       }
-      .environment(recipeService)
+      .environment(recipeStore)
       .onAppear {
         Task {
           do {

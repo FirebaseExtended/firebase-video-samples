@@ -19,19 +19,19 @@ import Foundation
 import Observation
 import FirebaseFirestore
 
-enum RecipeServiceError: Error {
+enum RecipeStoreError: Error {
   case missingRecipeID
 }
 
 @Observable
-class RecipeService {
+class RecipeStore {
   private let db = Firestore.firestore()
   private let collectionName = "recipes"
   private var listener: ListenerRegistration?
 
   var recipes = [Recipe]()
 
-  func save(_ recipe: Recipe) async throws {
+  func add(_ recipe: Recipe) async throws {
     let collection = db.collection(collectionName)
     try collection.addDocument(from: recipe)
   }
@@ -63,7 +63,7 @@ class RecipeService {
 
   func delete(_ recipe: Recipe) async throws {
     guard let id = recipe.id else {
-      throw RecipeServiceError.missingRecipeID
+      throw RecipeStoreError.missingRecipeID
     }
     let docRef = db.collection(collectionName).document(id)
     try await docRef.delete()
@@ -71,7 +71,7 @@ class RecipeService {
 
   func update(_ recipe: Recipe) async throws {
     guard let id = recipe.id else {
-      throw RecipeServiceError.missingRecipeID
+      throw RecipeStoreError.missingRecipeID
     }
     let docRef = db.collection(collectionName).document(id)
     try docRef.setData(from: recipe, mergeFields: ["isFavorite"])

@@ -18,10 +18,10 @@
 import SwiftUI
 
 struct RecipeListView: View {
-  @Environment(RecipeService.self) private var recipeService
+  @Environment(RecipeStore.self) private var recipeStore
 
   var body: some View {
-    List(recipeService.recipes) { recipe in
+    List(recipeStore.recipes) { recipe in
       NavigationLink(value: recipe) {
         HStack {
           VStack(alignment: .leading) {
@@ -42,7 +42,7 @@ struct RecipeListView: View {
         Button(role: .destructive) {
           Task {
             do {
-              try await recipeService.delete(recipe)
+              try await recipeStore.delete(recipe)
             } catch {
               print("Error deleting recipe: \(error)")
             }
@@ -57,7 +57,7 @@ struct RecipeListView: View {
             var updatedRecipe = recipe
             updatedRecipe.isFavorite = !recipe.isFavorite
             do {
-              try await recipeService.update(updatedRecipe)
+              try await recipeStore.update(updatedRecipe)
             }
             catch {
               print("Error favoriting recipe: \(error)")
@@ -71,10 +71,10 @@ struct RecipeListView: View {
     }
     .navigationTitle("Cookbook")
     .onAppear {
-      recipeService.fetchRecipes()
+      recipeStore.fetchRecipes()
     }
     .navigationDestination(for: Recipe.self) { recipe in
-      SuggestRecipeDetailsView(recipe: recipe, image: nil)
+      RecipeDetailsView(recipe: recipe, image: nil)
     }
   }
 }
@@ -82,6 +82,6 @@ struct RecipeListView: View {
 #Preview {
   NavigationStack {
     RecipeListView()
-      .environment(RecipeService())
+      .environment(RecipeStore())
   }
 }
