@@ -13,15 +13,14 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.google.firebase.example.friendlymeals.ui.auth.signIn.SignInRoute
-import com.google.firebase.example.friendlymeals.ui.auth.signIn.SignInScreen
-import com.google.firebase.example.friendlymeals.ui.auth.signUp.SignUpRoute
-import com.google.firebase.example.friendlymeals.ui.auth.signUp.SignUpScreen
+import com.google.firebase.example.friendlymeals.ui.auth.AuthRoute
+import com.google.firebase.example.friendlymeals.ui.auth.AuthScreen
 import com.google.firebase.example.friendlymeals.ui.generate.GenerateRoute
 import com.google.firebase.example.friendlymeals.ui.generate.GenerateScreen
 import com.google.firebase.example.friendlymeals.ui.recipe.RecipeRoute
@@ -35,6 +34,7 @@ import com.google.firebase.example.friendlymeals.ui.scanMeal.ScanMealScreen
 import com.google.firebase.example.friendlymeals.ui.shared.BottomNavBar
 import com.google.firebase.example.friendlymeals.ui.theme.FriendlyMealsTheme
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -44,6 +44,7 @@ class MainActivity : ComponentActivity() {
         setSoftInputMode()
 
         setContent {
+            val scope = rememberCoroutineScope()
             val snackbarHostState = remember { SnackbarHostState() }
             val navController = rememberNavController()
 
@@ -56,18 +57,16 @@ class MainActivity : ComponentActivity() {
                         modifier = Modifier.fillMaxSize(),
                         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
                         bottomBar = { BottomNavBar { navigateTo(navController, route = it) } }
-                        //TODO: move bottom bar to main screen to be shown after authentication
                     ) { innerPadding ->
                         NavHost(
                             navController = navController,
-                            startDestination = GenerateRoute, //TODO: Start with Sign in
+                            startDestination = GenerateRoute,
                             modifier = Modifier.padding(innerPadding)
                         ) {
-                            composable<SignInRoute> { SignInScreen(
-                                openSignUpScreen = { navigateTo(navController, SignUpRoute) }
-                            ) }
-                            composable<SignUpRoute> { SignUpScreen(
-                                openSignInScreen = { navigateTo(navController, SignInRoute) }
+                            composable<AuthRoute> { AuthScreen(
+                                showSnackbar = { message ->
+                                    scope.launch { snackbarHostState.showSnackbar(message) }
+                                }
                             ) }
                             composable<ScanMealRoute> { ScanMealScreen() }
                             composable<GenerateRoute> { GenerateScreen(

@@ -63,6 +63,12 @@ dependencies {
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.ai)
     implementation(libs.firebase.config)
+    implementation(libs.firebase.auth)
+
+    // Dependencies for the Credential Manager libraries
+    implementation(libs.androidx.credentials)
+    implementation(libs.androidx.credentials.play.services.auth)
+    implementation(libs.googleid)
 
     //Library to handle Markdown in Compose
     implementation(libs.richtext.commonmark)

@@ -233,7 +233,7 @@ fun IngredientsSection(
 
 @Composable
 @Preview
-fun HomeScreenPreview() {
+fun GenerateScreenPreview() {
     FriendlyMealsTheme {
         GenerateScreenContent(
             viewState = GenerateViewState()

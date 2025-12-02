@@ -1,6 +1,5 @@
 package com.google.firebase.example.friendlymeals.ui.auth.signIn
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -17,7 +16,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -38,49 +36,25 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.credentials.Credential
 import com.google.firebase.example.friendlymeals.R
-import com.google.firebase.example.friendlymeals.ui.auth.AuthViewModel
+import com.google.firebase.example.friendlymeals.ui.auth.AuthState
 import com.google.firebase.example.friendlymeals.ui.auth.AuthViewState
+import com.google.firebase.example.friendlymeals.ui.shared.AuthenticationButton
 import com.google.firebase.example.friendlymeals.ui.theme.BackgroundColor
 import com.google.firebase.example.friendlymeals.ui.theme.FriendlyMealsTheme
-import com.google.firebase.example.friendlymeals.ui.theme.GoogleRed
 import com.google.firebase.example.friendlymeals.ui.theme.LightGray
 import com.google.firebase.example.friendlymeals.ui.theme.PlaceholderColor
 import com.google.firebase.example.friendlymeals.ui.theme.Teal
-import com.google.firebase.example.friendlymeals.ui.theme.TextColor
-import kotlinx.serialization.Serializable
-
-@Serializable
-object SignInRoute
-
-@Composable
-fun SignInScreen(
-    viewModel: AuthViewModel = hiltViewModel(),
-    openSignUpScreen: () -> Unit
-) {
-    val viewState = viewModel.viewState.collectAsStateWithLifecycle()
-
-    SignInScreenContent(
-        openSignUpScreen = openSignUpScreen,
-        signInWithEmail = viewModel::signInWithEmail,
-        signInWithGoogle = viewModel::signInWithGoogle,
-        updateEmail = viewModel::updateEmail,
-        updatePassword = viewModel::updatePassword,
-        forgotPassword = viewModel::forgotPassword,
-        viewState = viewState.value
-    )
-}
 
 @Composable
 fun SignInScreenContent(
-    openSignUpScreen: () -> Unit = {},
     signInWithEmail: () -> Unit = {},
-    signInWithGoogle: () -> Unit = {},
+    signInWithGoogle: (Credential) -> Unit = {},
+    updateAuthState: (AuthState) -> Unit = {},
     updateEmail: (String) -> Unit = {},
     updatePassword: (String) -> Unit = {},
-    forgotPassword: () -> Unit = {},
+    showSnackbar: (String) -> Unit = {},
     viewState: AuthViewState
 ) {
     Scaffold(
@@ -188,39 +162,10 @@ fun SignInScreenContent(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            OutlinedButton(
-                onClick = { signInWithGoogle() },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp),
-                shape = RoundedCornerShape(12.dp),
-                border = BorderStroke(1.dp, Color.LightGray),
-                colors = ButtonDefaults.outlinedButtonColors(
-                    containerColor = Color.White,
-                    contentColor = TextColor
-                )
-            ) {
-                Text(
-                    text = stringResource(id = R.string.sign_in_google_g),
-                    fontWeight = FontWeight.Bold,
-                    color = GoogleRed,
-                    fontSize = 20.sp,
-                    modifier = Modifier.padding(end = 8.dp)
-                )
-                Text(
-                    text = stringResource(id = R.string.sign_in_with_google_button),
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.SemiBold
-                )
-            }
-
-            Spacer(modifier = Modifier.height(32.dp))
-
-            Text(
-                text = stringResource(id = R.string.sign_in_forgot_password),
-                color = Teal,
-                fontWeight = FontWeight.Medium,
-                modifier = Modifier.clickable { forgotPassword() }
+            AuthenticationButton(
+                buttonText = R.string.sign_in_with_google_button,
+                onRequestResult = signInWithGoogle,
+                showSnackbar = showSnackbar
             )
 
             Spacer(modifier = Modifier.weight(1f))
@@ -234,7 +179,7 @@ fun SignInScreenContent(
                 },
                 modifier = Modifier
                     .padding(bottom = 32.dp)
-                    .clickable { openSignUpScreen() },
+                    .clickable { updateAuthState(AuthState.SIGN_UP) },
                 fontSize = 14.sp,
                 color = Color.Gray
             )
