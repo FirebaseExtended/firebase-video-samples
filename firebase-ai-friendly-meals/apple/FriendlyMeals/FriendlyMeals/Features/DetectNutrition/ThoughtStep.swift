@@ -1,0 +1,39 @@
+//
+// FriendlyMeals
+//
+// Copyright © 2025 Google LLC.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+import Foundation
+
+struct ThoughtStep: Identifiable {
+  var id = UUID()
+  var headline: String
+  var description: String
+
+  init?(from thoughtSummary: String) {
+    let parts = thoughtSummary.split(separator: "\n", maxSplits: 1, omittingEmptySubsequences: true)
+    guard let headlinePart = parts.first else {
+      return nil
+    }
+    
+    self.headline = String(headlinePart).trimmingCharacters(in: .init(charactersIn: "*"))
+    self.description = parts.count > 1 ? String(parts[1]).trimmingCharacters(in: .whitespacesAndNewlines) : ""
+  }
+  
+  init (headline: String, description: String) {
+    self.headline = headline
+    self.description = description
+  }
+}
