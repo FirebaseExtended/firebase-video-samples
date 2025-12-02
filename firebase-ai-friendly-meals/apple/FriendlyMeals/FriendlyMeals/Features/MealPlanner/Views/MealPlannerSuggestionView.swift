@@ -17,9 +17,9 @@
 
 import SwiftUI
 
-struct SuggestRecipeView: View {
-  @State private var viewModel = SuggestRecipeViewModel()
-  @Environment(RecipeService.self) private var recipeService
+struct MealPlannerSuggestionView: View {
+  @State private var viewModel = MealPlannerSuggestionViewModel()
+  @Environment(RecipeStore.self) private var recipeStore
 
   var body: some View {
     Form {
@@ -60,18 +60,19 @@ struct SuggestRecipeView: View {
     .navigationTitle("Suggest a recipe")
     .sheet(isPresented: $viewModel.isPresentingRecipe) {
       NavigationStack {
-        SuggestRecipeDetailsView(recipe: viewModel.recipe, image: viewModel.recipeImage, errorMessage: viewModel.errorMessage, isNew: true) {
-          if let recipe = viewModel.recipe {
-            Task {
-              do {
-                try await recipeService.save(recipe)
-              }
-              catch {
-                print("Error saving recipe: \(error)")
+        RecipeDetailsView(
+          recipe: viewModel.recipe,
+          image: viewModel.recipeImage,
+          errorMessage: viewModel.errorMessage,
+          isNew: true,
+          onSave: {
+            if let recipe = viewModel.recipe {
+              Task {
+                try? await recipeStore.add(recipe)
               }
             }
           }
-        }
+        )
         .toolbar {
           ToolbarItem(placement: .navigationBarTrailing) {
             Button(action: { viewModel.isPresentingRecipe.toggle() }) {
@@ -89,6 +90,6 @@ struct SuggestRecipeView: View {
 }
 
 #Preview {
-  SuggestRecipeView()
-    .environment(RecipeService())
+  MealPlannerSuggestionView()
+    .environment(RecipeStore())
 }

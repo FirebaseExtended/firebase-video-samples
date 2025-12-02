@@ -17,7 +17,7 @@
 
 import SwiftUI
 
-struct SuggestRecipeDetailsView {
+struct RecipeDetailsView {
   @Environment(\.dismiss) private var dismiss
 
   let recipe: Recipe?
@@ -35,7 +35,7 @@ struct SuggestRecipeDetailsView {
   }
 }
 
-extension SuggestRecipeDetailsView: View {
+extension RecipeDetailsView: View {
   var body: some View {
     ScrollView {
       VStack(alignment: .leading) {
@@ -103,7 +103,7 @@ extension SuggestRecipeDetailsView: View {
 }
 
 #Preview("With Recipe") {
-  SuggestRecipeDetailsView(
+  RecipeDetailsView(
     recipe: Recipe(
       title: "Mushroom Risotto",
       description: "A creamy and delicious risotto with mushrooms.",
@@ -136,7 +136,7 @@ extension SuggestRecipeDetailsView: View {
 }
 
 #Preview("With Error") {
-  SuggestRecipeDetailsView(
+  RecipeDetailsView(
     recipe: nil,
     image: nil,
     errorMessage: "An error occurred while generating the recipe: The operation couldn’t be completed. (GoogleGenerativeAI.GenerateContentError error 1.)"
