@@ -19,8 +19,6 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.google.firebase.example.friendlymeals.ui.auth.AuthRoute
-import com.google.firebase.example.friendlymeals.ui.auth.AuthScreen
 import com.google.firebase.example.friendlymeals.ui.generate.GenerateRoute
 import com.google.firebase.example.friendlymeals.ui.generate.GenerateScreen
 import com.google.firebase.example.friendlymeals.ui.recipe.RecipeRoute
@@ -63,11 +61,6 @@ class MainActivity : ComponentActivity() {
                             startDestination = GenerateRoute,
                             modifier = Modifier.padding(innerPadding)
                         ) {
-                            composable<AuthRoute> { AuthScreen(
-                                showSnackbar = { message ->
-                                    scope.launch { snackbarHostState.showSnackbar(message) }
-                                }
-                            ) }
                             composable<ScanMealRoute> { ScanMealScreen() }
                             composable<GenerateRoute> { GenerateScreen(
                                 openRecipeScreen = { recipeId ->

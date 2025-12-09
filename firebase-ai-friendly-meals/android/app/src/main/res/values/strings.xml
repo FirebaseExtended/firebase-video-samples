@@ -4,18 +4,6 @@
     <string name="notes_hint">Any notes or preferred cuisines?</string>
     <string name="generate_recipe_button">Generate recipe</string>
     <string name="logo_content_description">Friendly Meals Logo</string>
-    <string name="sign_in_email_hint">Email address</string>
-    <string name="sign_in_password_hint">Password</string>
-    <string name="sign_in_button">Sign In</string>
-    <string name="sign_in_or">OR</string>
-    <string name="sign_in_google_g">G</string>
-    <string name="sign_in_with_google_button">Sign In with Google</string>
-    <string name="sign_in_no_account">Don\'t have an account? </string>
-    <string name="sign_in_sign_up">Sign Up</string>
-    <string name="sign_up_button">Sign Up</string>
-    <string name="sign_up_with_google_button">Sign Up with Google</string>
-    <string name="sign_up_already_have_account">Already have an account? </string>
-    <string name="no_google_accounts_error">No Google accounts found on this device</string>
     <string name="generate_new_recipe_title">New recipe</string>
     <string name="generate_ingredients_label">List your ingredients</string>
     <string name="generate_ingredients_loading_hint">Loading…</string>
@@ -69,5 +57,4 @@
     <string name="nav_bar_scan_meal">Scan Meal</string>
     <string name="nav_bar_generate">Generate</string>
     <string name="nav_bar_recipe_list">Recipes</string>
-    <string name="nav_bar_auth">Profile</string>
 </resources>

@@ -9,24 +9,4 @@ class AuthRepository @Inject constructor(
     suspend fun createAnonymousAccount() {
         authRemoteDataSource.createAnonymousAccount()
     }
-
-    suspend fun linkAccountWithGoogle(idToken: String) {
-        authRemoteDataSource.linkAccountWithGoogle(idToken)
-    }
-
-    suspend fun linkAccountWithEmail(email: String, password: String) {
-        authRemoteDataSource.linkAccountWithEmail(email, password)
-    }
-
-    suspend fun signInWithGoogle(idToken: String) {
-        authRemoteDataSource.signInWithGoogle(idToken)
-    }
-
-    suspend fun signInWithEmail(email: String, password: String) {
-        authRemoteDataSource.signInWithEmail(email, password)
-    }
-
-    suspend fun signOut() {
-        authRemoteDataSource.signOut()
-    }
 }
