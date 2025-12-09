@@ -23,6 +23,12 @@ class GenerateViewModel @Inject constructor(
         )
     }
 
+    fun onNotesUpdated(notes: String) {
+        _viewState.value = _viewState.value.copy(
+            notes = notes
+        )
+    }
+
     fun onImageTaken(image: Bitmap?) {
         launchCatching {
             if (image != null) {
@@ -40,13 +46,17 @@ class GenerateViewModel @Inject constructor(
         }
     }
 
-    fun generateRecipe(ingredients: String, notes: String, openRecipeScreen: (String) -> Unit) {
+    fun generateRecipe(openRecipeScreen: (String) -> Unit) {
         launchCatching {
             _viewState.value = _viewState.value.copy(
                 recipeLoading = true
             )
 
-            val generatedRecipe = aiRepository.generateRecipe(ingredients, notes)
+            val generatedRecipe = aiRepository.generateRecipe(
+                _viewState.value.ingredients,
+                _viewState.value.notes
+            )
+
             val recipeImage = aiRepository.generateRecipePhoto(generatedRecipe)
             //TODO: save recipe to database and recipe image to storage
             //TODO: need to create storageDataSource and repository

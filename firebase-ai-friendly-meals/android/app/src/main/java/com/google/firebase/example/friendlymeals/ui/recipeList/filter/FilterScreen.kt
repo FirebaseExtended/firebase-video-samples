@@ -33,7 +33,6 @@ import androidx.compose.material3.RadioButton
 import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -50,7 +49,6 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.firebase.example.friendlymeals.R
 import com.google.firebase.example.friendlymeals.ui.recipeList.RecipeListViewModel
-import com.google.firebase.example.friendlymeals.ui.theme.BackgroundColor
 import com.google.firebase.example.friendlymeals.ui.theme.BorderColor
 import com.google.firebase.example.friendlymeals.ui.theme.FriendlyMealsTheme
 import com.google.firebase.example.friendlymeals.ui.theme.LightTeal
@@ -118,13 +116,9 @@ fun FilterScreenContent(
                             tint = TextColor
                         )
                     }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = BackgroundColor
-                )
+                }
             )
-        },
-        containerColor = BackgroundColor
+        }
     ) { innerPadding ->
         Column(
             modifier = Modifier

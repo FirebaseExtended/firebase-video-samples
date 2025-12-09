@@ -41,7 +41,6 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.firebase.example.friendlymeals.R
 import com.google.firebase.example.friendlymeals.data.model.Recipe
-import com.google.firebase.example.friendlymeals.ui.theme.BackgroundColor
 import com.google.firebase.example.friendlymeals.ui.theme.FriendlyMealsTheme
 import com.google.firebase.example.friendlymeals.ui.theme.SelectedStarColor
 import com.google.firebase.example.friendlymeals.ui.theme.TextColor
@@ -99,8 +98,7 @@ fun RecipeListScreenContent(
                     )
                 }
             }
-        },
-        containerColor = BackgroundColor
+        }
     ) { innerPadding ->
         LazyColumn(
             modifier = Modifier
@@ -171,14 +169,8 @@ fun RecipeCard(
                 Spacer(modifier = Modifier.height(8.dp))
 
                 Row {
-                    repeat(5) { index ->
-                        Icon(
-                            painter = painterResource(R.drawable.ic_star),
-                            //TODO: Add ic_star_half when rating is not exact
-                            contentDescription = null,
-                            tint = if (index < recipe.averageRating) SelectedStarColor else UnselectedStarColor,
-                            modifier = Modifier.size(16.dp)
-                        )
+                    for (index in 1..5) {
+                        AverageRatingIcon(index, recipe.averageRating)
                     }
                 }
             }
@@ -186,12 +178,32 @@ fun RecipeCard(
     }
 }
 
+@Composable
+private fun AverageRatingIcon(index: Int, rating: Double) {
+    val (iconRes, iconTint) = when {
+        rating >= index -> R.drawable.ic_star to SelectedStarColor
+        rating > index - 1 -> R.drawable.ic_star_half to SelectedStarColor
+        else -> R.drawable.ic_star to UnselectedStarColor
+    }
+
+    Icon(
+        painter = painterResource(iconRes),
+        contentDescription = null,
+        tint = iconTint,
+        modifier = Modifier.size(16.dp)
+    )
+}
+
 @Preview
 @Composable
 fun RecipeListScreenPreview() {
     FriendlyMealsTheme {
         RecipeListScreenContent(
-            recipes = listOf()
+            recipes = listOf(Recipe(
+                title = "Recipe 1",
+                averageRating = 3.5,
+                image = null
+            ))
         )
     }
 }

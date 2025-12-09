@@ -39,7 +39,6 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.firebase.example.friendlymeals.R
 import com.google.firebase.example.friendlymeals.data.model.Recipe
-import com.google.firebase.example.friendlymeals.ui.theme.BackgroundColor
 import com.google.firebase.example.friendlymeals.ui.theme.FriendlyMealsTheme
 import com.google.firebase.example.friendlymeals.ui.theme.LightGray
 import com.google.firebase.example.friendlymeals.ui.theme.LightTeal
@@ -76,9 +75,7 @@ fun RecipeScreenContent(
     toggleFavorite: () -> Unit = {},
     recipe: Recipe
 ) {
-    Scaffold(
-        containerColor = BackgroundColor
-    ) { innerPadding ->
+    Scaffold { innerPadding ->
         Box(modifier = Modifier.fillMaxSize()) {
             LazyColumn(
                 modifier = Modifier

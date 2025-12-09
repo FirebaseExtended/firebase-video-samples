@@ -20,10 +20,6 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -37,10 +33,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.firebase.example.friendlymeals.R
 import com.google.firebase.example.friendlymeals.ui.shared.CameraComponent
 import com.google.firebase.example.friendlymeals.ui.shared.LoadingIndicator
-import com.google.firebase.example.friendlymeals.ui.theme.BackgroundColor
 import com.google.firebase.example.friendlymeals.ui.theme.FriendlyMealsTheme
 import com.google.firebase.example.friendlymeals.ui.theme.Teal
-import com.google.firebase.example.friendlymeals.ui.theme.TextColor
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -55,6 +49,7 @@ fun GenerateScreen(
 
     GenerateScreenContent(
         onIngredientsUpdated = viewModel::onIngredientsUpdated,
+        onNotesUpdated = viewModel::onNotesUpdated,
         onImageTaken = viewModel::onImageTaken,
         onGenerateClick = viewModel::generateRecipe,
         openRecipeScreen = openRecipeScreen,
@@ -66,8 +61,9 @@ fun GenerateScreen(
 @Composable
 fun GenerateScreenContent(
     onIngredientsUpdated: (String) -> Unit = {},
+    onNotesUpdated: (String) -> Unit = {},
     onImageTaken: (Bitmap?) -> Unit = {},
-    onGenerateClick: (String, String, (String) -> Unit) -> Unit = { _, _, _ -> },
+    onGenerateClick: ((String) -> Unit) -> Unit = {},
     openRecipeScreen: (String) -> Unit = {},
     viewState: GenerateViewState
 ) {
@@ -79,11 +75,9 @@ fun GenerateScreenContent(
                     .padding(horizontal = 24.dp, vertical = 16.dp),
                 text = stringResource(id = R.string.generate_new_recipe_title),
                 fontSize = 28.sp,
-                fontWeight = FontWeight.Bold,
-                color = TextColor
+                fontWeight = FontWeight.Bold
             )
-        },
-        containerColor = BackgroundColor
+        }
     ) { innerPadding ->
         Column(
             modifier = Modifier
@@ -96,6 +90,7 @@ fun GenerateScreenContent(
 
             IngredientsSection(
                 onIngredientsUpdated = onIngredientsUpdated,
+                onNotesUpdated = onNotesUpdated,
                 onImageTaken = onImageTaken,
                 onGenerateClick = onGenerateClick,
                 openRecipeScreen = openRecipeScreen,
@@ -109,20 +104,17 @@ fun GenerateScreenContent(
 fun IngredientsSection(
     modifier: Modifier = Modifier,
     onIngredientsUpdated: (String) -> Unit,
+    onNotesUpdated: (String) -> Unit,
     onImageTaken: (Bitmap?) -> Unit,
-    onGenerateClick: (String, String, (String) -> Unit) -> Unit,
+    onGenerateClick: ((String) -> Unit) -> Unit,
     openRecipeScreen: (String) -> Unit,
     viewState: GenerateViewState
 ) {
-    var notes by remember { mutableStateOf("") }
-    //TODO: use viewState to store this
-
     Column(modifier = modifier.fillMaxWidth()) {
         Text(
             text = stringResource(id = R.string.generate_ingredients_label),
             fontSize = 16.sp,
             fontWeight = FontWeight.Medium,
-            color = TextColor,
             modifier = Modifier.padding(bottom = 8.dp)
         )
 
@@ -141,9 +133,7 @@ fun IngredientsSection(
             shape = RoundedCornerShape(16.dp),
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = Color.LightGray,
-                unfocusedBorderColor = Color.LightGray,
-                focusedContainerColor = Color.White,
-                unfocusedContainerColor = Color.White
+                unfocusedBorderColor = Color.LightGray
             ),
             enabled = !viewState.ingredientsLoading,
             placeholder = {
@@ -164,22 +154,19 @@ fun IngredientsSection(
             text = stringResource(id = R.string.generate_notes_label),
             fontSize = 16.sp,
             fontWeight = FontWeight.Medium,
-            color = TextColor,
             modifier = Modifier.padding(bottom = 8.dp)
         )
 
         OutlinedTextField(
-            value = notes,
-            onValueChange = { notes = it },
+            value = viewState.notes,
+            onValueChange = { onNotesUpdated(it) },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(120.dp),
             shape = RoundedCornerShape(16.dp),
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = Color.LightGray,
-                unfocusedBorderColor = Color.LightGray,
-                focusedContainerColor = Color.White,
-                unfocusedContainerColor = Color.White
+                unfocusedBorderColor = Color.LightGray
             ),
             placeholder = {
                 Text(
@@ -207,7 +194,7 @@ fun IngredientsSection(
                 disabledContentColor = Color.Gray
             ),
             enabled = generateButtonEnabled,
-            onClick = { onGenerateClick(viewState.ingredients, notes, openRecipeScreen) }
+            onClick = { onGenerateClick(openRecipeScreen) }
         ) {
             Text(
                 text = stringResource(id = R.string.generate_recipe_button_text),

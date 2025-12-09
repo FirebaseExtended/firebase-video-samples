@@ -8,10 +8,28 @@ import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 
-private val DarkColorScheme = darkColorScheme()
-private val LightColorScheme = lightColorScheme()
+private val DarkColorScheme = darkColorScheme(
+    primary = Teal,
+    secondary = LightTeal,
+    surface = LightGray,
+    onPrimary = Color.White,
+    onSecondary = Color.Black,
+    onBackground = LightTextColor,
+    onSurface = LightTextColor,
+)
+
+private val LightColorScheme = lightColorScheme(
+    primary = Teal,
+    secondary = LightTeal,
+    surface = LightGray,
+    onPrimary = Color.White,
+    onSecondary = Color.Black,
+    onBackground = TextColor,
+    onSurface = TextColor
+)
 
 @Composable
 fun FriendlyMealsTheme(
@@ -25,7 +43,7 @@ fun FriendlyMealsTheme(
             if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
 
-        darkTheme -> DarkColorScheme //TODO: add dark theme
+        darkTheme -> DarkColorScheme
         else -> LightColorScheme
     }
 

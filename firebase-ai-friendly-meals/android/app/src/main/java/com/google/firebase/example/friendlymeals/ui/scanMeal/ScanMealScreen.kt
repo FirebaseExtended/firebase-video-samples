@@ -38,7 +38,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.firebase.example.friendlymeals.R
 import com.google.firebase.example.friendlymeals.ui.shared.CameraComponent
-import com.google.firebase.example.friendlymeals.ui.theme.BackgroundColor
+import com.google.firebase.example.friendlymeals.ui.shared.LoadingIndicator
 import com.google.firebase.example.friendlymeals.ui.theme.FriendlyMealsTheme
 import com.google.firebase.example.friendlymeals.ui.theme.LightTeal
 import com.google.firebase.example.friendlymeals.ui.theme.Teal
@@ -84,10 +84,8 @@ fun ScanMealScreenContent(
                 )
 
                 CameraComponent(onImageTaken)
-                //TODO: add loading indicator when scanning
             }
-        },
-        containerColor = BackgroundColor
+        }
     ) { innerPadding ->
         LazyColumn(
             modifier = Modifier
@@ -161,6 +159,11 @@ fun ScanMealScreenContent(
                 }
 
                 Spacer(modifier = Modifier.height(24.dp))
+
+                if (viewState.scanLoading) {
+                    Spacer(modifier = Modifier.height(48.dp))
+                    LoadingIndicator()
+                }
             }
 
             if (viewState.ingredients.isNotEmpty()) {
