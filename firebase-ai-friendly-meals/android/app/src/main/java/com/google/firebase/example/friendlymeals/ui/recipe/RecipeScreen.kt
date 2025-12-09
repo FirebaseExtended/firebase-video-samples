@@ -40,7 +40,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.firebase.example.friendlymeals.R
 import com.google.firebase.example.friendlymeals.data.model.Recipe
 import com.google.firebase.example.friendlymeals.ui.theme.FriendlyMealsTheme
-import com.google.firebase.example.friendlymeals.ui.theme.LightGray
 import com.google.firebase.example.friendlymeals.ui.theme.LightTeal
 import com.google.firebase.example.friendlymeals.ui.theme.Teal
 import com.google.firebase.example.friendlymeals.ui.theme.TextColor
@@ -152,7 +151,6 @@ fun RecipeScreenContent(
                             text = recipe.title,
                             fontSize = 28.sp,
                             fontWeight = FontWeight.Bold,
-                            color = TextColor,
                             lineHeight = 34.sp
                         )
 
@@ -250,7 +248,7 @@ fun InfoCard(
 ) {
     Column(
         modifier = modifier
-            .background(LightGray, RoundedCornerShape(12.dp))
+            .background(LightTeal, RoundedCornerShape(12.dp))
             .padding(vertical = 12.dp, horizontal = 4.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {

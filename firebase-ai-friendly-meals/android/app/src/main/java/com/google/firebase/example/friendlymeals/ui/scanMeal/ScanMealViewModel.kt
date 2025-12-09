@@ -33,7 +33,7 @@ class ScanMealViewModel @Inject constructor() : MainViewModel() {
                     ingredients = listOf("Salmon Fillet", "Asparagus", "Lemon Slices", "Olive Oil")
                 )
 
-                //TODO: Update screen with image taken and nutritional facts
+                //TODO: Update screen with nutritional facts
             }
         }
     }

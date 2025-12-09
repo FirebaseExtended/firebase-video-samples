@@ -42,6 +42,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.firebase.example.friendlymeals.R
 import com.google.firebase.example.friendlymeals.data.model.Recipe
 import com.google.firebase.example.friendlymeals.ui.theme.FriendlyMealsTheme
+import com.google.firebase.example.friendlymeals.ui.theme.LightTeal
 import com.google.firebase.example.friendlymeals.ui.theme.SelectedStarColor
 import com.google.firebase.example.friendlymeals.ui.theme.TextColor
 import com.google.firebase.example.friendlymeals.ui.theme.UnselectedStarColor
@@ -87,14 +88,12 @@ fun RecipeListScreenContent(
                 Text(
                     text = stringResource(id = R.string.recipe_list_title),
                     fontSize = 28.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = TextColor
+                    fontWeight = FontWeight.Bold
                 )
                 IconButton(onClick = { openFilterScreen() }) {
                     Icon(
                         painter = painterResource(R.drawable.ic_filter),
-                        contentDescription = stringResource(id = R.string.recipe_list_filter_button_content_description),
-                        tint = TextColor
+                        contentDescription = stringResource(id = R.string.recipe_list_filter_button_content_description)
                     )
                 }
             }
@@ -136,7 +135,7 @@ fun RecipeCard(
                 modifier = Modifier
                     .size(80.dp)
                     .clip(RoundedCornerShape(16.dp))
-                    .background(Color.LightGray)
+                    .background(LightTeal)
             ) {
                 val image = recipe.image?.asImageBitmap()
 

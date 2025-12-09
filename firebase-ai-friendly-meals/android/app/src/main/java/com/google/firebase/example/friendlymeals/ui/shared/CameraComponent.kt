@@ -41,7 +41,6 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
 import com.google.firebase.example.friendlymeals.R
 import com.google.firebase.example.friendlymeals.ui.theme.Teal
-import com.google.firebase.example.friendlymeals.ui.theme.TextColor
 import java.io.File
 
 @Composable
@@ -84,8 +83,7 @@ private fun CameraIcon(onClick: () -> Unit) {
     IconButton(onClick = { onClick() }) {
         Icon(
             painter = painterResource(R.drawable.ic_camera),
-            contentDescription = "Camera",
-            tint = TextColor
+            contentDescription = "Camera"
         )
     }
 }

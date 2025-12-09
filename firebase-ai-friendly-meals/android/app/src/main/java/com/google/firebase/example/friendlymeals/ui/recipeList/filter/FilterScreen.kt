@@ -104,16 +104,14 @@ fun FilterScreenContent(
                     Text(
                         stringResource(id = R.string.filter_title),
                         fontWeight = FontWeight.Bold,
-                        fontSize = 20.sp,
-                        color = TextColor
+                        fontSize = 20.sp
                     )
                 },
                 navigationIcon = {
                     IconButton(onClick = { navigateBack() }) {
                         Icon(
                             painter = painterResource(R.drawable.ic_arrow_back),
-                            contentDescription = stringResource(id = R.string.recipe_back_button_content_description),
-                            tint = TextColor
+                            contentDescription = stringResource(id = R.string.recipe_back_button_content_description)
                         )
                     }
                 }
@@ -132,7 +130,6 @@ fun FilterScreenContent(
             Text(
                 text = stringResource(id = R.string.filter_recipe_name_label),
                 fontWeight = FontWeight.Medium,
-                color = TextColor,
                 modifier = Modifier.padding(bottom = 8.dp)
             )
 
@@ -144,9 +141,7 @@ fun FilterScreenContent(
                 shape = RoundedCornerShape(12.dp),
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = BorderColor,
-                    unfocusedBorderColor = BorderColor,
-                    focusedContainerColor = Color.White,
-                    unfocusedContainerColor = Color.White
+                    unfocusedBorderColor = BorderColor
                 )
             )
 
@@ -155,9 +150,9 @@ fun FilterScreenContent(
             Text(
                 text = stringResource(id = R.string.filter_username_label),
                 fontWeight = FontWeight.Medium,
-                color = TextColor,
                 modifier = Modifier.padding(bottom = 8.dp)
             )
+
             OutlinedTextField(
                 value = viewState.username,
                 onValueChange = { updateUsername(it) },
@@ -166,9 +161,7 @@ fun FilterScreenContent(
                 shape = RoundedCornerShape(12.dp),
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = BorderColor,
-                    unfocusedBorderColor = BorderColor,
-                    focusedContainerColor = Color.White,
-                    unfocusedContainerColor = Color.White
+                    unfocusedBorderColor = BorderColor
                 )
             )
 
@@ -177,9 +170,9 @@ fun FilterScreenContent(
             Text(
                 text = stringResource(id = R.string.filter_rating_label),
                 fontWeight = FontWeight.Medium,
-                color = TextColor,
                 modifier = Modifier.padding(bottom = 8.dp)
             )
+
             Row(
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
@@ -202,7 +195,6 @@ fun FilterScreenContent(
             Text(
                 text = stringResource(id = R.string.filter_tags_label),
                 fontWeight = FontWeight.Medium,
-                color = TextColor,
                 modifier = Modifier.padding(bottom = 8.dp)
             )
 
@@ -236,7 +228,6 @@ fun FilterScreenContent(
             Text(
                 text = stringResource(id = R.string.filter_sort_by_label),
                 fontWeight = FontWeight.Medium,
-                color = TextColor,
                 modifier = Modifier.padding(bottom = 8.dp)
             )
             //TODO: use ENUM for sortBy in the future
@@ -248,7 +239,7 @@ fun FilterScreenContent(
                     onClick = { updateSortBy(viewState.sortBy) },
                     colors = RadioButtonDefaults.colors(selectedColor = Teal)
                 )
-                Text(stringResource(id = R.string.filter_sort_by_rating), color = TextColor)
+                Text(stringResource(id = R.string.filter_sort_by_rating))
                 
                 Spacer(modifier = Modifier.width(24.dp))
                 
@@ -257,7 +248,7 @@ fun FilterScreenContent(
                     onClick = { updateSortBy(viewState.sortBy) },
                     colors = RadioButtonDefaults.colors(selectedColor = Teal)
                 )
-                Text(stringResource(id = R.string.filter_sort_by_alphabetical), color = TextColor)
+                Text(stringResource(id = R.string.filter_sort_by_alphabetical))
             }
 
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -266,7 +257,7 @@ fun FilterScreenContent(
                     onClick = { updateSortBy(viewState.sortBy) },
                     colors = RadioButtonDefaults.colors(selectedColor = Teal)
                 )
-                Text(stringResource(id = R.string.filter_sort_by_popularity), color = TextColor)
+                Text(stringResource(id = R.string.filter_sort_by_popularity))
 
                 Spacer(modifier = Modifier.width(24.dp))
 
@@ -275,7 +266,7 @@ fun FilterScreenContent(
                     onClick = { updateSortBy(viewState.sortBy) },
                     colors = RadioButtonDefaults.colors(selectedColor = Teal)
                 )
-                Text(stringResource(id = R.string.filter_sort_by_date_added), color = TextColor)
+                Text(stringResource(id = R.string.filter_sort_by_date_added))
             }
 
             Spacer(modifier = Modifier.weight(1f))

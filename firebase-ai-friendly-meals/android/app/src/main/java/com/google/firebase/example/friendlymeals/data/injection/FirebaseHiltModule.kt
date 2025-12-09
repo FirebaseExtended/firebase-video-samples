@@ -5,6 +5,8 @@ import com.google.firebase.Firebase
 import com.google.firebase.ai.FirebaseAI
 import com.google.firebase.ai.ai
 import com.google.firebase.ai.type.GenerativeBackend
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.auth
 import com.google.firebase.example.friendlymeals.R
 import com.google.firebase.remoteconfig.ConfigUpdate
 import com.google.firebase.remoteconfig.ConfigUpdateListener
@@ -21,6 +23,8 @@ import dagger.hilt.components.SingletonComponent
 @InstallIn(SingletonComponent::class)
 object FirebaseHiltModule {
     private const val TAG = "FirebaseHiltModule"
+
+    @Provides fun auth(): FirebaseAuth = Firebase.auth
 
     @Provides fun firebaseAI(): FirebaseAI {
         return Firebase.ai(backend = GenerativeBackend.googleAI())

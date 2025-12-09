@@ -16,9 +16,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -79,8 +80,7 @@ fun ScanMealScreenContent(
                 Text(
                     text = stringResource(id = R.string.scan_meal_title),
                     fontSize = 28.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = TextColor
+                    fontWeight = FontWeight.Bold
                 )
 
                 CameraComponent(onImageTaken)
@@ -125,7 +125,6 @@ fun ScanMealScreenContent(
                     text = stringResource(id = R.string.scan_meal_nutritional_facts_title),
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
-                    color = TextColor,
                     modifier = Modifier.padding(bottom = 16.dp)
                 )
 
@@ -164,21 +163,9 @@ fun ScanMealScreenContent(
                     Spacer(modifier = Modifier.height(48.dp))
                     LoadingIndicator()
                 }
-            }
 
-            if (viewState.ingredients.isNotEmpty()) {
-                item {
-                    Text(
-                        text = stringResource(id = R.string.scan_meal_identified_ingredients_title),
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = TextColor,
-                        modifier = Modifier.padding(bottom = 16.dp)
-                    )
-                }
-
-                items(viewState.ingredients) { ingredient ->
-                    IngredientItem(ingredient)
+                if (viewState.ingredients.isNotEmpty()) {
+                    IngredientsCard(viewState.ingredients)
                 }
             }
         }
@@ -212,12 +199,37 @@ fun NutrientCard(modifier: Modifier, label: String, value: String) {
 }
 
 @Composable
-fun IngredientItem(name: String) {
+fun IngredientsCard(ingredients: List<String>) {
+    Card(
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        shape = RoundedCornerShape(16.dp),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(
+                text = stringResource(id = R.string.scan_meal_identified_ingredients_title),
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                color = Teal
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            ingredients.forEach {
+                IngredientRow(it)
+            }
+        }
+    }
+
+}
+
+@Composable
+fun IngredientRow(text: String) {
     Row(
+        verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp),
-        verticalAlignment = Alignment.CenterVertically
+            .padding(vertical = 4.dp)
     ) {
         Box(
             modifier = Modifier
@@ -236,10 +248,9 @@ fun IngredientItem(name: String) {
         Spacer(modifier = Modifier.width(12.dp))
 
         Text(
-            text = name,
-            fontSize = 16.sp,
-            color = Color.Gray,
-            fontWeight = FontWeight.Normal
+            text = text,
+            fontSize = 15.sp,
+            color = TextColor
         )
     }
 }
