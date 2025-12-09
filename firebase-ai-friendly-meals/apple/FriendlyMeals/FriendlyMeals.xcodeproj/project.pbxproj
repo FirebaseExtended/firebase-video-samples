@@ -7,20 +7,18 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		883F6FA92E86969900519CE3 /* ConversationKit in Frameworks */ = {isa = PBXBuildFile; productRef = 883F6FA82E86969900519CE3 /* ConversationKit */; };
 		884B2CF22E144BA7007B2E0E /* MarkdownUI in Frameworks */ = {isa = PBXBuildFile; productRef = 884B2CF12E144BA7007B2E0E /* MarkdownUI */; };
 		884ECEF72E8ABF9400E3B0CB /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 884ECEF62E8ABF9400E3B0CB /* FirebaseFirestore */; };
-		88665A892E1D2DB00039990B /* ConversationKit in Frameworks */ = {isa = PBXBuildFile; productRef = 88665A882E1D2DB00039990B /* ConversationKit */; };
 		887565682E86CCEE0041DDEF /* ConversationKit in Frameworks */ = {isa = PBXBuildFile; productRef = 887565672E86CCEE0041DDEF /* ConversationKit */; };
 		887565922E86D6D80041DDEF /* FirebaseRemoteConfig in Frameworks */ = {isa = PBXBuildFile; productRef = 887565912E86D6D80041DDEF /* FirebaseRemoteConfig */; };
 		88BE941E2E1413D000C81FF5 /* FirebaseAI in Frameworks */ = {isa = PBXBuildFile; productRef = 88BE941D2E1413D000C81FF5 /* FirebaseAI */; };
-		88C207D82E8AA5C6004CD918 /* ConversationKit in Frameworks */ = {isa = PBXBuildFile; productRef = 88C207D72E8AA5C6004CD918 /* ConversationKit */; };
 		88C8FB7A2E13DF62001B86C4 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 88C8FB792E13DF62001B86C4 /* FirebaseCore */; };
-		88FF5D542ECF579900646871 /* ConversationKit in Frameworks */ = {isa = PBXBuildFile; productRef = 88FF5D532ECF579900646871 /* ConversationKit */; };
+		8D1628B12EE8D9180038870D /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 8D1628B02EE8D9180038870D /* GoogleService-Info.plist */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		88C8FB652E13D879001B86C4 /* FriendlyMeals.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FriendlyMeals.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		8D1628B02EE8D9180038870D /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -38,13 +36,9 @@
 			files = (
 				887565682E86CCEE0041DDEF /* ConversationKit in Frameworks */,
 				884B2CF22E144BA7007B2E0E /* MarkdownUI in Frameworks */,
-				88C207D82E8AA5C6004CD918 /* ConversationKit in Frameworks */,
 				88C8FB7A2E13DF62001B86C4 /* FirebaseCore in Frameworks */,
 				887565922E86D6D80041DDEF /* FirebaseRemoteConfig in Frameworks */,
 				884ECEF72E8ABF9400E3B0CB /* FirebaseFirestore in Frameworks */,
-				88665A892E1D2DB00039990B /* ConversationKit in Frameworks */,
-				883F6FA92E86969900519CE3 /* ConversationKit in Frameworks */,
-				88FF5D542ECF579900646871 /* ConversationKit in Frameworks */,
 				88BE941E2E1413D000C81FF5 /* FirebaseAI in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -55,6 +49,7 @@
 		88C8FB5C2E13D879001B86C4 = {
 			isa = PBXGroup;
 			children = (
+				8D1628B02EE8D9180038870D /* GoogleService-Info.plist */,
 				88C8FB672E13D879001B86C4 /* FriendlyMeals */,
 				88C8FB782E13DF62001B86C4 /* Frameworks */,
 				88C8FB662E13D879001B86C4 /* Products */,
@@ -155,6 +150,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8D1628B12EE8D9180038870D /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
