@@ -92,7 +92,8 @@ fun RecipeScreenContent(
                                 .fillMaxSize()
                                 .background(Color.LightGray)
                         ) {
-                            val image = recipe.image?.asImageBitmap()
+                            val image = null//recipe.image?.asImageBitmap()
+                            //TODO: fetch image from Storage
 
                             if (image != null) {
                                 Image(bitmap = image, stringResource(id = R.string.recipe_image_content_description))

@@ -25,11 +25,11 @@ class ScanMealViewModel @Inject constructor(
                     image = image,
                 )
 
-                val mealBreakdown = aiRepository.scanMeal(image)
+                val mealSchema = aiRepository.scanMeal(image)
 
                 _viewState.value = _viewState.value.copy(
                     scanLoading = false,
-                    mealBreakdown = mealBreakdown
+                    mealSchema = mealSchema
                 )
             }
         }

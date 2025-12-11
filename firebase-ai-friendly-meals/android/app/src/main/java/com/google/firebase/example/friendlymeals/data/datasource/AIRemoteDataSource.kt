@@ -15,7 +15,8 @@ import com.google.firebase.ai.type.Schema
 import com.google.firebase.ai.type.content
 import com.google.firebase.ai.type.generationConfig
 import com.google.firebase.ai.type.imagenGenerationConfig
-import com.google.firebase.example.friendlymeals.data.model.MealBreakdown
+import com.google.firebase.example.friendlymeals.data.schema.MealSchema
+import com.google.firebase.example.friendlymeals.data.schema.RecipeSchema
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import kotlinx.serialization.json.Json
 import javax.inject.Inject
@@ -63,6 +64,24 @@ class AIRemoteDataSource @Inject constructor(
             }
         )
 
+    private val recipeSchemaModel: GenerativeModel get() =
+        firebaseAI.generativeModel(
+            modelName = remoteConfig.getString("schema_model_name"),
+            generationConfig = generationConfig {
+                responseMimeType = "application/json"
+                responseSchema = Schema.obj(
+                    mapOf(
+                        "title" to Schema.string(),
+                        "instructions" to Schema.string(),
+                        "ingredients" to Schema.array(Schema.string()),
+                        "prepTime" to Schema.string(),
+                        "cookTime" to Schema.string(),
+                        "servings" to Schema.string()
+                    )
+                )
+            }
+        )
+
     suspend fun generateIngredients(image: Bitmap): String {
         val prompt = content {
             image(image)
@@ -76,13 +95,27 @@ class AIRemoteDataSource @Inject constructor(
         return response.text.orEmpty()
     }
 
-    suspend fun generateRecipe(ingredients: String, notes: String): String {
-        var prompt = "Based on this ingredients list: $ingredients, please give me one recipe."
+    suspend fun generateRecipe(ingredients: String, notes: String): RecipeSchema {
+        var prompt = """
+            Create a detailed recipe based on these ingredients: $ingredients.
+            
+            Format requirements:
+            - 'instructions': Provide the cooking steps as a clear, newline-separated string.
+            - 'ingredients': List all necessary items, including quantities.
+            - 'prepTime', 'cookTime', 'servings': Short strings (e.g., "15 mins").
+        """.trimIndent()
+
         if (notes.isNotBlank()) {
-          prompt += "Please take in consideration these notes: $notes."
+            prompt += "\n\nIMPORTANT CUISINE AND DIETARY NOTES: $notes"
         }
-        val response = generativeModel.generateContent(prompt)
-        return response.text.orEmpty()
+
+        val response = recipeSchemaModel.generateContent(prompt)
+        val jsonString = response.text
+
+        return if (jsonString != null) {
+            val jsonParser = Json { ignoreUnknownKeys = true }
+            jsonParser.decodeFromString<RecipeSchema>(jsonString)
+        } else RecipeSchema()
     }
 
     suspend fun generateRecipePhoto(recipe: String): Bitmap? {
@@ -104,7 +137,7 @@ class AIRemoteDataSource @Inject constructor(
         return imageResponse.images.firstOrNull()?.asBitmap()
     }
 
-    suspend fun scanMeal(image: Bitmap): MealBreakdown {
+    suspend fun scanMeal(image: Bitmap): MealSchema {
         val prompt = content {
             image(image)
             text("""
@@ -120,7 +153,7 @@ class AIRemoteDataSource @Inject constructor(
 
         return if (jsonString != null) {
             val json = Json { ignoreUnknownKeys = true }
-            json.decodeFromString<MealBreakdown>(jsonString)
-        } else MealBreakdown()
+            json.decodeFromString<MealSchema>(jsonString)
+        } else MealSchema()
     }
 }

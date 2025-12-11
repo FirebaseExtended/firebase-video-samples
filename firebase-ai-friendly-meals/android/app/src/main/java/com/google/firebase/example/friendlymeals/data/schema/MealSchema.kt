@@ -1,9 +1,9 @@
-package com.google.firebase.example.friendlymeals.data.model
+package com.google.firebase.example.friendlymeals.data.schema
 
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class MealBreakdown(
+data class MealSchema(
     val protein: String = "0g",
     val fat: String = "0g",
     val carbs: String = "0g",

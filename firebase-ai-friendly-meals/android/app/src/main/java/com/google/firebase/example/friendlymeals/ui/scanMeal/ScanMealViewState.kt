@@ -1,10 +1,10 @@
 package com.google.firebase.example.friendlymeals.ui.scanMeal
 
 import android.graphics.Bitmap
-import com.google.firebase.example.friendlymeals.data.model.MealBreakdown
+import com.google.firebase.example.friendlymeals.data.schema.MealSchema
 
 data class ScanMealViewState(
-    val mealBreakdown: MealBreakdown = MealBreakdown(),
+    val mealSchema: MealSchema = MealSchema(),
     val image: Bitmap? = null,
     val scanLoading: Boolean = false
 )

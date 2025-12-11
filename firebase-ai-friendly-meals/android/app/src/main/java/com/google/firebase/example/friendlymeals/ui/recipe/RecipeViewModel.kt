@@ -31,7 +31,7 @@ class RecipeViewModel @Inject constructor(
                 cookTime = "30 mins",
                 servings = "4",
                 averageRating = 4.5,
-                image = null
+                imageUrl = ""
             )
             //_recipe.value = repository.loadRecipe(recipeId)
             //TODO: load recipe from database

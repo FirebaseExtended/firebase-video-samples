@@ -135,26 +135,26 @@ fun ScanMealScreenContent(
                         NutrientCard(
                             modifier = Modifier.weight(1f),
                             label = stringResource(id = R.string.scan_meal_protein_label),
-                            value = viewState.mealBreakdown.protein
+                            value = viewState.mealSchema.protein
                         )
 
                         NutrientCard(
                             modifier = Modifier.weight(1f),
                             label = stringResource(id = R.string.scan_meal_fat_label),
-                            value = viewState.mealBreakdown.fat
+                            value = viewState.mealSchema.fat
                         )
                     }
                     Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                         NutrientCard(
                             modifier = Modifier.weight(1f),
                             label = stringResource(id = R.string.scan_meal_carbs_label),
-                            value = viewState.mealBreakdown.carbs
+                            value = viewState.mealSchema.carbs
                         )
 
                         NutrientCard(
                             modifier = Modifier.weight(1f),
                             label = stringResource(id = R.string.scan_meal_sugar_label),
-                            value = viewState.mealBreakdown.sugar
+                            value = viewState.mealSchema.sugar
                         )
                     }
                 }
@@ -166,8 +166,8 @@ fun ScanMealScreenContent(
                     LoadingIndicator()
                 }
 
-                if (viewState.mealBreakdown.ingredients.isNotEmpty()) {
-                    IngredientsCard(viewState.mealBreakdown.ingredients)
+                if (viewState.mealSchema.ingredients.isNotEmpty()) {
+                    IngredientsCard(viewState.mealSchema.ingredients)
                 }
             }
         }

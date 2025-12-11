@@ -137,7 +137,8 @@ fun RecipeCard(
                     .clip(RoundedCornerShape(16.dp))
                     .background(LightTeal)
             ) {
-                val image = recipe.image?.asImageBitmap()
+                val image = null//recipe.image?.asImageBitmap()
+                //TODO: get image from Storage
 
                 if (image != null) {
                     Image(
@@ -200,8 +201,7 @@ fun RecipeListScreenPreview() {
         RecipeListScreenContent(
             recipes = listOf(Recipe(
                 title = "Recipe 1",
-                averageRating = 3.5,
-                image = null
+                averageRating = 3.5
             ))
         )
     }

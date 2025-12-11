@@ -68,7 +68,7 @@ class GenerateViewModel @Inject constructor(
                 _viewState.value.notes
             )
 
-            val recipeImage = aiRepository.generateRecipePhoto(generatedRecipe)
+           // val recipeImage = aiRepository.generateRecipePhoto(generatedRecipe)
             //TODO: save recipe to database and recipe image to storage
 
             _viewState.value = _viewState.value.copy(
