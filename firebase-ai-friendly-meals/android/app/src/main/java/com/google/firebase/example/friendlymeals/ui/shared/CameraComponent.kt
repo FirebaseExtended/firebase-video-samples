@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Matrix
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts.RequestPermission
@@ -39,6 +40,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
+import androidx.exifinterface.media.ExifInterface
 import com.google.firebase.example.friendlymeals.R
 import com.google.firebase.example.friendlymeals.ui.theme.Teal
 import java.io.File
@@ -150,6 +152,37 @@ private fun createImageBitmap(context: Context, tempFileUrl: Uri?): Bitmap? {
         val imageInputStream = context.contentResolver.openInputStream(it)
         val bitmap = BitmapFactory.decodeStream(imageInputStream)
         imageInputStream?.close()
-        bitmap
+        rotateImageIfRequired(context, bitmap, it)
     }
+}
+
+private fun rotateImageIfRequired(context: Context, bitmap: Bitmap, uri: Uri): Bitmap {
+    val inputStream = context.contentResolver.openInputStream(uri) ?: return bitmap
+
+    // 1. Read the Exif data from the URI
+    val ei = ExifInterface(inputStream)
+    val orientation = ei.getAttributeInt(
+        ExifInterface.TAG_ORIENTATION,
+        ExifInterface.ORIENTATION_NORMAL
+    )
+    inputStream.close()
+
+    // 2. Determine the rotation needed
+    val rotate = when (orientation) {
+        ExifInterface.ORIENTATION_ROTATE_90 -> 90f
+        ExifInterface.ORIENTATION_ROTATE_180 -> 180f
+        ExifInterface.ORIENTATION_ROTATE_270 -> 270f
+        else -> 0f
+    }
+
+    // 3. Return original if no rotation is needed
+    if (rotate == 0f) return bitmap
+
+    // 4. Create a rotated copy of the bitmap
+    val matrix = Matrix()
+    matrix.postRotate(rotate)
+
+    return Bitmap.createBitmap(
+        bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true
+    )
 }

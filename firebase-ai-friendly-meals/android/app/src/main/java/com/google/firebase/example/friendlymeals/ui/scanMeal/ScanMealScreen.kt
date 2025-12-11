@@ -29,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -106,6 +107,7 @@ fun ScanMealScreenContent(
                         Image(
                             bitmap = image,
                             contentDescription = stringResource(id = R.string.recipe_image_content_description),
+                            contentScale = ContentScale.Crop,
                             modifier = Modifier.fillMaxSize()
                         )
                     } else {
@@ -133,26 +135,26 @@ fun ScanMealScreenContent(
                         NutrientCard(
                             modifier = Modifier.weight(1f),
                             label = stringResource(id = R.string.scan_meal_protein_label),
-                            value = viewState.protein
+                            value = viewState.mealBreakdown.protein
                         )
 
                         NutrientCard(
                             modifier = Modifier.weight(1f),
                             label = stringResource(id = R.string.scan_meal_fat_label),
-                            value = viewState.fat
+                            value = viewState.mealBreakdown.fat
                         )
                     }
                     Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                         NutrientCard(
                             modifier = Modifier.weight(1f),
                             label = stringResource(id = R.string.scan_meal_carbs_label),
-                            value = viewState.carbs
+                            value = viewState.mealBreakdown.carbs
                         )
 
                         NutrientCard(
                             modifier = Modifier.weight(1f),
                             label = stringResource(id = R.string.scan_meal_sugar_label),
-                            value = viewState.sugar
+                            value = viewState.mealBreakdown.sugar
                         )
                     }
                 }
@@ -164,8 +166,8 @@ fun ScanMealScreenContent(
                     LoadingIndicator()
                 }
 
-                if (viewState.ingredients.isNotEmpty()) {
-                    IngredientsCard(viewState.ingredients)
+                if (viewState.mealBreakdown.ingredients.isNotEmpty()) {
+                    IngredientsCard(viewState.mealBreakdown.ingredients)
                 }
             }
         }

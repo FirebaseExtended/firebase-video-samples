@@ -2,6 +2,7 @@ package com.google.firebase.example.friendlymeals.data.repository
 
 import android.graphics.Bitmap
 import com.google.firebase.example.friendlymeals.data.datasource.AIRemoteDataSource
+import com.google.firebase.example.friendlymeals.data.model.MealBreakdown
 import javax.inject.Inject
 
 class AIRepository @Inject constructor(
@@ -21,5 +22,9 @@ class AIRepository @Inject constructor(
 
     suspend fun generateRecipePhotoImagen(recipe: String): Bitmap? {
         return aiRemoteDataSource.generateRecipePhotoImagen(recipe)
+    }
+
+    suspend fun scanMeal(image: Bitmap): MealBreakdown {
+        return aiRemoteDataSource.scanMeal(image)
     }
 }

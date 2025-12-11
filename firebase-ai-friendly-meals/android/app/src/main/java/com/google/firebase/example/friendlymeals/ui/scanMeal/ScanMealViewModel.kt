@@ -2,6 +2,7 @@ package com.google.firebase.example.friendlymeals.ui.scanMeal
 
 import android.graphics.Bitmap
 import com.google.firebase.example.friendlymeals.MainViewModel
+import com.google.firebase.example.friendlymeals.data.repository.AIRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -9,7 +10,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 
 @HiltViewModel
-class ScanMealViewModel @Inject constructor() : MainViewModel() {
+class ScanMealViewModel @Inject constructor(
+    private val aiRepository: AIRepository
+) : MainViewModel() {
     private val _viewState = MutableStateFlow(ScanMealViewState())
     val viewState: StateFlow<ScanMealViewState>
         get() = _viewState.asStateFlow()
@@ -22,18 +25,12 @@ class ScanMealViewModel @Inject constructor() : MainViewModel() {
                     image = image,
                 )
 
-                //TODO: Use Gemini to generate nutritional facts
+                val mealBreakdown = aiRepository.scanMeal(image)
 
                 _viewState.value = _viewState.value.copy(
                     scanLoading = false,
-                    protein = "30g",
-                    fat = "10g",
-                    carbs = "80g",
-                    sugar = "20g",
-                    ingredients = listOf("Salmon Fillet", "Asparagus", "Lemon Slices", "Olive Oil")
+                    mealBreakdown = mealBreakdown
                 )
-
-                //TODO: Update screen with nutritional facts
             }
         }
     }
