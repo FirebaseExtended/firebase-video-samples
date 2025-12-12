@@ -38,7 +38,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.firebase.example.friendlymeals.R
-import com.google.firebase.example.friendlymeals.data.model.Recipe
+import com.google.firebase.example.friendlymeals.ui.shared.RatingButton
 import com.google.firebase.example.friendlymeals.ui.theme.FriendlyMealsTheme
 import com.google.firebase.example.friendlymeals.ui.theme.LightTeal
 import com.google.firebase.example.friendlymeals.ui.theme.Teal
@@ -55,12 +55,13 @@ fun RecipeScreen(
     viewModel: RecipeViewModel = hiltViewModel(),
     navigateBack: () -> Unit
 ) {
-    val recipe = viewModel.recipe.collectAsStateWithLifecycle()
+    val recipeViewState = viewModel.recipeViewState.collectAsStateWithLifecycle()
 
     RecipeScreenContent(
         navigateBack = navigateBack,
         toggleFavorite = viewModel::toggleFavorite,
-        recipe = recipe.value
+        leaveReview = viewModel::leaveReview,
+        recipeViewState = recipeViewState.value
     )
 
     LaunchedEffect(true) {
@@ -72,8 +73,15 @@ fun RecipeScreen(
 fun RecipeScreenContent(
     navigateBack: () -> Unit = {},
     toggleFavorite: () -> Unit = {},
-    recipe: Recipe
+    leaveReview: (Int) -> Unit = {},
+    recipeViewState: RecipeViewState
 ) {
+    val favoriteIcon = if (recipeViewState.saved) {
+        painterResource(R.drawable.ic_favorite_filled)
+    } else {
+        painterResource(R.drawable.ic_favorite_outline)
+    }
+
     Scaffold { innerPadding ->
         Box(modifier = Modifier.fillMaxSize()) {
             LazyColumn(
@@ -92,8 +100,7 @@ fun RecipeScreenContent(
                                 .fillMaxSize()
                                 .background(Color.LightGray)
                         ) {
-                            val image = null//recipe.image?.asImageBitmap()
-                            //TODO: fetch image from Storage
+                            val image = recipeViewState.recipeImage?.asImageBitmap()
 
                             if (image != null) {
                                 Image(bitmap = image, stringResource(id = R.string.recipe_image_content_description))
@@ -131,7 +138,7 @@ fun RecipeScreenContent(
                                     .size(40.dp)
                             ) {
                                 Icon(
-                                    painter = painterResource(R.drawable.ic_favorite_outline),
+                                    painter = favoriteIcon,
                                     contentDescription = stringResource(id = R.string.recipe_favorite_button_content_description),
                                     tint = TextColor
                                 )
@@ -149,7 +156,7 @@ fun RecipeScreenContent(
                         Spacer(modifier = Modifier.height(24.dp))
 
                         Text(
-                            text = recipe.title,
+                            text = recipeViewState.recipe.title,
                             fontSize = 28.sp,
                             fontWeight = FontWeight.Bold,
                             lineHeight = 34.sp
@@ -164,7 +171,7 @@ fun RecipeScreenContent(
                             InfoCard(
                                 icon = painterResource(R.drawable.ic_timer),
                                 label = stringResource(id = R.string.recipe_prep_time_label),
-                                value = recipe.prepTime,
+                                value = recipeViewState.recipe.prepTime,
                                 modifier = Modifier.weight(1f)
                             )
 
@@ -173,7 +180,7 @@ fun RecipeScreenContent(
                             InfoCard(
                                 icon = painterResource(R.drawable.ic_cook),
                                 label = stringResource(id = R.string.recipe_cook_time_label),
-                                value = recipe.cookTime,
+                                value = recipeViewState.recipe.cookTime,
                                 modifier = Modifier.weight(1f)
                             )
 
@@ -182,7 +189,7 @@ fun RecipeScreenContent(
                             InfoCard(
                                 icon = painterResource(R.drawable.ic_serving),
                                 label = stringResource(id = R.string.recipe_servings_label),
-                                value = recipe.servings,
+                                value = recipeViewState.recipe.servings,
                                 modifier = Modifier.weight(1f)
                             )
                         }
@@ -204,7 +211,7 @@ fun RecipeScreenContent(
 
                                 Spacer(modifier = Modifier.height(12.dp))
 
-                                recipe.ingredients.forEach {
+                                recipeViewState.recipe.ingredients.forEach {
                                     IngredientRow(it)
                                 }
                             }
@@ -227,12 +234,47 @@ fun RecipeScreenContent(
                                 Spacer(modifier = Modifier.height(12.dp))
 
                                 BasicRichText {
-                                    Markdown(recipe.instructions)
+                                    Markdown(recipeViewState.recipe.instructions)
                                 }
                             }
                         }
                         
                         Spacer(modifier = Modifier.height(24.dp))
+
+                        Card(
+                            colors = CardDefaults.cardColors(containerColor = Color.White),
+                            shape = RoundedCornerShape(16.dp),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Column(modifier = Modifier.padding(16.dp)) {
+                                Text(
+                                    text = stringResource(id =  R.string.recipe_rating_title),
+                                    fontSize = 18.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Teal
+                                )
+
+                                Spacer(modifier = Modifier.height(12.dp))
+
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween
+                                ) {
+                                    repeat(5) { index ->
+                                        val rating = index + 1
+                                        val isSelected = rating == recipeViewState.rating
+                                        val isFilled = rating < recipeViewState.rating
+
+                                        RatingButton(
+                                            rating = rating,
+                                            isSelected = isSelected,
+                                            isFilled = isFilled,
+                                            onClick = { leaveReview(rating) }
+                                        )
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -316,7 +358,7 @@ fun IngredientRow(text: String) {
 fun RecipeScreenPreview() {
     FriendlyMealsTheme {
         RecipeScreenContent(
-            recipe = Recipe()
+            recipeViewState = RecipeViewState()
         )
     }
 }

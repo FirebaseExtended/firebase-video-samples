@@ -1,8 +1,9 @@
 package com.google.firebase.example.friendlymeals.ui.recipeList
 
 import com.google.firebase.example.friendlymeals.MainViewModel
-import com.google.firebase.example.friendlymeals.data.model.Recipe
+import com.google.firebase.example.friendlymeals.data.repository.StorageRepository
 import com.google.firebase.example.friendlymeals.ui.recipeList.filter.FilterViewState
+import com.google.firebase.example.friendlymeals.ui.recipeList.filter.SortByFilter
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -10,37 +11,46 @@ import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 
 @HiltViewModel
-class RecipeListViewModel @Inject constructor() : MainViewModel() {
+class RecipeListViewModel @Inject constructor(
+    private val storageRepository: StorageRepository
+) : MainViewModel() {
     private val _filterState = MutableStateFlow(FilterViewState())
     val filterState: StateFlow<FilterViewState>
         get() = _filterState.asStateFlow()
 
-    private val _recipes = MutableStateFlow<List<Recipe>>(listOf())
-    val recipes: StateFlow<List<Recipe>>
+    private val _tags = MutableStateFlow(DEFAULT_TAGS)
+    val tags: StateFlow<List<String>>
+        get() = _tags.asStateFlow()
+
+    private val _recipes = MutableStateFlow<List<RecipeListItem>>(listOf())
+    val recipes: StateFlow<List<RecipeListItem>>
         get() = _recipes.asStateFlow()
 
     fun loadRecipes() {
         launchCatching {
-            _recipes.value = listOf(Recipe(
-                title = "Spaghetti Bolognese",
-                instructions = "Boil some **pasta**, add some _tomato sauce_",
-                ingredients = listOf("200g Pasta", "4 ripe tomatoes", "2 cloves garlic", "1/2 cup heavy cream", "Fresh basil leaves"),
-                prepTime = "20 mins",
-                cookTime = "30 mins",
-                servings = "4",
-                averageRating = 3.0
+            _recipes.value = listOf(RecipeListItem(
+                title = "Spaghetti Bolognese"
             ))
-            //_recipes.value = repository.loadRecipes()
-            //TODO: load recipes from database
+            //TODO: load recipes from Firestore
+            //TODO: for each downloaded recipe, load image:
+                //_recipeImage.value = storageRepository.retrieveImage(recipeId)
+
+            //TODO: fetch tags from Firestore
+                //if tags is empty, load from companion object
         }
     }
 
     fun updateRecipeName(recipeName: String) {
-        _filterState.value = _filterState.value.copy(recipeName = recipeName)
+        _filterState.value = _filterState.value.copy(recipeTitle = recipeName)
     }
 
-    fun updateUsername(username: String) {
-        _filterState.value = _filterState.value.copy(username = username)
+    fun updateIngredients(ingredients: String) {
+        _filterState.value = _filterState.value.copy(ingredients = ingredients)
+    }
+
+    fun updateFilterByMine() {
+        val currentValue = _filterState.value.filterByMine
+        _filterState.value = _filterState.value.copy(filterByMine = !currentValue)
     }
 
     fun updateRating(rating: Int) {
@@ -49,18 +59,18 @@ class RecipeListViewModel @Inject constructor() : MainViewModel() {
 
     fun removeTag(tag: String) {
         _filterState.value = _filterState.value.copy(
-            tags = _filterState.value.tags.filter { it != tag }
+            selectedTags = _filterState.value.selectedTags.filter { it != tag }
         )
     }
 
     fun addTag(tag: String) {
         _filterState.value = _filterState.value.copy(
-            tags = _filterState.value.tags + tag
+            selectedTags = _filterState.value.selectedTags + tag
         )
     }
 
-    fun updateSortBy(sortBy: String) {
-        _filterState.value = _filterState.value.copy(sortBy = sortBy)
+    fun updateSortBy(sortByFilter: SortByFilter) {
+        _filterState.value = _filterState.value.copy(sortBy = sortByFilter)
     }
 
     fun resetFilters() {
@@ -69,5 +79,15 @@ class RecipeListViewModel @Inject constructor() : MainViewModel() {
 
     fun applyFilters() {
         //TODO: Firestore call with filters, update recipe list
+    }
+
+    companion object {
+        private val DEFAULT_TAGS = listOf(
+            "Quick & Easy",
+            "Vegan",
+            "Gluten-Free",
+            "High Protein",
+            "Dessert"
+        )
     }
 }

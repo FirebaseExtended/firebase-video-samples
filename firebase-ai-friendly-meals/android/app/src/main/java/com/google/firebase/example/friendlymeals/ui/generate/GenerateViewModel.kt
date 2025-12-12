@@ -4,6 +4,7 @@ import android.graphics.Bitmap
 import com.google.firebase.example.friendlymeals.MainViewModel
 import com.google.firebase.example.friendlymeals.data.repository.AIRepository
 import com.google.firebase.example.friendlymeals.data.repository.AuthRepository
+import com.google.firebase.example.friendlymeals.data.repository.StorageRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -13,7 +14,8 @@ import javax.inject.Inject
 @HiltViewModel
 class GenerateViewModel @Inject constructor(
     private val aiRepository: AIRepository,
-    private val authRepository: AuthRepository
+    private val authRepository: AuthRepository,
+    private val storageRepository: StorageRepository
 ) : MainViewModel() {
     private val _viewState = MutableStateFlow(GenerateViewState())
     val viewState: StateFlow<GenerateViewState>
@@ -23,7 +25,7 @@ class GenerateViewModel @Inject constructor(
         launchCatching {
             if (authRepository.currentUser == null) {
                 authRepository.createAnonymousAccount()
-                //TODO: create random username and store in Firestore
+                //TODO: store user in Firestore
             }
         }
     }
@@ -68,8 +70,12 @@ class GenerateViewModel @Inject constructor(
                 _viewState.value.notes
             )
 
-           // val recipeImage = aiRepository.generateRecipePhoto(generatedRecipe)
-            //TODO: save recipe to database and recipe image to storage
+            val recipeImage = aiRepository.generateRecipePhoto(generatedRecipe.title)
+
+            if (recipeImage != null) {
+                storageRepository.storeImage(recipeImage, "1")
+                //TODO: replace this id by the real id returned by Firestore
+            }
 
             _viewState.value = _viewState.value.copy(
                 recipeLoading = false

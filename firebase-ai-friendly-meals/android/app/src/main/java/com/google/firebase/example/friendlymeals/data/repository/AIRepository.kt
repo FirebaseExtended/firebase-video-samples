@@ -17,12 +17,12 @@ class AIRepository @Inject constructor(
         return aiRemoteDataSource.generateRecipe(ingredients, notes)
     }
 
-    suspend fun generateRecipePhoto(recipe: String): Bitmap? {
-        return aiRemoteDataSource.generateRecipePhoto(recipe)
+    suspend fun generateRecipePhoto(recipeTitle: String): Bitmap? {
+        return aiRemoteDataSource.generateRecipePhoto(recipeTitle)
     }
 
-    suspend fun generateRecipePhotoImagen(recipe: String): Bitmap? {
-        return aiRemoteDataSource.generateRecipePhotoImagen(recipe)
+    suspend fun generateRecipePhotoImagen(recipeTitle: String): Bitmap? {
+        return aiRemoteDataSource.generateRecipePhotoImagen(recipeTitle)
     }
 
     suspend fun scanMeal(image: Bitmap): MealSchema {

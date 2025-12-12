@@ -8,8 +8,6 @@ data class Recipe(
     val authorId: String = "",
     val tags: List<String> = listOf(),
     val averageRating: Double = 0.0,
-    val imageUrl: String = "",
-    val createdAt: String = "",
     val prepTime: String = "",
     val cookTime: String = "",
     val servings: String = "",

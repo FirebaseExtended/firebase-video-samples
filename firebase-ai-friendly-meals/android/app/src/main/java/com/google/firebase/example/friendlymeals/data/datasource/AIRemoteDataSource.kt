@@ -105,6 +105,8 @@ class AIRemoteDataSource @Inject constructor(
             - 'prepTime', 'cookTime', 'servings': Short strings (e.g., "15 mins").
         """.trimIndent()
 
+        //TODO: return a list os tags
+
         if (notes.isNotBlank()) {
             prompt += "\n\nIMPORTANT CUISINE AND DIETARY NOTES: $notes"
         }
@@ -118,8 +120,8 @@ class AIRemoteDataSource @Inject constructor(
         } else RecipeSchema()
     }
 
-    suspend fun generateRecipePhoto(recipe: String): Bitmap? {
-        val prompt = "A professional food photography shot of this recipe: $recipe. " +
+    suspend fun generateRecipePhoto(recipeTitle: String): Bitmap? {
+        val prompt = "A professional food photography shot of this recipe: $recipeTitle. " +
                 "Style: High-end food photography, restaurant-quality plating, soft natural " +
                 "lighting, on a clean background, showing the complete plated dish."
 
@@ -128,8 +130,8 @@ class AIRemoteDataSource @Inject constructor(
             ?.filterIsInstance<ImagePart>()?.firstOrNull()?.image
     }
 
-    suspend fun generateRecipePhotoImagen(recipe: String): Bitmap? {
-        val prompt = "A professional food photography shot of this recipe: $recipe. " +
+    suspend fun generateRecipePhotoImagen(recipeTitle: String): Bitmap? {
+        val prompt = "A professional food photography shot of this recipe: $recipeTitle. " +
                 "Style: High-end food photography, restaurant-quality plating, soft natural " +
                 "lighting, on a clean background, showing the complete plated dish."
 

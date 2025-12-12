@@ -65,6 +65,7 @@ dependencies {
     implementation(libs.firebase.ai)
     implementation(libs.firebase.config)
     implementation(libs.firebase.auth)
+    implementation(libs.firebase.storage)
 
     //Library to handle Markdown in Compose
     implementation(libs.richtext.commonmark)

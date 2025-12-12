@@ -20,11 +20,12 @@
     <string name="recipe_servings_label">Servings</string>
     <string name="recipe_ingredients_title">Ingredients</string>
     <string name="recipe_instructions_title">Instructions</string>
+    <string name="recipe_rating_title">Rate this recipe</string>
     <string name="filter_title">Filter Recipes</string>
-    <string name="filter_recipe_name_label">Recipe Name</string>
-    <string name="filter_recipe_name_hint">e.g. Arrabbiata sauce</string>
-    <string name="filter_username_label">Username</string>
-    <string name="filter_username_hint">e.g. John Doe</string>
+    <string name="filter_recipe_title_label">Recipe Title</string>
+    <string name="filter_recipe_title_hint">e.g. Arrabbiata sauce</string>
+    <string name="filter_ingredients_label">Ingredients</string>
+    <string name="filter_ingredients_hint">e.g. Tomato, garlic</string>
     <string name="filter_rating_label">Rating</string>
     <string name="filter_rating_content_description">%d Stars</string>
     <string name="filter_tags_label">Tags</string>
@@ -32,17 +33,8 @@
     <string name="filter_sort_by_rating">Rating</string>
     <string name="filter_sort_by_alphabetical">Alphabetical</string>
     <string name="filter_sort_by_popularity">Popularity</string>
-    <string name="filter_sort_by_date_added">Date added</string>
     <string name="filter_reset_button">Reset</string>
     <string name="filter_apply_button">Apply Filters</string>
-    <string-array name="filter_tags">
-        <item>Quick &amp; Easy</item>
-        <item>Vegan</item>
-        <item>Gluten-Free</item>
-        <item>High Protein</item>
-        <item>Low Carb</item>
-        <item>Dessert</item>
-    </string-array>
     <string name="recipe_list_title">My Recipes</string>
     <string name="recipe_list_filter_button_content_description">Filter</string>
     <string name="recipe_list_item_image_content_description">Recipe image</string>

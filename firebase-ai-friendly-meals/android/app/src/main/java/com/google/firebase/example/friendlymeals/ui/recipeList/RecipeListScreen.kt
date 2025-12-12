@@ -40,7 +40,6 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.firebase.example.friendlymeals.R
-import com.google.firebase.example.friendlymeals.data.model.Recipe
 import com.google.firebase.example.friendlymeals.ui.theme.FriendlyMealsTheme
 import com.google.firebase.example.friendlymeals.ui.theme.LightTeal
 import com.google.firebase.example.friendlymeals.ui.theme.SelectedStarColor
@@ -74,7 +73,7 @@ fun RecipeListScreen(
 fun RecipeListScreenContent(
     openRecipeScreen: (String) -> Unit = {},
     openFilterScreen: () -> Unit = {},
-    recipes: List<Recipe>
+    recipes: List<RecipeListItem>
 ) {
     Scaffold(
         topBar = {
@@ -117,7 +116,7 @@ fun RecipeListScreenContent(
 @Composable
 fun RecipeCard(
     openRecipeScreen: (String) -> Unit = {},
-    recipe: Recipe
+    recipe: RecipeListItem
 ) {
     Card(
         shape = RoundedCornerShape(24.dp),
@@ -137,8 +136,7 @@ fun RecipeCard(
                     .clip(RoundedCornerShape(16.dp))
                     .background(LightTeal)
             ) {
-                val image = null//recipe.image?.asImageBitmap()
-                //TODO: get image from Storage
+                val image = recipe.image?.asImageBitmap()
 
                 if (image != null) {
                     Image(
@@ -199,10 +197,7 @@ private fun AverageRatingIcon(index: Int, rating: Double) {
 fun RecipeListScreenPreview() {
     FriendlyMealsTheme {
         RecipeListScreenContent(
-            recipes = listOf(Recipe(
-                title = "Recipe 1",
-                averageRating = 3.5
-            ))
+            recipes = listOf()
         )
     }
 }

@@ -14,6 +14,8 @@ import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.google.firebase.remoteconfig.FirebaseRemoteConfigException
 import com.google.firebase.remoteconfig.remoteConfig
 import com.google.firebase.remoteconfig.remoteConfigSettings
+import com.google.firebase.storage.StorageReference
+import com.google.firebase.storage.storage
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -28,6 +30,10 @@ object FirebaseHiltModule {
 
     @Provides fun firebaseAI(): FirebaseAI {
         return Firebase.ai(backend = GenerativeBackend.googleAI())
+    }
+
+    @Provides fun storage(): StorageReference {
+        return Firebase.storage.reference
     }
 
     @Provides fun remoteConfig(): FirebaseRemoteConfig {

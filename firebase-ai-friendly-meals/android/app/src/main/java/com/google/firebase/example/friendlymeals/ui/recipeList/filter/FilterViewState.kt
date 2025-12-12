@@ -1,11 +1,12 @@
 package com.google.firebase.example.friendlymeals.ui.recipeList.filter
 
+import com.google.firebase.example.friendlymeals.ui.recipeList.filter.SortByFilter.RATING
+
 data class FilterViewState(
-    val recipeName: String = "",
-    val username: String = "",
-    val rating: Int = 1,
-    val tags: List<String> = listOf("Quick & Easy", "Vegan", "Gluten-Free", "High Protein"),
-    val sortBy: String = "Rating",
-    //TODO: update this view state with data model from PRD
-    //TODO: transform tags and sortBy options in ENUM
+    val recipeTitle: String = "",
+    val ingredients: String = "",
+    val filterByMine: Boolean = false,
+    val rating: Int = 0,
+    val selectedTags: List<String> = listOf(),
+    val sortBy: SortByFilter = RATING
 )
