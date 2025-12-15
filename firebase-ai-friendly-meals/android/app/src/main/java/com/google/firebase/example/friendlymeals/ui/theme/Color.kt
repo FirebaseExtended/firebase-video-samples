@@ -5,6 +5,7 @@ import androidx.compose.ui.graphics.Color
 val Teal = Color(0xFF1EB980)
 val LightTeal = Color(0xFFE0F2F1)
 val LightGray = Color(0xFFF3F4F6)
+val Charcoal = Color(0xFF36454F)
 val TextColor = Color(0xFF1F2937)
 val LightTextColor = Color(0xFFF8F9FA)
 val SelectedStarColor = Color(0xFFFFC107)

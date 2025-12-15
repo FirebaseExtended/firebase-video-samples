@@ -9,5 +9,6 @@ data class RecipeSchema(
     val ingredients: List<String> = listOf(),
     val prepTime: String = "",
     val cookTime: String = "",
-    val servings: String = ""
+    val servings: String = "",
+    val tags: List<String> = listOf()
 )

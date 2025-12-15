@@ -77,6 +77,9 @@ class GenerateViewModel @Inject constructor(
                 //TODO: replace this id by the real id returned by Firestore
             }
 
+            //TODO: save recipe to Firestore
+            //TODO: save tags to Firestore
+
             _viewState.value = _viewState.value.copy(
                 recipeLoading = false
             )

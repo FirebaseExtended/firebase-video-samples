@@ -26,6 +26,7 @@
     <string name="filter_recipe_title_hint">e.g. Arrabbiata sauce</string>
     <string name="filter_ingredients_label">Ingredients</string>
     <string name="filter_ingredients_hint">e.g. Tomato, garlic</string>
+    <string name="filter_by_mine_label">My recipes only</string>
     <string name="filter_rating_label">Rating</string>
     <string name="filter_rating_content_description">%d Stars</string>
     <string name="filter_tags_label">Tags</string>

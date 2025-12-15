@@ -30,6 +30,8 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -48,6 +50,7 @@ import com.google.firebase.example.friendlymeals.R
 import com.google.firebase.example.friendlymeals.ui.recipeList.RecipeListViewModel
 import com.google.firebase.example.friendlymeals.ui.shared.RatingButton
 import com.google.firebase.example.friendlymeals.ui.theme.BorderColor
+import com.google.firebase.example.friendlymeals.ui.theme.Charcoal
 import com.google.firebase.example.friendlymeals.ui.theme.FriendlyMealsTheme
 import com.google.firebase.example.friendlymeals.ui.theme.LightTeal
 import com.google.firebase.example.friendlymeals.ui.theme.Teal
@@ -68,8 +71,9 @@ fun FilterScreen(
 
     FilterScreenContent(
         navigateBack = navigateBack,
-        updateRecipeName = viewModel::updateRecipeName,
+        updateRecipeTitle = viewModel::updateRecipeTitle,
         updateIngredients = viewModel::updateIngredients,
+        updateFilterByMine = viewModel::updateFilterByMine,
         updateRating = viewModel::updateRating,
         removeTag = viewModel::removeTag,
         addTag = viewModel::addTag,
@@ -85,8 +89,9 @@ fun FilterScreen(
 @Composable
 fun FilterScreenContent(
     navigateBack: () -> Unit = {},
-    updateRecipeName: (String) -> Unit = {},
+    updateRecipeTitle: (String) -> Unit = {},
     updateIngredients: (String) -> Unit = {},
+    updateFilterByMine: () -> Unit = {},
     updateRating: (Int) -> Unit = {},
     removeTag: (String) -> Unit = {},
     addTag: (String) -> Unit = {},
@@ -134,7 +139,7 @@ fun FilterScreenContent(
 
             OutlinedTextField(
                 value = viewState.recipeTitle,
-                onValueChange = { updateRecipeName(it) },
+                onValueChange = { updateRecipeTitle(it) },
                 modifier = Modifier.fillMaxWidth(),
                 placeholder = { Text(stringResource(id = R.string.filter_recipe_title_hint), color = Color.Gray) },
                 shape = RoundedCornerShape(12.dp),
@@ -161,6 +166,26 @@ fun FilterScreenContent(
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = BorderColor,
                     unfocusedBorderColor = BorderColor
+                )
+            )
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Text(
+                text = stringResource(id = R.string.filter_by_mine_label),
+                fontWeight = FontWeight.Medium,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+
+            Switch(
+                checked = viewState.filterByMine,
+                onCheckedChange = { updateFilterByMine() },
+                colors = SwitchDefaults.colors(
+                    checkedThumbColor = Color.White,
+                    checkedTrackColor = Teal,
+                    uncheckedThumbColor = Charcoal,
+                    uncheckedTrackColor = LightTeal,
+                    uncheckedBorderColor = Teal
                 )
             )
 

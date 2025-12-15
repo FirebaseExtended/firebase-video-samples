@@ -76,7 +76,8 @@ class AIRemoteDataSource @Inject constructor(
                         "ingredients" to Schema.array(Schema.string()),
                         "prepTime" to Schema.string(),
                         "cookTime" to Schema.string(),
-                        "servings" to Schema.string()
+                        "servings" to Schema.string(),
+                        "tags" to Schema.array(Schema.string())
                     )
                 )
             }
@@ -103,9 +104,8 @@ class AIRemoteDataSource @Inject constructor(
             - 'instructions': Provide the cooking steps as a clear, newline-separated string.
             - 'ingredients': List all necessary items, including quantities.
             - 'prepTime', 'cookTime', 'servings': Short strings (e.g., "15 mins").
+            - 'tags': Generate a list of 3-5 relevant category tags (e.g., "Healthy", "Vegan", "Gluten-Free", "Dessert", "Quick").
         """.trimIndent()
-
-        //TODO: return a list os tags
 
         if (notes.isNotBlank()) {
             prompt += "\n\nIMPORTANT CUISINE AND DIETARY NOTES: $notes"

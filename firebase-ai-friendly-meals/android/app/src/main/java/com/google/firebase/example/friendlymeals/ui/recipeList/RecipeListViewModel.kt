@@ -40,7 +40,7 @@ class RecipeListViewModel @Inject constructor(
         }
     }
 
-    fun updateRecipeName(recipeName: String) {
+    fun updateRecipeTitle(recipeName: String) {
         _filterState.value = _filterState.value.copy(recipeTitle = recipeName)
     }
 
