@@ -4,6 +4,10 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.navigation.toRoute
 import com.google.firebase.example.friendlymeals.MainViewModel
 import com.google.firebase.example.friendlymeals.data.model.Recipe
+import com.google.firebase.example.friendlymeals.data.model.Review
+import com.google.firebase.example.friendlymeals.data.model.Save
+import com.google.firebase.example.friendlymeals.data.repository.AuthRepository
+import com.google.firebase.example.friendlymeals.data.repository.DatabaseRepository
 import com.google.firebase.example.friendlymeals.data.repository.StorageRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,7 +18,9 @@ import javax.inject.Inject
 @HiltViewModel
 class RecipeViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    private val storageRepository: StorageRepository
+    private val authRepository: AuthRepository,
+    private val storageRepository: StorageRepository,
+    private val databaseRepository: DatabaseRepository
 ) : MainViewModel() {
     private val recipeRoute = savedStateHandle.toRoute<RecipeRoute>()
     private val recipeId: String = recipeRoute.recipeId
@@ -23,23 +29,15 @@ class RecipeViewModel @Inject constructor(
     val recipeViewState: StateFlow<RecipeViewState>
         get() = _recipeViewState.asStateFlow()
 
+    val userId: String get() = authRepository.currentUser?.uid.orEmpty()
+
     fun loadRecipe() {
         launchCatching {
-            //TODO: load image from Storage
-                //storageRepository.retrieveImage(recipeId)
-
-            //TODO: load recipe from Firestore
-
             _recipeViewState.value = RecipeViewState(
-                recipe = Recipe(
-                    title = "Spaghetti Bolognese",
-                    instructions = "Boil some **pasta**, add some _tomato sauce_",
-                    ingredients = listOf("200g Pasta", "4 ripe tomatoes", "2 cloves garlic", "1/2 cup heavy cream", "Fresh basil leaves"),
-                    prepTime = "20 mins",
-                    cookTime = "30 mins",
-                    servings = "4",
-                    averageRating = 4.5,
-                )
+                recipe = databaseRepository.getRecipe(recipeId) ?: Recipe(),
+                recipeImage = storageRepository.getImage(recipeId),
+                saved = databaseRepository.getFavorite(userId, recipeId),
+                rating = databaseRepository.getReview(userId, recipeId)
             )
         }
     }
@@ -48,14 +46,27 @@ class RecipeViewModel @Inject constructor(
         launchCatching {
             val currentValue = _recipeViewState.value.saved
             _recipeViewState.value = _recipeViewState.value.copy(saved = !currentValue)
-            //TODO: add recipe to favorites on Firestore
+            databaseRepository.setFavorite(
+                Save(
+                    recipeId = recipeId,
+                    userId = userId,
+                    isFavorite = !currentValue
+                )
+            )
+
         }
     }
 
     fun leaveReview(rating: Int) {
         launchCatching {
             _recipeViewState.value = _recipeViewState.value.copy(rating = rating)
-            //TODO: add review to Firestore
+            databaseRepository.setReview(
+                Review(
+                    userId = userId,
+                    recipeId = recipeId,
+                    rating = rating
+                )
+            )
         }
     }
 }

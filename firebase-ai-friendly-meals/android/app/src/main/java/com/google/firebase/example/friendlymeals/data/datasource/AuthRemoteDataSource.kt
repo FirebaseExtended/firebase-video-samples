@@ -2,6 +2,7 @@ package com.google.firebase.example.friendlymeals.data.datasource
 
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.example.friendlymeals.data.model.User
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -21,7 +22,8 @@ class AuthRemoteDataSource @Inject constructor(private val auth: FirebaseAuth) {
             awaitClose { auth.removeAuthStateListener(listener) }
         }
 
-    suspend fun createAnonymousAccount() {
-        auth.signInAnonymously().await()
+    suspend fun createAnonymousAccount(): User {
+        val authResult = auth.signInAnonymously().await()
+        return User(authResult.user?.uid.orEmpty())
     }
 }

@@ -8,6 +8,7 @@ import com.google.firebase.ai.type.GenerativeBackend
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
 import com.google.firebase.example.friendlymeals.R
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.remoteconfig.ConfigUpdate
 import com.google.firebase.remoteconfig.ConfigUpdateListener
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
@@ -34,6 +35,10 @@ object FirebaseHiltModule {
 
     @Provides fun storage(): StorageReference {
         return Firebase.storage.reference
+    }
+
+    @Provides fun firestore(): FirebaseFirestore {
+        return FirebaseFirestore.getInstance("default")
     }
 
     @Provides fun remoteConfig(): FirebaseRemoteConfig {

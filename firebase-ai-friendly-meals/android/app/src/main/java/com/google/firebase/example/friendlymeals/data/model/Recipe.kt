@@ -10,6 +10,5 @@ data class Recipe(
     val averageRating: Double = 0.0,
     val prepTime: String = "",
     val cookTime: String = "",
-    val servings: String = "",
-    val reviews: List<Review> = listOf()
+    val servings: String = ""
 )

@@ -9,7 +9,7 @@ import javax.inject.Inject
 class StorageRemoteDataSource @Inject constructor(
     private val storageRef: StorageReference
 ) {
-    fun storeImage(image: Bitmap, recipeId: String) {
+    fun addImage(image: Bitmap, recipeId: String) {
         val imagesRef = storageRef.child("images/$recipeId.jpg")
         val stream = ByteArrayOutputStream()
         image.compress(Bitmap.CompressFormat.JPEG, 100, stream)
@@ -20,7 +20,7 @@ class StorageRemoteDataSource @Inject constructor(
         }
     }
 
-    fun retrieveImage(recipeId: String): Bitmap? {
+    fun getImage(recipeId: String): Bitmap? {
         val imagesRef = storageRef.child("images/$recipeId.jpg")
         var bitmap: Bitmap? = null
 
