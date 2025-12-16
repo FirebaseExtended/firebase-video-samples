@@ -3,6 +3,7 @@ package com.google.firebase.example.friendlymeals.data.datasource
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import com.google.firebase.storage.StorageReference
+import kotlinx.coroutines.tasks.await
 import java.io.ByteArrayOutputStream
 import javax.inject.Inject
 
@@ -20,15 +21,10 @@ class StorageRemoteDataSource @Inject constructor(
         }
     }
 
-    fun getImage(recipeId: String): Bitmap? {
+    suspend fun getImage(recipeId: String): Bitmap? {
         val imagesRef = storageRef.child("images/$recipeId.jpg")
-        var bitmap: Bitmap? = null
-
-        imagesRef.getBytes(MAX_DOWNLOAD_SIZE_BYTES).addOnSuccessListener { bytes ->
-            bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
-        }
-
-        return bitmap
+        val bytes = imagesRef.getBytes(MAX_DOWNLOAD_SIZE_BYTES).await()
+        return BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
     }
 
     companion object {

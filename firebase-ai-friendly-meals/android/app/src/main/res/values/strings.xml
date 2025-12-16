@@ -36,7 +36,7 @@
     <string name="filter_sort_by_popularity">Popularity</string>
     <string name="filter_reset_button">Reset</string>
     <string name="filter_apply_button">Apply Filters</string>
-    <string name="recipe_list_title">My Recipes</string>
+    <string name="recipe_list_title">All Recipes</string>
     <string name="recipe_list_filter_button_content_description">Filter</string>
     <string name="recipe_list_item_image_content_description">Recipe image</string>
     <string name="recipe_list_app_icon_content_description">App icon</string>

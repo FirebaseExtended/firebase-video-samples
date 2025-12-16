@@ -11,7 +11,7 @@ class StorageRepository @Inject constructor(
         storageRemoteDataSource.addImage(image, recipeId)
     }
 
-    fun getImage(recipeId: String): Bitmap? {
+    suspend fun getImage(recipeId: String): Bitmap? {
         return storageRemoteDataSource.getImage(recipeId)
     }
 }

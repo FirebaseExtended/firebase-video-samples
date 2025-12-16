@@ -32,6 +32,8 @@ class RecipeViewModel @Inject constructor(
     val userId: String get() = authRepository.currentUser?.uid.orEmpty()
 
     fun loadRecipe() {
+        //TODO: add listener to collections
+
         launchCatching {
             _recipeViewState.value = RecipeViewState(
                 recipe = databaseRepository.getRecipe(recipeId) ?: Recipe(),
@@ -45,7 +47,6 @@ class RecipeViewModel @Inject constructor(
     fun toggleFavorite() {
         launchCatching {
             val currentValue = _recipeViewState.value.saved
-            _recipeViewState.value = _recipeViewState.value.copy(saved = !currentValue)
             databaseRepository.setFavorite(
                 Save(
                     recipeId = recipeId,
@@ -59,7 +60,6 @@ class RecipeViewModel @Inject constructor(
 
     fun leaveReview(rating: Int) {
         launchCatching {
-            _recipeViewState.value = _recipeViewState.value.copy(rating = rating)
             databaseRepository.setReview(
                 Review(
                     userId = userId,

@@ -29,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -103,7 +104,12 @@ fun RecipeScreenContent(
                             val image = recipeViewState.recipeImage?.asImageBitmap()
 
                             if (image != null) {
-                                Image(bitmap = image, stringResource(id = R.string.recipe_image_content_description))
+                                Image(
+                                    bitmap = image,
+                                    contentDescription = stringResource(id = R.string.recipe_image_content_description),
+                                    contentScale = ContentScale.Crop,
+                                    modifier = Modifier.fillMaxSize()
+                                )
                             } else {
                                 Text(
                                     text = stringResource(id = R.string.recipe_image_load_error),

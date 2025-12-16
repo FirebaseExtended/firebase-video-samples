@@ -101,7 +101,7 @@ class AIRemoteDataSource @Inject constructor(
             Create a detailed recipe based on these ingredients: $ingredients.
             
             Format requirements:
-            - 'instructions': Provide the cooking steps as a clear, newline-separated string.
+            - 'instructions': Provide the cooking steps as a clear. Use bold formatting on the step numbers. Use Markdown.
             - 'ingredients': List all necessary items, including quantities.
             - 'prepTime', 'cookTime', 'servings': Short strings (e.g., "15 mins").
             - 'tags': Generate a list of 3-5 relevant category tags (e.g., "Healthy", "Vegan", "Gluten-Free", "Dessert", "Quick").
