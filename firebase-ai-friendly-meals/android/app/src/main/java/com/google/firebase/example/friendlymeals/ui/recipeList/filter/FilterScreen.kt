@@ -34,6 +34,7 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -47,6 +48,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.firebase.example.friendlymeals.R
+import com.google.firebase.example.friendlymeals.data.model.Tag
 import com.google.firebase.example.friendlymeals.ui.recipeList.RecipeListViewModel
 import com.google.firebase.example.friendlymeals.ui.shared.RatingButton
 import com.google.firebase.example.friendlymeals.ui.theme.BorderColor
@@ -83,6 +85,10 @@ fun FilterScreen(
         viewState = filterState.value,
         tags = tags.value
     )
+
+    LaunchedEffect(true) {
+        viewModel.loadPopularTags()
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -99,7 +105,7 @@ fun FilterScreenContent(
     resetFilters: () -> Unit = {},
     applyFilters: () -> Unit = {},
     viewState: FilterViewState,
-    tags: List<String>
+    tags: List<Tag>
 ) {
     Scaffold(
         topBar = {
@@ -214,33 +220,35 @@ fun FilterScreenContent(
                 }
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            if (tags.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(24.dp))
 
-            Text(
-                text = stringResource(id = R.string.filter_tags_label),
-                fontWeight = FontWeight.Medium,
-                modifier = Modifier.padding(bottom = 8.dp)
-            )
+                Text(
+                    text = stringResource(id = R.string.filter_tags_label),
+                    fontWeight = FontWeight.Medium,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
 
-            FlowRow(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                tags.forEach { tag ->
-                    val isSelected = viewState.selectedTags.contains(tag)
+                FlowRow(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    tags.forEach { tag ->
+                        val isSelected = viewState.selectedTags.contains(tag.name)
 
-                    FilterChip(
-                        text = tag,
-                        isSelected = isSelected,
-                        onClick = {
-                            if (isSelected) {
-                                removeTag(tag)
-                            } else {
-                                addTag(tag)
+                        FilterChip(
+                            text = tag.name,
+                            isSelected = isSelected,
+                            onClick = {
+                                if (isSelected) {
+                                    removeTag(tag.name)
+                                } else {
+                                    addTag(tag.name)
+                                }
                             }
-                        }
-                    )
+                        )
+                    }
                 }
             }
 

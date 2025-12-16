@@ -23,8 +23,8 @@ class DatabaseRepository @Inject constructor(
         return databaseRemoteDataSource.getRecipe(recipeId)
     }
 
-    suspend fun getAverageRatingForRecipe(recipeId: String): Double {
-        return databaseRemoteDataSource.getAverageRatingForRecipe(recipeId)
+    suspend fun getAllRecipes(): List<Recipe> {
+        return databaseRemoteDataSource.getAllRecipes()
     }
 
     suspend fun addTags(tagNames: List<String>) {

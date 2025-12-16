@@ -37,16 +37,11 @@ class DatabaseRemoteDataSource @Inject constructor(
             .get().await().toObject()
     }
 
-    suspend fun getAverageRatingForRecipe(recipeId: String): Double {
-        val collection = firestore.collection(RECIPE_COLLECTION)
-            .document(recipeId)
-            .collection(REVIEW_SUBCOLLECTION)
-
-        val snapshot = collection.aggregate(AggregateField.average(RATING_FIELD))
-            .get(AggregateSource.SERVER)
+    suspend fun getAllRecipes(): List<Recipe> {
+        return firestore.collection(RECIPE_COLLECTION)
+            .get()
             .await()
-
-        return snapshot.get(AggregateField.average(RATING_FIELD)) ?: 0.0
+            .toObjects(Recipe::class.java)
     }
 
     suspend fun addTags(tagNames: List<String>) {
@@ -61,8 +56,8 @@ class DatabaseRemoteDataSource @Inject constructor(
             val tagRef = tagsCollection.document(tagName)
 
             val data = hashMapOf(
-                "name" to tagName,
-                "totalRecipes" to FieldValue.increment(1)
+                NAME_FIELD to tagName,
+                TOTAL_RECIPES_FIELD to FieldValue.increment(1)
             )
 
             batch.set(tagRef, data, SetOptions.merge())
@@ -81,12 +76,30 @@ class DatabaseRemoteDataSource @Inject constructor(
     }
 
     suspend fun setReview(review: Review) {
-        val reviewRef = firestore.collection(RECIPE_COLLECTION)
+        val recipeRef = firestore
+            .collection(RECIPE_COLLECTION)
             .document(review.recipeId)
+
+        val reviewRef = recipeRef
             .collection(REVIEW_SUBCOLLECTION)
             .document(review.userId)
 
         reviewRef.set(review).await()
+
+        val newAvg = getAverageRatingForRecipe(review.recipeId)
+        recipeRef.update(AVERAGE_RATING_FIELD, newAvg).await()
+    }
+
+    private suspend fun getAverageRatingForRecipe(recipeId: String): Double {
+        val collection = firestore.collection(RECIPE_COLLECTION)
+            .document(recipeId)
+            .collection(REVIEW_SUBCOLLECTION)
+
+        val snapshot = collection.aggregate(AggregateField.average(RATING_FIELD))
+            .get(AggregateSource.SERVER)
+            .await()
+
+        return snapshot.get(AggregateField.average(RATING_FIELD)) ?: 0.0
     }
 
     suspend fun getReview(userId: String, recipeId: String): Int {
@@ -126,6 +139,8 @@ class DatabaseRemoteDataSource @Inject constructor(
         private const val SAVE_COLLECTION = "save"
         private const val REVIEW_SUBCOLLECTION = "review"
         private const val RATING_FIELD = "rating"
+        private const val NAME_FIELD = "name"
         private const val TOTAL_RECIPES_FIELD = "totalRecipes"
+        private const val AVERAGE_RATING_FIELD = "averageRating"
     }
 }

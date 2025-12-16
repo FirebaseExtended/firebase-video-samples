@@ -1,6 +1,10 @@
 package com.google.firebase.example.friendlymeals.ui.recipeList
 
+import android.graphics.Bitmap
 import com.google.firebase.example.friendlymeals.MainViewModel
+import com.google.firebase.example.friendlymeals.data.model.Recipe
+import com.google.firebase.example.friendlymeals.data.model.Tag
+import com.google.firebase.example.friendlymeals.data.repository.DatabaseRepository
 import com.google.firebase.example.friendlymeals.data.repository.StorageRepository
 import com.google.firebase.example.friendlymeals.ui.recipeList.filter.FilterViewState
 import com.google.firebase.example.friendlymeals.ui.recipeList.filter.SortByFilter
@@ -12,14 +16,15 @@ import javax.inject.Inject
 
 @HiltViewModel
 class RecipeListViewModel @Inject constructor(
-    private val storageRepository: StorageRepository
+    private val storageRepository: StorageRepository,
+    private val databaseRepository: DatabaseRepository
 ) : MainViewModel() {
     private val _filterState = MutableStateFlow(FilterViewState())
     val filterState: StateFlow<FilterViewState>
         get() = _filterState.asStateFlow()
 
-    private val _tags = MutableStateFlow(DEFAULT_TAGS)
-    val tags: StateFlow<List<String>>
+    private val _tags = MutableStateFlow(listOf<Tag>())
+    val tags: StateFlow<List<Tag>>
         get() = _tags.asStateFlow()
 
     private val _recipes = MutableStateFlow<List<RecipeListItem>>(listOf())
@@ -28,15 +33,20 @@ class RecipeListViewModel @Inject constructor(
 
     fun loadRecipes() {
         launchCatching {
-            _recipes.value = listOf(RecipeListItem(
-                title = "Spaghetti Bolognese"
-            ))
-            //TODO: load recipes from Firestore
-            //TODO: for each downloaded recipe, load image:
-                //_recipeImage.value = storageRepository.retrieveImage(recipeId)
+            val allRecipes = databaseRepository.getAllRecipes()
+            val recipeListItems = mutableListOf<RecipeListItem>()
 
-            //TODO: fetch tags from Firestore
-                //if tags is empty, load from companion object
+            allRecipes.forEach {
+                val image = storageRepository.getImage(it.id)
+                recipeListItems.add(it.toRecipeListItem(image))
+            }
+            _recipes.value = recipeListItems
+        }
+    }
+
+    fun loadPopularTags() {
+        launchCatching {
+            _tags.value = databaseRepository.getPopularTags()
         }
     }
 
@@ -78,16 +88,15 @@ class RecipeListViewModel @Inject constructor(
     }
 
     fun applyFilters() {
-        //TODO: Firestore call with filters, update recipe list
+        //TODO: Firestore call with filters, update recipe list, add 'isFiltering' to control it
     }
 
-    companion object {
-        private val DEFAULT_TAGS = listOf(
-            "Quick & Easy",
-            "Vegan",
-            "Gluten-Free",
-            "High Protein",
-            "Dessert"
+    private fun Recipe.toRecipeListItem(image: Bitmap?): RecipeListItem {
+        return RecipeListItem(
+            id = id,
+            title = title,
+            averageRating = averageRating,
+            image = image
         )
     }
 }
