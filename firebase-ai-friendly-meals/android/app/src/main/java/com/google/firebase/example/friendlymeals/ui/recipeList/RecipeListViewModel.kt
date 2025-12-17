@@ -1,12 +1,11 @@
 package com.google.firebase.example.friendlymeals.ui.recipeList
 
-import android.graphics.Bitmap
 import com.google.firebase.example.friendlymeals.MainViewModel
 import com.google.firebase.example.friendlymeals.data.model.Recipe
 import com.google.firebase.example.friendlymeals.data.model.Tag
 import com.google.firebase.example.friendlymeals.data.repository.DatabaseRepository
 import com.google.firebase.example.friendlymeals.data.repository.StorageRepository
-import com.google.firebase.example.friendlymeals.ui.recipeList.filter.FilterViewState
+import com.google.firebase.example.friendlymeals.ui.recipeList.filter.FilterOptions
 import com.google.firebase.example.friendlymeals.ui.recipeList.filter.SortByFilter
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,9 +18,9 @@ class RecipeListViewModel @Inject constructor(
     private val storageRepository: StorageRepository,
     private val databaseRepository: DatabaseRepository
 ) : MainViewModel() {
-    private val _filterState = MutableStateFlow(FilterViewState())
-    val filterState: StateFlow<FilterViewState>
-        get() = _filterState.asStateFlow()
+    private val _filterOptions = MutableStateFlow(FilterOptions())
+    val filterOptions: StateFlow<FilterOptions>
+        get() = _filterOptions.asStateFlow()
 
     private val _tags = MutableStateFlow(listOf<Tag>())
     val tags: StateFlow<List<Tag>>
@@ -33,15 +32,27 @@ class RecipeListViewModel @Inject constructor(
 
     fun loadRecipes() {
         launchCatching {
-            val allRecipes = databaseRepository.getAllRecipes()
             val recipeListItems = mutableListOf<RecipeListItem>()
 
-            allRecipes.forEach {
-                val image = storageRepository.getImage(it.id)
-                recipeListItems.add(it.toRecipeListItem(image))
+            databaseRepository.getAllRecipes().forEach {
+                recipeListItems.add(it.toRecipeListItem())
             }
+
             _recipes.value = recipeListItems
+
+            loadImages()
         }
+    }
+
+    suspend fun loadImages() {
+        val recipeWithImages = mutableListOf<RecipeListItem>()
+
+        _recipes.value.forEach {
+            val imageUri = storageRepository.getImageUri(it.id)
+            recipeWithImages.add(it.copy(imageUri = imageUri))
+        }
+
+        _recipes.value = recipeWithImages
     }
 
     fun loadPopularTags() {
@@ -51,52 +62,62 @@ class RecipeListViewModel @Inject constructor(
     }
 
     fun updateRecipeTitle(recipeName: String) {
-        _filterState.value = _filterState.value.copy(recipeTitle = recipeName)
+        _filterOptions.value = _filterOptions.value.copy(recipeTitle = recipeName)
     }
 
     fun updateIngredients(ingredients: String) {
-        _filterState.value = _filterState.value.copy(ingredients = ingredients)
+        _filterOptions.value = _filterOptions.value.copy(ingredients = ingredients)
     }
 
     fun updateFilterByMine() {
-        val currentValue = _filterState.value.filterByMine
-        _filterState.value = _filterState.value.copy(filterByMine = !currentValue)
+        val currentValue = _filterOptions.value.filterByMine
+        _filterOptions.value = _filterOptions.value.copy(filterByMine = !currentValue)
     }
 
     fun updateRating(rating: Int) {
-        _filterState.value = _filterState.value.copy(rating = rating)
+        _filterOptions.value = _filterOptions.value.copy(rating = rating)
     }
 
     fun removeTag(tag: String) {
-        _filterState.value = _filterState.value.copy(
-            selectedTags = _filterState.value.selectedTags.filter { it != tag }
+        _filterOptions.value = _filterOptions.value.copy(
+            selectedTags = _filterOptions.value.selectedTags.filter { it != tag }
         )
     }
 
     fun addTag(tag: String) {
-        _filterState.value = _filterState.value.copy(
-            selectedTags = _filterState.value.selectedTags + tag
+        _filterOptions.value = _filterOptions.value.copy(
+            selectedTags = _filterOptions.value.selectedTags + tag
         )
     }
 
     fun updateSortBy(sortByFilter: SortByFilter) {
-        _filterState.value = _filterState.value.copy(sortBy = sortByFilter)
+        _filterOptions.value = _filterOptions.value.copy(sortBy = sortByFilter)
     }
 
     fun resetFilters() {
-        _filterState.value = FilterViewState()
+        _filterOptions.value = FilterOptions()
+        loadRecipes()
     }
 
     fun applyFilters() {
-        //TODO: Firestore call with filters, update recipe list, add 'isFiltering' to control it
+        launchCatching {
+            val filteredItems = mutableListOf<RecipeListItem>()
+
+            databaseRepository.getFilteredRecipes(_filterOptions.value).forEach {
+                filteredItems.add(it.toRecipeListItem())
+            }
+
+            _recipes.value = filteredItems
+
+            loadImages()
+        }
     }
 
-    private fun Recipe.toRecipeListItem(image: Bitmap?): RecipeListItem {
+    private fun Recipe.toRecipeListItem(): RecipeListItem {
         return RecipeListItem(
             id = id,
             title = title,
-            averageRating = averageRating,
-            image = image
+            averageRating = averageRating
         )
     }
 }

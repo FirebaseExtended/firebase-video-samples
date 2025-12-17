@@ -30,7 +30,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -39,6 +40,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.google.firebase.example.friendlymeals.R
 import com.google.firebase.example.friendlymeals.ui.theme.FriendlyMealsTheme
 import com.google.firebase.example.friendlymeals.ui.theme.LightTeal
@@ -136,12 +139,15 @@ fun RecipeCard(
                     .clip(RoundedCornerShape(16.dp))
                     .background(LightTeal)
             ) {
-                val image = recipe.image?.asImageBitmap()
-
-                if (image != null) {
-                    Image(
-                        bitmap = image,
-                        contentDescription = stringResource(id = R.string.recipe_list_item_image_content_description),
+                if (recipe.imageUri != null) {
+                    AsyncImage(
+                        model = ImageRequest.Builder(LocalContext.current)
+                            .data(recipe.imageUri)
+                            .crossfade(true)
+                            .build(),
+                        contentDescription = stringResource(id = R.string.recipe_image_content_description),
+                        placeholder = painterResource(R.mipmap.ic_launcher_no_bg),
+                        contentScale = ContentScale.Crop,
                         modifier = Modifier.fillMaxSize()
                     )
                 } else {

@@ -7,11 +7,11 @@ import javax.inject.Inject
 class StorageRepository @Inject constructor(
     private val storageRemoteDataSource: StorageRemoteDataSource
 ) {
-    fun addImage(image: Bitmap, recipeId: String) {
+    suspend fun addImage(image: Bitmap, recipeId: String) {
         storageRemoteDataSource.addImage(image, recipeId)
     }
 
-    suspend fun getImage(recipeId: String): Bitmap? {
-        return storageRemoteDataSource.getImage(recipeId)
+    suspend fun getImageUri(recipeId: String): String {
+        return storageRemoteDataSource.getImageUri(recipeId)
     }
 }

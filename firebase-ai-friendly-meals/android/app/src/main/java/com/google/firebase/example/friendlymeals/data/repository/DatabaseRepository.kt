@@ -6,6 +6,7 @@ import com.google.firebase.example.friendlymeals.data.model.Review
 import com.google.firebase.example.friendlymeals.data.model.Save
 import com.google.firebase.example.friendlymeals.data.model.Tag
 import com.google.firebase.example.friendlymeals.data.model.User
+import com.google.firebase.example.friendlymeals.ui.recipeList.filter.FilterOptions
 import javax.inject.Inject
 
 class DatabaseRepository @Inject constructor(
@@ -47,7 +48,15 @@ class DatabaseRepository @Inject constructor(
         databaseRemoteDataSource.setFavorite(save)
     }
 
+    suspend fun removeFavorite(save: Save) {
+        databaseRemoteDataSource.removeFavorite(save)
+    }
+
     suspend fun getFavorite(userId: String, recipeId: String): Boolean {
         return databaseRemoteDataSource.getFavorite(userId, recipeId)
+    }
+
+    suspend fun getFilteredRecipes(filterOptions: FilterOptions): List<Recipe> {
+        return databaseRemoteDataSource.getFilteredRecipes(filterOptions)
     }
 }

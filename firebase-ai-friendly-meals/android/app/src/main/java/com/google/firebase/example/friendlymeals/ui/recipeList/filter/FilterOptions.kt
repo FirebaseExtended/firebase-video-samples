@@ -2,7 +2,7 @@ package com.google.firebase.example.friendlymeals.ui.recipeList.filter
 
 import com.google.firebase.example.friendlymeals.ui.recipeList.filter.SortByFilter.RATING
 
-data class FilterViewState(
+data class FilterOptions(
     val recipeTitle: String = "",
     val ingredients: String = "",
     val filterByMine: Boolean = false,

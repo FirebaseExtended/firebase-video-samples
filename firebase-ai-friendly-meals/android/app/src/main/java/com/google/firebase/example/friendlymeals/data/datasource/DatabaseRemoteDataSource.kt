@@ -5,6 +5,7 @@ import com.google.firebase.example.friendlymeals.data.model.Review
 import com.google.firebase.example.friendlymeals.data.model.Save
 import com.google.firebase.example.friendlymeals.data.model.Tag
 import com.google.firebase.example.friendlymeals.data.model.User
+import com.google.firebase.example.friendlymeals.ui.recipeList.filter.FilterOptions
 import com.google.firebase.firestore.AggregateField
 import com.google.firebase.firestore.AggregateSource
 import com.google.firebase.firestore.FieldValue
@@ -69,7 +70,7 @@ class DatabaseRemoteDataSource @Inject constructor(
     suspend fun getPopularTags(): List<Tag> {
         return firestore.collection(TAG_COLLECTION)
             .orderBy(TOTAL_RECIPES_FIELD, DESCENDING)
-            .limit(5)
+            .limit(10)
             .get()
             .await()
             .toObjects(Tag::class.java)
@@ -82,7 +83,7 @@ class DatabaseRemoteDataSource @Inject constructor(
 
         val reviewRef = recipeRef
             .collection(REVIEW_SUBCOLLECTION)
-            .document(review.userId)
+            .document("${review.recipeId}_${review.userId}")
 
         reviewRef.set(review).await()
 
@@ -106,7 +107,7 @@ class DatabaseRemoteDataSource @Inject constructor(
         val document = firestore.collection(RECIPE_COLLECTION)
             .document(recipeId)
             .collection(REVIEW_SUBCOLLECTION)
-            .document(userId)
+            .document("${recipeId}_${userId}")
             .get()
             .await()
             .toObject<Review>()
@@ -122,6 +123,14 @@ class DatabaseRemoteDataSource @Inject constructor(
         saveRef.set(save).await()
     }
 
+    suspend fun removeFavorite(save: Save) {
+        firestore
+            .collection(SAVE_COLLECTION)
+            .document("${save.recipeId}_${save.userId}")
+            .delete()
+            .await()
+    }
+
     suspend fun getFavorite(userId: String, recipeId: String): Boolean {
         val document = firestore.collection(SAVE_COLLECTION)
             .document("${recipeId}_${userId}")
@@ -129,7 +138,12 @@ class DatabaseRemoteDataSource @Inject constructor(
             .await()
             .toObject<Save>()
 
-        return document?.isFavorite ?: false
+        return document != null
+    }
+
+    suspend fun getFilteredRecipes(filterOptions: FilterOptions): List<Recipe> {
+        return listOf()
+        //TODO: Implement filter with Pipelines
     }
 
     companion object {

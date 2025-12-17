@@ -74,6 +74,9 @@ dependencies {
     //Library to handle Markdown in Compose
     implementation(libs.richtext.commonmark)
 
+    //Library to display images from Storage
+    implementation(libs.coil.compose)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

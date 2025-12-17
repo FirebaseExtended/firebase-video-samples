@@ -1,6 +1,5 @@
 package com.google.firebase.example.friendlymeals.ui.recipe
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -27,9 +26,9 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -38,6 +37,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.google.firebase.example.friendlymeals.R
 import com.google.firebase.example.friendlymeals.ui.shared.RatingButton
 import com.google.firebase.example.friendlymeals.ui.theme.FriendlyMealsTheme
@@ -77,7 +78,7 @@ fun RecipeScreenContent(
     leaveReview: (Int) -> Unit = {},
     recipeViewState: RecipeViewState
 ) {
-    val favoriteIcon = if (recipeViewState.saved) {
+    val favoriteIcon = if (recipeViewState.favorite) {
         painterResource(R.drawable.ic_favorite_filled)
     } else {
         painterResource(R.drawable.ic_favorite_outline)
@@ -101,11 +102,12 @@ fun RecipeScreenContent(
                                 .fillMaxSize()
                                 .background(Color.LightGray)
                         ) {
-                            val image = recipeViewState.recipeImage?.asImageBitmap()
-
-                            if (image != null) {
-                                Image(
-                                    bitmap = image,
+                            if (recipeViewState.imageUri != null) {
+                                AsyncImage(
+                                    model = ImageRequest.Builder(LocalContext.current)
+                                        .data(recipeViewState.imageUri)
+                                        .crossfade(true)
+                                        .build(),
                                     contentDescription = stringResource(id = R.string.recipe_image_content_description),
                                     contentScale = ContentScale.Crop,
                                     modifier = Modifier.fillMaxSize()

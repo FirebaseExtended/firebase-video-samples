@@ -32,29 +32,44 @@ class RecipeViewModel @Inject constructor(
     val userId: String get() = authRepository.currentUser?.uid.orEmpty()
 
     fun loadRecipe() {
-        //TODO: add listener to collections
-
         launchCatching {
             _recipeViewState.value = RecipeViewState(
                 recipe = databaseRepository.getRecipe(recipeId) ?: Recipe(),
-                recipeImage = storageRepository.getImage(recipeId),
-                saved = databaseRepository.getFavorite(userId, recipeId),
-                rating = databaseRepository.getReview(userId, recipeId)
+                favorite = loadFavorite(),
+                rating = loadRating(),
+                imageUri = loadImage()
             )
         }
     }
 
-    fun toggleFavorite() {
-        launchCatching {
-            val currentValue = _recipeViewState.value.saved
-            databaseRepository.setFavorite(
-                Save(
-                    recipeId = recipeId,
-                    userId = userId,
-                    isFavorite = !currentValue
-                )
-            )
+    private suspend fun loadFavorite(): Boolean {
+        return databaseRepository.getFavorite(userId, recipeId)
+    }
 
+    private suspend fun loadRating(): Int {
+        return databaseRepository.getReview(userId, recipeId)
+    }
+
+    private suspend fun loadImage(): String? {
+        return storageRepository.getImageUri(recipeId)
+    }
+
+    fun toggleFavorite() {
+        val save = Save(
+            recipeId = recipeId,
+            userId = userId
+        )
+
+        launchCatching {
+            if (_recipeViewState.value.favorite) {
+                databaseRepository.removeFavorite(save)
+            } else {
+                databaseRepository.setFavorite(save)
+            }
+
+            _recipeViewState.value = _recipeViewState.value.copy(
+                favorite = loadFavorite()
+            )
         }
     }
 
@@ -66,6 +81,10 @@ class RecipeViewModel @Inject constructor(
                     recipeId = recipeId,
                     rating = rating
                 )
+            )
+
+            _recipeViewState.value = _recipeViewState.value.copy(
+                rating = loadRating()
             )
         }
     }

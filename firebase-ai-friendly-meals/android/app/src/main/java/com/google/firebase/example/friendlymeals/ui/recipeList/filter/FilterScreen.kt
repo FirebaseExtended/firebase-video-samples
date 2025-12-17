@@ -68,7 +68,7 @@ fun FilterScreen(
     viewModel: RecipeListViewModel = hiltViewModel(),
     navigateBack: () -> Unit
 ) {
-    val filterState = viewModel.filterState.collectAsStateWithLifecycle()
+    val filterOptions = viewModel.filterOptions.collectAsStateWithLifecycle()
     val tags = viewModel.tags.collectAsStateWithLifecycle()
 
     FilterScreenContent(
@@ -82,7 +82,7 @@ fun FilterScreen(
         updateSortBy = viewModel::updateSortBy,
         resetFilters = viewModel::resetFilters,
         applyFilters = viewModel::applyFilters,
-        viewState = filterState.value,
+        filterOptions = filterOptions.value,
         tags = tags.value
     )
 
@@ -104,7 +104,7 @@ fun FilterScreenContent(
     updateSortBy: (SortByFilter) -> Unit = {},
     resetFilters: () -> Unit = {},
     applyFilters: () -> Unit = {},
-    viewState: FilterViewState,
+    filterOptions: FilterOptions,
     tags: List<Tag>
 ) {
     Scaffold(
@@ -144,7 +144,7 @@ fun FilterScreenContent(
             )
 
             OutlinedTextField(
-                value = viewState.recipeTitle,
+                value = filterOptions.recipeTitle,
                 onValueChange = { updateRecipeTitle(it) },
                 modifier = Modifier.fillMaxWidth(),
                 placeholder = { Text(stringResource(id = R.string.filter_recipe_title_hint), color = Color.Gray) },
@@ -164,7 +164,7 @@ fun FilterScreenContent(
             )
 
             OutlinedTextField(
-                value = viewState.ingredients,
+                value = filterOptions.ingredients,
                 onValueChange = { updateIngredients(it) },
                 modifier = Modifier.fillMaxWidth(),
                 placeholder = { Text(stringResource(id = R.string.filter_ingredients_hint), color = Color.Gray) },
@@ -184,7 +184,7 @@ fun FilterScreenContent(
             )
 
             Switch(
-                checked = viewState.filterByMine,
+                checked = filterOptions.filterByMine,
                 onCheckedChange = { updateFilterByMine() },
                 colors = SwitchDefaults.colors(
                     checkedThumbColor = Color.White,
@@ -208,8 +208,8 @@ fun FilterScreenContent(
             ) {
                 repeat(5) { index ->
                     val rating = index + 1
-                    val isSelected = rating == viewState.rating
-                    val isFilled = rating < viewState.rating
+                    val isSelected = rating == filterOptions.rating
+                    val isFilled = rating < filterOptions.rating
                     
                     RatingButton(
                         rating = rating,
@@ -235,7 +235,7 @@ fun FilterScreenContent(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     tags.forEach { tag ->
-                        val isSelected = viewState.selectedTags.contains(tag.name)
+                        val isSelected = filterOptions.selectedTags.contains(tag.name)
 
                         FilterChip(
                             text = tag.name,
@@ -262,7 +262,7 @@ fun FilterScreenContent(
 
             Row(verticalAlignment = Alignment.CenterVertically) {
                 RadioButton(
-                    selected = viewState.sortBy == SortByFilter.RATING,
+                    selected = filterOptions.sortBy == SortByFilter.RATING,
                     onClick = { updateSortBy(SortByFilter.RATING) },
                     colors = RadioButtonDefaults.colors(selectedColor = Teal)
                 )
@@ -271,7 +271,7 @@ fun FilterScreenContent(
                 Spacer(modifier = Modifier.width(24.dp))
                 
                 RadioButton(
-                    selected = viewState.sortBy == SortByFilter.ALPHABETICAL,
+                    selected = filterOptions.sortBy == SortByFilter.ALPHABETICAL,
                     onClick = { updateSortBy(SortByFilter.ALPHABETICAL) },
                     colors = RadioButtonDefaults.colors(selectedColor = Teal)
                 )
@@ -280,7 +280,7 @@ fun FilterScreenContent(
 
             Row(verticalAlignment = Alignment.CenterVertically) {
                 RadioButton(
-                    selected = viewState.sortBy == SortByFilter.POPULARITY,
+                    selected = filterOptions.sortBy == SortByFilter.POPULARITY,
                     onClick = { updateSortBy(SortByFilter.POPULARITY) },
                     colors = RadioButtonDefaults.colors(selectedColor = Teal)
                 )
@@ -362,7 +362,7 @@ fun FilterChip(
 fun FilterScreenPreview() {
     FriendlyMealsTheme {
         FilterScreenContent(
-            viewState = FilterViewState(),
+            filterOptions = FilterOptions(),
             tags = listOf()
         )
     }
