@@ -74,7 +74,6 @@ fun FilterScreen(
     FilterScreenContent(
         navigateBack = navigateBack,
         updateRecipeTitle = viewModel::updateRecipeTitle,
-        updateIngredients = viewModel::updateIngredients,
         updateFilterByMine = viewModel::updateFilterByMine,
         updateRating = viewModel::updateRating,
         removeTag = viewModel::removeTag,
@@ -96,7 +95,6 @@ fun FilterScreen(
 fun FilterScreenContent(
     navigateBack: () -> Unit = {},
     updateRecipeTitle: (String) -> Unit = {},
-    updateIngredients: (String) -> Unit = {},
     updateFilterByMine: () -> Unit = {},
     updateRating: (Int) -> Unit = {},
     removeTag: (String) -> Unit = {},
@@ -148,26 +146,6 @@ fun FilterScreenContent(
                 onValueChange = { updateRecipeTitle(it) },
                 modifier = Modifier.fillMaxWidth(),
                 placeholder = { Text(stringResource(id = R.string.filter_recipe_title_hint), color = Color.Gray) },
-                shape = RoundedCornerShape(12.dp),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = BorderColor,
-                    unfocusedBorderColor = BorderColor
-                )
-            )
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            Text(
-                text = stringResource(id = R.string.filter_ingredients_label),
-                fontWeight = FontWeight.Medium,
-                modifier = Modifier.padding(bottom = 8.dp)
-            )
-
-            OutlinedTextField(
-                value = filterOptions.ingredients,
-                onValueChange = { updateIngredients(it) },
-                modifier = Modifier.fillMaxWidth(),
-                placeholder = { Text(stringResource(id = R.string.filter_ingredients_hint), color = Color.Gray) },
                 shape = RoundedCornerShape(12.dp),
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = BorderColor,

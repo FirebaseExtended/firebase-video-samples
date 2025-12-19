@@ -3,6 +3,7 @@ package com.google.firebase.example.friendlymeals.ui.recipeList
 import com.google.firebase.example.friendlymeals.MainViewModel
 import com.google.firebase.example.friendlymeals.data.model.Recipe
 import com.google.firebase.example.friendlymeals.data.model.Tag
+import com.google.firebase.example.friendlymeals.data.repository.AuthRepository
 import com.google.firebase.example.friendlymeals.data.repository.DatabaseRepository
 import com.google.firebase.example.friendlymeals.data.repository.StorageRepository
 import com.google.firebase.example.friendlymeals.ui.recipeList.filter.FilterOptions
@@ -15,6 +16,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class RecipeListViewModel @Inject constructor(
+    private val authRepository: AuthRepository,
     private val storageRepository: StorageRepository,
     private val databaseRepository: DatabaseRepository
 ) : MainViewModel() {
@@ -34,8 +36,16 @@ class RecipeListViewModel @Inject constructor(
         launchCatching {
             val recipeListItems = mutableListOf<RecipeListItem>()
 
-            databaseRepository.getAllRecipes().forEach {
-                recipeListItems.add(it.toRecipeListItem())
+            if (_filterOptions.value.isFilterOn) {
+                val userId = authRepository.currentUser?.uid.orEmpty()
+
+                databaseRepository
+                    .getFilteredRecipes(_filterOptions.value, userId)
+                    .forEach { recipeListItems.add(it.toRecipeListItem()) }
+            } else {
+                databaseRepository.getAllRecipes().forEach {
+                    recipeListItems.add(it.toRecipeListItem())
+                }
             }
 
             _recipes.value = recipeListItems
@@ -65,10 +75,6 @@ class RecipeListViewModel @Inject constructor(
         _filterOptions.value = _filterOptions.value.copy(recipeTitle = recipeName)
     }
 
-    fun updateIngredients(ingredients: String) {
-        _filterOptions.value = _filterOptions.value.copy(ingredients = ingredients)
-    }
-
     fun updateFilterByMine() {
         val currentValue = _filterOptions.value.filterByMine
         _filterOptions.value = _filterOptions.value.copy(filterByMine = !currentValue)
@@ -96,21 +102,10 @@ class RecipeListViewModel @Inject constructor(
 
     fun resetFilters() {
         _filterOptions.value = FilterOptions()
-        loadRecipes()
     }
 
     fun applyFilters() {
-        launchCatching {
-            val filteredItems = mutableListOf<RecipeListItem>()
-
-            databaseRepository.getFilteredRecipes(_filterOptions.value).forEach {
-                filteredItems.add(it.toRecipeListItem())
-            }
-
-            _recipes.value = filteredItems
-
-            loadImages()
-        }
+        _filterOptions.value = _filterOptions.value.copy(isFilterOn = true)
     }
 
     private fun Recipe.toRecipeListItem(): RecipeListItem {

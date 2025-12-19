@@ -6,13 +6,16 @@ import com.google.firebase.example.friendlymeals.data.model.Save
 import com.google.firebase.example.friendlymeals.data.model.Tag
 import com.google.firebase.example.friendlymeals.data.model.User
 import com.google.firebase.example.friendlymeals.ui.recipeList.filter.FilterOptions
+import com.google.firebase.example.friendlymeals.ui.recipeList.filter.SortByFilter
 import com.google.firebase.firestore.AggregateField
 import com.google.firebase.firestore.AggregateSource
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query.Direction.DESCENDING
 import com.google.firebase.firestore.SetOptions
+import com.google.firebase.firestore.pipeline.Expression.Companion.field
 import com.google.firebase.firestore.toObject
+import com.google.gson.Gson
 import kotlinx.coroutines.tasks.await
 import java.util.Locale
 import javax.inject.Inject
@@ -20,6 +23,8 @@ import javax.inject.Inject
 class DatabaseRemoteDataSource @Inject constructor(
     private val firestore: FirebaseFirestore
 ) {
+    val gson = Gson()
+
     fun addUser(user: User) {
         firestore.collection(USER_COLLECTION).add(user)
     }
@@ -121,6 +126,12 @@ class DatabaseRemoteDataSource @Inject constructor(
             .document("${save.recipeId}_${save.userId}")
 
         saveRef.set(save).await()
+
+        firestore
+            .collection(RECIPE_COLLECTION)
+            .document(save.recipeId)
+            .update(SAVES_FIELD, FieldValue.increment(1))
+            .await()
     }
 
     suspend fun removeFavorite(save: Save) {
@@ -128,6 +139,12 @@ class DatabaseRemoteDataSource @Inject constructor(
             .collection(SAVE_COLLECTION)
             .document("${save.recipeId}_${save.userId}")
             .delete()
+            .await()
+
+        firestore
+            .collection(RECIPE_COLLECTION)
+            .document(save.recipeId)
+            .update(SAVES_FIELD, FieldValue.increment(-1))
             .await()
     }
 
@@ -141,20 +158,79 @@ class DatabaseRemoteDataSource @Inject constructor(
         return document != null
     }
 
-    suspend fun getFilteredRecipes(filterOptions: FilterOptions): List<Recipe> {
-        return listOf()
-        //TODO: Implement filter with Pipelines
+    suspend fun getFilteredRecipes(filterOptions: FilterOptions, userId: String): List<Recipe> {
+        var pipeline = firestore.pipeline().collection(RECIPE_COLLECTION)
+
+        if (filterOptions.recipeTitle.isNotBlank()) {
+            pipeline = pipeline
+                .where(field(TITLE_FIELD)
+                    .stringContains(filterOptions.recipeTitle))
+        }
+
+        if (filterOptions.filterByMine) {
+            pipeline = pipeline
+                .where(field(AUTHOR_ID_FIELD)
+                    .equal(userId))
+        }
+
+        if (filterOptions.rating > 0) {
+            pipeline = pipeline
+                .where(field(AVERAGE_RATING_FIELD)
+                    .greaterThanOrEqual(filterOptions.rating))
+        }
+
+        if (filterOptions.selectedTags.isNotEmpty()) {
+            pipeline = pipeline
+                .where(field(TAGS_FIELD)
+                    .arrayContainsAny(filterOptions.selectedTags))
+        }
+
+        when (filterOptions.sortBy) {
+            SortByFilter.RATING -> {
+                pipeline = pipeline
+                    .sort(field(AVERAGE_RATING_FIELD)
+                        .descending())
+            }
+            SortByFilter.ALPHABETICAL -> {
+                pipeline = pipeline
+                    .sort(field(TITLE_FIELD)
+                        .ascending())
+            }
+            SortByFilter.POPULARITY -> {
+                pipeline = pipeline
+                    .sort(field(SAVES_FIELD)
+                        .descending())
+            }
+        }
+
+        val results = pipeline.execute().await().results
+        val recipes = mutableListOf<Recipe>()
+
+        results.forEach {
+            val jsonString = gson.toJson(it.getData())
+            val recipe = gson.fromJson(jsonString, Recipe::class.java)
+            recipes.add(recipe)
+        }
+
+        return recipes
     }
 
     companion object {
+        //Collections
         private const val USER_COLLECTION = "user"
         private const val RECIPE_COLLECTION = "recipe"
         private const val TAG_COLLECTION = "tag"
         private const val SAVE_COLLECTION = "save"
         private const val REVIEW_SUBCOLLECTION = "review"
+
+        //Fields
         private const val RATING_FIELD = "rating"
         private const val NAME_FIELD = "name"
         private const val TOTAL_RECIPES_FIELD = "totalRecipes"
         private const val AVERAGE_RATING_FIELD = "averageRating"
+        private const val AUTHOR_ID_FIELD = "authorId"
+        private const val TITLE_FIELD = "title"
+        private const val TAGS_FIELD = "tags"
+        private const val SAVES_FIELD = "saves"
     }
 }
