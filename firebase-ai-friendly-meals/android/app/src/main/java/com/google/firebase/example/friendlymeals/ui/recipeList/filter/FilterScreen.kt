@@ -78,8 +78,14 @@ fun FilterScreen(
         removeTag = viewModel::removeTag,
         addTag = viewModel::addTag,
         updateSortBy = viewModel::updateSortBy,
-        resetFilters = viewModel::resetFilters,
-        applyFilters = viewModel::applyFilters,
+        resetFilters = {
+            navigateBack()
+            viewModel.resetFilters()
+        },
+        applyFilters = {
+            navigateBack()
+            viewModel.applyFilters()
+        },
         filterOptions = filterOptions.value,
         tags = tags.value
     )
@@ -96,7 +102,7 @@ fun FilterScreenContent(
     addTag: (String) -> Unit = {},
     updateSortBy: (SortByFilter) -> Unit = {},
     resetFilters: () -> Unit = {},
-    applyFilters: (() -> Unit) -> Unit = {},
+    applyFilters: () -> Unit = {},
     filterOptions: FilterOptions,
     tags: List<Tag>
 ) {
@@ -282,7 +288,7 @@ fun FilterScreenContent(
                 }
 
                 Button(
-                    onClick = { applyFilters(navigateBack) },
+                    onClick = { applyFilters() },
                     modifier = Modifier
                         .weight(1f)
                         .height(56.dp),

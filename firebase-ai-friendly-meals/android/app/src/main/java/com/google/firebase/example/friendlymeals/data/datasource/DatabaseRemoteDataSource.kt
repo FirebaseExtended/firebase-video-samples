@@ -5,6 +5,7 @@ import com.google.firebase.example.friendlymeals.data.model.Review
 import com.google.firebase.example.friendlymeals.data.model.Save
 import com.google.firebase.example.friendlymeals.data.model.Tag
 import com.google.firebase.example.friendlymeals.data.model.User
+import com.google.firebase.example.friendlymeals.ui.recipeList.RecipeListItem
 import com.google.firebase.example.friendlymeals.ui.recipeList.filter.FilterOptions
 import com.google.firebase.example.friendlymeals.ui.recipeList.filter.SortByFilter
 import com.google.firebase.firestore.AggregateField
@@ -16,7 +17,6 @@ import com.google.firebase.firestore.SetOptions
 import com.google.firebase.firestore.pipeline.Expression.Companion.field
 import com.google.firebase.firestore.toObject
 import kotlinx.coroutines.tasks.await
-import java.util.Locale
 import javax.inject.Inject
 
 class DatabaseRemoteDataSource @Inject constructor(
@@ -40,16 +40,16 @@ class DatabaseRemoteDataSource @Inject constructor(
             .get().await().toObject()
     }
 
-    suspend fun getAllRecipes(): List<Recipe> {
+    suspend fun getAllRecipes(): List<RecipeListItem> {
         return firestore.collection(RECIPE_COLLECTION)
             .get()
             .await()
-            .toObjects(Recipe::class.java)
+            .toObjects(RecipeListItem::class.java)
     }
 
     suspend fun addTags(tagNames: List<String>) {
         val normalizedTags = tagNames
-            .map { it.trim().lowercase(Locale.getDefault()) }
+            .map { it.trim() }
             .distinct()
 
         val batch = firestore.batch()
@@ -155,7 +155,10 @@ class DatabaseRemoteDataSource @Inject constructor(
         return document != null
     }
 
-    suspend fun getFilteredRecipeIds(filterOptions: FilterOptions, userId: String): List<String> {
+    suspend fun getFilteredRecipes(
+        filterOptions: FilterOptions,
+        userId: String
+    ): List<RecipeListItem> {
         var pipeline = firestore.pipeline().collection(RECIPE_COLLECTION)
 
         if (filterOptions.recipeTitle.isNotBlank()) {
@@ -201,7 +204,16 @@ class DatabaseRemoteDataSource @Inject constructor(
         }
 
         val results = pipeline.execute().await().results
-        return results.mapNotNull { it.getId() }
+
+        return results.map {
+            val itemData = it.getData()
+
+            RecipeListItem(
+                id = itemData["id"] as? String ?: "",
+                title = itemData["title"] as? String ?: "",
+                averageRating = itemData["averageRating"] as? Double ?: 0.0
+            )
+        }
     }
 
     companion object {

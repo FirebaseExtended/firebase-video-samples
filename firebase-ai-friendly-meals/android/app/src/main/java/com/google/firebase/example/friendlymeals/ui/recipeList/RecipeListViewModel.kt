@@ -39,29 +39,21 @@ class RecipeListViewModel @Inject constructor(
 
     fun loadRecipes() {
         launchCatching {
-            val recipeList = databaseRepository.getAllRecipes()
-
-            _recipes.value = recipeList.map {
-                RecipeListItem(
-                    id = it.id,
-                    title = it.title,
-                    averageRating = it.averageRating
-                )
-            }
-
+            _recipes.value = databaseRepository.getAllRecipes()
             loadImages()
         }
     }
 
     suspend fun loadImages() {
-        val recipeWithImages = mutableListOf<RecipeListItem>()
+        _recipes.value.forEachIndexed { index, recipe ->
+            val uri = storageRepository.getImageUri(recipe.id)
 
-        _recipes.value.forEach {
-            val imageUri = storageRepository.getImageUri(it.id)
-            recipeWithImages.add(it.copy(imageUri = imageUri))
+            _recipes.update { currentList ->
+                currentList.toMutableList().apply {
+                    this[index] = recipe.copy(imageUri = uri)
+                }
+            }
         }
-
-        _recipes.value = recipeWithImages
     }
 
     fun loadPopularTags() {
@@ -101,21 +93,16 @@ class RecipeListViewModel @Inject constructor(
 
     fun resetFilters() {
         _filterOptions.value = FilterOptions()
+        loadRecipes()
     }
 
-    fun applyFilters(navigateBack: () -> Unit) {
+    fun applyFilters() {
         launchCatching {
             val filter = _filterOptions.value
             val userId = authRepository.currentUser?.uid.orEmpty()
-            val idsToKeep = databaseRepository.getFilteredRecipeIds(filter, userId)
 
-            _recipes.update { currentList ->
-                currentList.filter { recipe ->
-                    idsToKeep.contains(recipe.id)
-                }
-            }
-
-            navigateBack()
+            _recipes.value = databaseRepository.getFilteredRecipes(filter, userId)
+            loadImages()
         }
     }
 }

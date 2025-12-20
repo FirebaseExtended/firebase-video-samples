@@ -54,7 +54,7 @@ class RecipeViewModel @Inject constructor(
         return databaseRepository.getReview(userId, recipeId)
     }
 
-    private suspend fun loadImage(): String? {
+    private suspend fun loadImage(): String {
         return storageRepository.getImageUri(recipeId)
     }
 

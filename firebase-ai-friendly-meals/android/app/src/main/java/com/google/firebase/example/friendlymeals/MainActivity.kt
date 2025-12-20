@@ -18,12 +18,16 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navigation
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.google.firebase.example.friendlymeals.ui.generate.GenerateRoute
 import com.google.firebase.example.friendlymeals.ui.generate.GenerateScreen
 import com.google.firebase.example.friendlymeals.ui.recipe.RecipeRoute
 import com.google.firebase.example.friendlymeals.ui.recipe.RecipeScreen
+import com.google.firebase.example.friendlymeals.ui.recipeList.RecipeListGraph
 import com.google.firebase.example.friendlymeals.ui.recipeList.RecipeListRoute
 import com.google.firebase.example.friendlymeals.ui.recipeList.RecipeListScreen
+import com.google.firebase.example.friendlymeals.ui.recipeList.RecipeListViewModel
 import com.google.firebase.example.friendlymeals.ui.recipeList.filter.FilterRoute
 import com.google.firebase.example.friendlymeals.ui.recipeList.filter.FilterScreen
 import com.google.firebase.example.friendlymeals.ui.scanMeal.ScanMealRoute
@@ -66,22 +70,40 @@ class MainActivity : ComponentActivity() {
                                     }
                                 }
                             ) }
-                            composable<RecipeListRoute> { RecipeListScreen(
-                                openRecipeScreen = { recipeId ->
-                                    navController.navigate(RecipeRoute(recipeId)) {
-                                        launchSingleTop = true
+                            navigation<RecipeListGraph>(startDestination = RecipeListRoute) {
+                                composable<RecipeListRoute> { backStackEntry ->
+                                    val parentEntry = remember(backStackEntry) {
+                                        navController.getBackStackEntry(RecipeListGraph)
                                     }
-                                },
-                                openFilterScreen = {
-                                    navController.navigate(FilterRoute) {
-                                        launchSingleTop = true
-                                    }
+                                    val viewModel = hiltViewModel<RecipeListViewModel>(parentEntry)
+
+                                    RecipeListScreen(
+                                        viewModel = viewModel,
+                                        openRecipeScreen = { recipeId ->
+                                            navController.navigate(RecipeRoute(recipeId)) {
+                                                launchSingleTop = true
+                                            }
+                                        },
+                                        openFilterScreen = {
+                                            navController.navigate(FilterRoute) {
+                                                launchSingleTop = true
+                                            }
+                                        }
+                                    )
                                 }
-                            ) }
+                                composable<FilterRoute> { backStackEntry ->
+                                    val parentEntry = remember(backStackEntry) {
+                                        navController.getBackStackEntry(RecipeListGraph)
+                                    }
+                                    val viewModel = hiltViewModel<RecipeListViewModel>(parentEntry)
+
+                                    FilterScreen(
+                                        viewModel = viewModel,
+                                        navigateBack = { navController.popBackStack() }
+                                    )
+                                }
+                            }
                             composable<RecipeRoute> { RecipeScreen(
-                                navigateBack = { navController.popBackStack() }
-                            ) }
-                            composable<FilterRoute> { FilterScreen(
                                 navigateBack = { navController.popBackStack() }
                             ) }
                         }

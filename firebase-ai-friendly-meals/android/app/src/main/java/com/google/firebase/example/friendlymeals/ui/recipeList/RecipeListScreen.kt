@@ -52,6 +52,9 @@ import kotlinx.serialization.Serializable
 @Serializable
 object RecipeListRoute
 
+@Serializable
+object RecipeListGraph
+
 @Composable
 fun RecipeListScreen(
     viewModel: RecipeListViewModel = hiltViewModel(),
