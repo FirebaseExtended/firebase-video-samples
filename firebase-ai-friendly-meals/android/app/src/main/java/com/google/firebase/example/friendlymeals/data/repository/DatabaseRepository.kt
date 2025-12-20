@@ -56,7 +56,7 @@ class DatabaseRepository @Inject constructor(
         return databaseRemoteDataSource.getFavorite(userId, recipeId)
     }
 
-    suspend fun getFilteredRecipes(filterOptions: FilterOptions, userId: String): List<Recipe> {
-        return databaseRemoteDataSource.getFilteredRecipes(filterOptions, userId)
+    suspend fun getFilteredRecipeIds(filterOptions: FilterOptions, userId: String): List<String> {
+        return databaseRemoteDataSource.getFilteredRecipeIds(filterOptions, userId)
     }
 }

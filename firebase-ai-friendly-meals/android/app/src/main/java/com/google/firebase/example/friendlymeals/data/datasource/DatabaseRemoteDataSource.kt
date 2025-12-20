@@ -15,7 +15,6 @@ import com.google.firebase.firestore.Query.Direction.DESCENDING
 import com.google.firebase.firestore.SetOptions
 import com.google.firebase.firestore.pipeline.Expression.Companion.field
 import com.google.firebase.firestore.toObject
-import com.google.gson.Gson
 import kotlinx.coroutines.tasks.await
 import java.util.Locale
 import javax.inject.Inject
@@ -23,8 +22,6 @@ import javax.inject.Inject
 class DatabaseRemoteDataSource @Inject constructor(
     private val firestore: FirebaseFirestore
 ) {
-    val gson = Gson()
-
     fun addUser(user: User) {
         firestore.collection(USER_COLLECTION).add(user)
     }
@@ -158,12 +155,12 @@ class DatabaseRemoteDataSource @Inject constructor(
         return document != null
     }
 
-    suspend fun getFilteredRecipes(filterOptions: FilterOptions, userId: String): List<Recipe> {
+    suspend fun getFilteredRecipeIds(filterOptions: FilterOptions, userId: String): List<String> {
         var pipeline = firestore.pipeline().collection(RECIPE_COLLECTION)
 
         if (filterOptions.recipeTitle.isNotBlank()) {
             pipeline = pipeline
-                .where(field(TITLE_FIELD)
+                .where(field(TITLE_FIELD).toLower()
                     .stringContains(filterOptions.recipeTitle))
         }
 
@@ -204,15 +201,7 @@ class DatabaseRemoteDataSource @Inject constructor(
         }
 
         val results = pipeline.execute().await().results
-        val recipes = mutableListOf<Recipe>()
-
-        results.forEach {
-            val jsonString = gson.toJson(it.getData())
-            val recipe = gson.fromJson(jsonString, Recipe::class.java)
-            recipes.add(recipe)
-        }
-
-        return recipes
+        return results.mapNotNull { it.getId() }
     }
 
     companion object {

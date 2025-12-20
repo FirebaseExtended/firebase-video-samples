@@ -1,7 +1,6 @@
 package com.google.firebase.example.friendlymeals.ui.recipeList
 
 import com.google.firebase.example.friendlymeals.MainViewModel
-import com.google.firebase.example.friendlymeals.data.model.Recipe
 import com.google.firebase.example.friendlymeals.data.model.Tag
 import com.google.firebase.example.friendlymeals.data.repository.AuthRepository
 import com.google.firebase.example.friendlymeals.data.repository.DatabaseRepository
@@ -12,6 +11,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import javax.inject.Inject
 
 @HiltViewModel
@@ -32,23 +32,22 @@ class RecipeListViewModel @Inject constructor(
     val recipes: StateFlow<List<RecipeListItem>>
         get() = _recipes.asStateFlow()
 
+    init {
+        loadRecipes()
+        loadPopularTags()
+    }
+
     fun loadRecipes() {
         launchCatching {
-            val recipeListItems = mutableListOf<RecipeListItem>()
+            val recipeList = databaseRepository.getAllRecipes()
 
-            if (_filterOptions.value.isFilterOn) {
-                val userId = authRepository.currentUser?.uid.orEmpty()
-
-                databaseRepository
-                    .getFilteredRecipes(_filterOptions.value, userId)
-                    .forEach { recipeListItems.add(it.toRecipeListItem()) }
-            } else {
-                databaseRepository.getAllRecipes().forEach {
-                    recipeListItems.add(it.toRecipeListItem())
-                }
+            _recipes.value = recipeList.map {
+                RecipeListItem(
+                    id = it.id,
+                    title = it.title,
+                    averageRating = it.averageRating
+                )
             }
-
-            _recipes.value = recipeListItems
 
             loadImages()
         }
@@ -104,15 +103,19 @@ class RecipeListViewModel @Inject constructor(
         _filterOptions.value = FilterOptions()
     }
 
-    fun applyFilters() {
-        _filterOptions.value = _filterOptions.value.copy(isFilterOn = true)
-    }
+    fun applyFilters(navigateBack: () -> Unit) {
+        launchCatching {
+            val filter = _filterOptions.value
+            val userId = authRepository.currentUser?.uid.orEmpty()
+            val idsToKeep = databaseRepository.getFilteredRecipeIds(filter, userId)
 
-    private fun Recipe.toRecipeListItem(): RecipeListItem {
-        return RecipeListItem(
-            id = id,
-            title = title,
-            averageRating = averageRating
-        )
+            _recipes.update { currentList ->
+                currentList.filter { recipe ->
+                    idsToKeep.contains(recipe.id)
+                }
+            }
+
+            navigateBack()
+        }
     }
 }

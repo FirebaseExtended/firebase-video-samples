@@ -31,6 +31,10 @@ class RecipeViewModel @Inject constructor(
 
     val userId: String get() = authRepository.currentUser?.uid.orEmpty()
 
+    init {
+        loadRecipe()
+    }
+
     fun loadRecipe() {
         launchCatching {
             _recipeViewState.value = RecipeViewState(

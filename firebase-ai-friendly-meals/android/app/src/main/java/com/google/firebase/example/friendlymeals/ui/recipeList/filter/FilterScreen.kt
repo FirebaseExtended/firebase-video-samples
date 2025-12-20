@@ -34,7 +34,6 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -84,10 +83,6 @@ fun FilterScreen(
         filterOptions = filterOptions.value,
         tags = tags.value
     )
-
-    LaunchedEffect(true) {
-        viewModel.loadPopularTags()
-    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -101,7 +96,7 @@ fun FilterScreenContent(
     addTag: (String) -> Unit = {},
     updateSortBy: (SortByFilter) -> Unit = {},
     resetFilters: () -> Unit = {},
-    applyFilters: () -> Unit = {},
+    applyFilters: (() -> Unit) -> Unit = {},
     filterOptions: FilterOptions,
     tags: List<Tag>
 ) {
@@ -287,10 +282,7 @@ fun FilterScreenContent(
                 }
 
                 Button(
-                    onClick = {
-                        applyFilters()
-                        navigateBack()
-                    },
+                    onClick = { applyFilters(navigateBack) },
                     modifier = Modifier
                         .weight(1f)
                         .height(56.dp),

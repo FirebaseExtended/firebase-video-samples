@@ -3,7 +3,6 @@ package com.google.firebase.example.friendlymeals.ui.recipeList.filter
 import com.google.firebase.example.friendlymeals.ui.recipeList.filter.SortByFilter.RATING
 
 data class FilterOptions(
-    val isFilterOn: Boolean = false,
     val recipeTitle: String = "",
     val filterByMine: Boolean = false,
     val rating: Int = 0,

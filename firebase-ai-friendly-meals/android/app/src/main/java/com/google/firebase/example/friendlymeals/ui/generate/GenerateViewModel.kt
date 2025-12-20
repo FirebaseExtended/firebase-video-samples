@@ -25,6 +25,10 @@ class GenerateViewModel @Inject constructor(
     val viewState: StateFlow<GenerateViewState>
         get() = _viewState.asStateFlow()
 
+    init {
+        loadCurrentUser()
+    }
+
     fun loadCurrentUser() {
         launchCatching {
             if (authRepository.currentUser == null) {

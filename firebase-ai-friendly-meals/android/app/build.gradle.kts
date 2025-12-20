@@ -70,8 +70,6 @@ dependencies {
     // Firestore 99.0.0-pipeline.preview.1 has pipelines
     //TODO: use public preview library when it becomes available
     implementation("com.google.firebase:firebase-firestore:99.0.0-pipeline.preview.1")
-    //TODO: remove Gson once reflection becomes available in Pipelines
-    implementation("com.google.code.gson:gson:2.13.2")
 
     //Library to handle Markdown in Compose
     implementation(libs.richtext.commonmark)
