@@ -4,20 +4,17 @@ import com.google.firebase.example.friendlymeals.MainViewModel
 import com.google.firebase.example.friendlymeals.data.model.Tag
 import com.google.firebase.example.friendlymeals.data.repository.AuthRepository
 import com.google.firebase.example.friendlymeals.data.repository.DatabaseRepository
-import com.google.firebase.example.friendlymeals.data.repository.StorageRepository
 import com.google.firebase.example.friendlymeals.ui.recipeList.filter.FilterOptions
 import com.google.firebase.example.friendlymeals.ui.recipeList.filter.SortByFilter
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 import javax.inject.Inject
 
 @HiltViewModel
 class RecipeListViewModel @Inject constructor(
     private val authRepository: AuthRepository,
-    private val storageRepository: StorageRepository,
     private val databaseRepository: DatabaseRepository
 ) : MainViewModel() {
     private val _filterOptions = MutableStateFlow(FilterOptions())
@@ -33,31 +30,8 @@ class RecipeListViewModel @Inject constructor(
         get() = _recipes.asStateFlow()
 
     init {
-        loadRecipes()
-        loadPopularTags()
-    }
-
-    fun loadRecipes() {
         launchCatching {
             _recipes.value = databaseRepository.getAllRecipes()
-            loadImages()
-        }
-    }
-
-    suspend fun loadImages() {
-        _recipes.value.forEachIndexed { index, recipe ->
-            val uri = storageRepository.getImageUri(recipe.id)
-
-            _recipes.update { currentList ->
-                currentList.toMutableList().apply {
-                    this[index] = recipe.copy(imageUri = uri)
-                }
-            }
-        }
-    }
-
-    fun loadPopularTags() {
-        launchCatching {
             _tags.value = databaseRepository.getPopularTags()
         }
     }
@@ -93,7 +67,10 @@ class RecipeListViewModel @Inject constructor(
 
     fun resetFilters() {
         _filterOptions.value = FilterOptions()
-        loadRecipes()
+
+        launchCatching {
+            _recipes.value = databaseRepository.getAllRecipes()
+        }
     }
 
     fun applyFilters() {
@@ -102,7 +79,6 @@ class RecipeListViewModel @Inject constructor(
             val userId = authRepository.currentUser?.uid.orEmpty()
 
             _recipes.value = databaseRepository.getFilteredRecipes(filter, userId)
-            loadImages()
         }
     }
 }

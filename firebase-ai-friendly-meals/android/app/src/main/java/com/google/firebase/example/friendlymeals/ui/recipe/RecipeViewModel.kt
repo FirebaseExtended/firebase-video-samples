@@ -8,7 +8,6 @@ import com.google.firebase.example.friendlymeals.data.model.Review
 import com.google.firebase.example.friendlymeals.data.model.Save
 import com.google.firebase.example.friendlymeals.data.repository.AuthRepository
 import com.google.firebase.example.friendlymeals.data.repository.DatabaseRepository
-import com.google.firebase.example.friendlymeals.data.repository.StorageRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -19,7 +18,6 @@ import javax.inject.Inject
 class RecipeViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val authRepository: AuthRepository,
-    private val storageRepository: StorageRepository,
     private val databaseRepository: DatabaseRepository
 ) : MainViewModel() {
     private val recipeRoute = savedStateHandle.toRoute<RecipeRoute>()
@@ -40,8 +38,7 @@ class RecipeViewModel @Inject constructor(
             _recipeViewState.value = RecipeViewState(
                 recipe = databaseRepository.getRecipe(recipeId) ?: Recipe(),
                 favorite = loadFavorite(),
-                rating = loadRating(),
-                imageUri = loadImage()
+                rating = loadRating()
             )
         }
     }
@@ -52,10 +49,6 @@ class RecipeViewModel @Inject constructor(
 
     private suspend fun loadRating(): Int {
         return databaseRepository.getReview(userId, recipeId)
-    }
-
-    private suspend fun loadImage(): String {
-        return storageRepository.getImageUri(recipeId)
     }
 
     fun toggleFavorite() {

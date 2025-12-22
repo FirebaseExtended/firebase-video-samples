@@ -211,7 +211,8 @@ class DatabaseRemoteDataSource @Inject constructor(
             RecipeListItem(
                 id = itemData["id"] as? String ?: "",
                 title = itemData["title"] as? String ?: "",
-                averageRating = itemData["averageRating"] as? Double ?: 0.0
+                averageRating = itemData["averageRating"] as? Double ?: 0.0,
+                imageUri = itemData["imageUri"] as? String
             )
         }
     }

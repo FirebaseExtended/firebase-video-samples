@@ -97,10 +97,10 @@ fun RecipeScreenContent(
                                 .fillMaxSize()
                                 .background(Color.LightGray)
                         ) {
-                            if (recipeViewState.imageUri != null) {
+                            if (recipeViewState.recipe.imageUri != null) {
                                 AsyncImage(
                                     model = ImageRequest.Builder(LocalContext.current)
-                                        .data(recipeViewState.imageUri)
+                                        .data(recipeViewState.recipe.imageUri)
                                         .crossfade(true)
                                         .build(),
                                     contentDescription = stringResource(id = R.string.recipe_image_content_description),

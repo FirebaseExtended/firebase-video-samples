@@ -6,25 +6,22 @@ import kotlinx.coroutines.tasks.await
 import java.io.ByteArrayOutputStream
 import javax.inject.Inject
 import androidx.core.graphics.scale
+import java.util.UUID
 
 class StorageRemoteDataSource @Inject constructor(
     private val storageRef: StorageReference
 ) {
-    suspend fun addImage(image: Bitmap, recipeId: String) {
+    suspend fun addImage(image: Bitmap): String {
         val scaledBitmap = scaleBitmap(image)
-
-        val imagesRef = storageRef.child("images/$recipeId.webp")
         val stream = ByteArrayOutputStream()
-
         scaledBitmap.compress(Bitmap.CompressFormat.WEBP, 70, stream)
         val data = stream.toByteArray()
 
+        val randomId = UUID.randomUUID().toString()
+        val imagesRef = storageRef.child("images/$randomId.webp")
         imagesRef.putBytes(data).await()
-    }
 
-    suspend fun getImageUri(recipeId: String): String {
-        val uri = storageRef.child("images/$recipeId.webp").downloadUrl.await()
-        return uri.toString()
+        return imagesRef.downloadUrl.await().toString()
     }
 
     private fun scaleBitmap(source: Bitmap): Bitmap {

@@ -93,19 +93,21 @@ class GenerateViewModel @Inject constructor(
                 return@launchCatching
             }
 
+            val recipeImage = aiRepository.generateRecipePhoto(generatedRecipe.title)
+            var recipeImageUri: String? = null
+
+            if (recipeImage != null) {
+                recipeImageUri = storageRepository.addImage(recipeImage)
+            }
+
             databaseRepository.addTags(generatedRecipe.tags)
 
             val storedRecipeId = databaseRepository.addRecipe(
                 recipe = generatedRecipe.toRecipe(
-                    authorId = authRepository.currentUser?.uid.orEmpty()
+                    authorId = authRepository.currentUser?.uid.orEmpty(),
+                    imageUri = recipeImageUri
                 )
             )
-
-            val recipeImage = aiRepository.generateRecipePhoto(generatedRecipe.title)
-
-            if (recipeImage != null) {
-                storageRepository.addImage(recipeImage, storedRecipeId)
-            }
 
             _viewState.value = _viewState.value.copy(
                 recipeLoading = false
@@ -115,7 +117,7 @@ class GenerateViewModel @Inject constructor(
         }
     }
 
-    private fun RecipeSchema.toRecipe(authorId: String): Recipe {
+    private fun RecipeSchema.toRecipe(authorId: String, imageUri: String?): Recipe {
         return Recipe(
             title = title,
             instructions = instructions,
@@ -124,7 +126,8 @@ class GenerateViewModel @Inject constructor(
             tags = tags,
             prepTime = prepTime,
             cookTime = cookTime,
-            servings = servings
+            servings = servings,
+            imageUri = imageUri
         )
     }
 }

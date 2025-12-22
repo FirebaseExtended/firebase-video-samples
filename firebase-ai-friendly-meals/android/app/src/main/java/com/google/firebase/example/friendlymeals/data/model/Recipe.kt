@@ -11,5 +11,6 @@ data class Recipe(
     val saves: Int = 0,
     val prepTime: String = "",
     val cookTime: String = "",
-    val servings: String = ""
+    val servings: String = "",
+    val imageUri: String? = null
 )
