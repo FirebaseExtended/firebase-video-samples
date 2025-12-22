@@ -37,6 +37,7 @@ import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
@@ -126,7 +127,7 @@ private fun CameraButton(onClick: () -> Unit) {
             Spacer(modifier = Modifier.size(8.dp))
 
             Text(
-                text = "Take a picture of ingredients",
+                text = stringResource(R.string.camera_text),
                 color = Teal,
                 fontWeight = FontWeight.Medium
             )

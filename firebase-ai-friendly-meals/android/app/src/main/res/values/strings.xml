@@ -48,4 +48,5 @@
     <string name="nav_bar_scan_meal">Scan Meal</string>
     <string name="nav_bar_generate">Generate</string>
     <string name="nav_bar_recipe_list">Recipes</string>
+    <string name="camera_text">Take a picture of ingredients</string>
 </resources>

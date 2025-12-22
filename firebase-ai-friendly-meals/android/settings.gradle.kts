@@ -16,7 +16,6 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
-        //TODO: remove mavenLocal() once Pipelines is publicly available
         mavenLocal()
     }
 }

@@ -19,9 +19,7 @@ class StorageRemoteDataSource @Inject constructor(
         scaledBitmap.compress(Bitmap.CompressFormat.WEBP, 70, stream)
         val data = stream.toByteArray()
 
-        imagesRef.putBytes(data).addOnCompleteListener {
-            stream.close()
-        }.await()
+        imagesRef.putBytes(data).await()
     }
 
     suspend fun getImageUri(recipeId: String): String {
