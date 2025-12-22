@@ -17,21 +17,36 @@ class ScanMealViewModel @Inject constructor(
     val viewState: StateFlow<ScanMealViewState>
         get() = _viewState.asStateFlow()
 
-    fun onImageTaken(image: Bitmap?) {
+    fun onImageTaken(
+        image: Bitmap?,
+        showError: () -> Unit
+    ) {
+        if (image == null) {
+            showError()
+            return
+        }
+
         launchCatching {
-            if (image != null) {
+            _viewState.value = _viewState.value.copy(
+                scanLoading = true,
+                image = image,
+            )
+
+            val mealSchema = aiRepository.scanMeal(image)
+
+            if (mealSchema == null) {
                 _viewState.value = _viewState.value.copy(
-                    scanLoading = true,
-                    image = image,
+                    scanLoading = false
                 )
 
-                val mealSchema = aiRepository.scanMeal(image)
-
-                _viewState.value = _viewState.value.copy(
-                    scanLoading = false,
-                    mealSchema = mealSchema
-                )
+                showError()
+                return@launchCatching
             }
+
+            _viewState.value = _viewState.value.copy(
+                scanLoading = false,
+                mealSchema = mealSchema
+            )
         }
     }
 }

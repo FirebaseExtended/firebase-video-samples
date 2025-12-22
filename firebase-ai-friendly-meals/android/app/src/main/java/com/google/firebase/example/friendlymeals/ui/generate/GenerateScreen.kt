@@ -43,7 +43,8 @@ object GenerateRoute
 @Composable
 fun GenerateScreen(
     viewModel: GenerateViewModel = hiltViewModel(),
-    openRecipeScreen: (String) -> Unit
+    openRecipeScreen: (String) -> Unit,
+    showError: () -> Unit
 ) {
     val viewState = viewModel.viewState.collectAsStateWithLifecycle()
 
@@ -53,6 +54,7 @@ fun GenerateScreen(
         onImageTaken = viewModel::onImageTaken,
         onGenerateClick = viewModel::generateRecipe,
         openRecipeScreen = openRecipeScreen,
+        showError = showError,
         viewState = viewState.value
     )
 }
@@ -62,9 +64,10 @@ fun GenerateScreen(
 fun GenerateScreenContent(
     onIngredientsUpdated: (String) -> Unit = {},
     onNotesUpdated: (String) -> Unit = {},
-    onImageTaken: (Bitmap?) -> Unit = {},
-    onGenerateClick: ((String) -> Unit) -> Unit = {},
+    onImageTaken: (Bitmap?, () -> Unit) -> Unit = {_,_ ->},
+    onGenerateClick: ((String) -> Unit, () -> Unit) -> Unit = {_,_ ->},
     openRecipeScreen: (String) -> Unit = {},
+    showError: () -> Unit = {},
     viewState: GenerateViewState
 ) {
     Scaffold(
@@ -94,6 +97,7 @@ fun GenerateScreenContent(
                 onImageTaken = onImageTaken,
                 onGenerateClick = onGenerateClick,
                 openRecipeScreen = openRecipeScreen,
+                showError = showError,
                 viewState = viewState
             )
         }
@@ -105,9 +109,10 @@ fun IngredientsSection(
     modifier: Modifier = Modifier,
     onIngredientsUpdated: (String) -> Unit,
     onNotesUpdated: (String) -> Unit,
-    onImageTaken: (Bitmap?) -> Unit,
-    onGenerateClick: ((String) -> Unit) -> Unit,
+    onImageTaken: (Bitmap?, () -> Unit) -> Unit,
+    onGenerateClick: ((String) -> Unit, () -> Unit) -> Unit,
     openRecipeScreen: (String) -> Unit,
+    showError: () -> Unit,
     viewState: GenerateViewState
 ) {
     Column(modifier = modifier.fillMaxWidth()) {
@@ -146,7 +151,11 @@ fun IngredientsSection(
 
         Spacer(modifier = Modifier.size(24.dp))
 
-        CameraComponent(onImageTaken, isTopBarIcon = false)
+        CameraComponent(
+            onImageTaken = onImageTaken,
+            showError = showError,
+            isTopBarIcon = false
+        )
 
         Spacer(modifier = Modifier.size(24.dp))
 
@@ -194,7 +203,7 @@ fun IngredientsSection(
                 disabledContentColor = Color.Gray
             ),
             enabled = generateButtonEnabled,
-            onClick = { onGenerateClick(openRecipeScreen) }
+            onClick = { onGenerateClick(openRecipeScreen, showError) }
         ) {
             Text(
                 text = stringResource(id = R.string.generate_recipe_button_text),

@@ -25,6 +25,8 @@ class AIRemoteDataSource @Inject constructor(
     private val firebaseAI: FirebaseAI,
     private val remoteConfig: FirebaseRemoteConfig
 ) {
+    private val json = Json { ignoreUnknownKeys = true }
+
     private val generativeModel: GenerativeModel get() =
         firebaseAI.generativeModel(
             modelName = remoteConfig.getString("model_name"),
@@ -96,7 +98,7 @@ class AIRemoteDataSource @Inject constructor(
         return response.text.orEmpty()
     }
 
-    suspend fun generateRecipe(ingredients: String, notes: String): RecipeSchema {
+    suspend fun generateRecipe(ingredients: String, notes: String): RecipeSchema? {
         var prompt = """
             Create a detailed recipe based on these ingredients: $ingredients.
             
@@ -112,12 +114,10 @@ class AIRemoteDataSource @Inject constructor(
         }
 
         val response = recipeSchemaModel.generateContent(prompt)
-        val jsonString = response.text
 
-        return if (jsonString != null) {
-            val jsonParser = Json { ignoreUnknownKeys = true }
-            jsonParser.decodeFromString<RecipeSchema>(jsonString)
-        } else RecipeSchema()
+        return response.text?.let {
+            json.decodeFromString<RecipeSchema>(it)
+        }
     }
 
     suspend fun generateRecipePhoto(recipeTitle: String): Bitmap? {
@@ -139,7 +139,7 @@ class AIRemoteDataSource @Inject constructor(
         return imageResponse.images.firstOrNull()?.asBitmap()
     }
 
-    suspend fun scanMeal(image: Bitmap): MealSchema {
+    suspend fun scanMeal(image: Bitmap): MealSchema? {
         val prompt = content {
             image(image)
             text("""
@@ -151,11 +151,9 @@ class AIRemoteDataSource @Inject constructor(
         }
 
         val response = mealSchemaModel.generateContent(prompt)
-        val jsonString = response.text
 
-        return if (jsonString != null) {
-            val json = Json { ignoreUnknownKeys = true }
-            json.decodeFromString<MealSchema>(jsonString)
-        } else MealSchema()
+        return response.text?.let {
+            json.decodeFromString<MealSchema>(it)
+        }
     }
 }

@@ -52,19 +52,22 @@ object ScanMealRoute
 
 @Composable
 fun ScanMealScreen(
-    viewModel: ScanMealViewModel = hiltViewModel()
+    viewModel: ScanMealViewModel = hiltViewModel(),
+    showError: () -> Unit
 ) {
     val viewState = viewModel.viewState.collectAsStateWithLifecycle()
 
     ScanMealScreenContent(
         onImageTaken = viewModel::onImageTaken,
+        showError = showError,
         viewState = viewState.value
     )
 }
 
 @Composable
 fun ScanMealScreenContent(
-    onImageTaken: (Bitmap?) -> Unit = {},
+    onImageTaken: (Bitmap?, () -> Unit) -> Unit = {_,_ ->},
+    showError: () -> Unit = {},
     viewState: ScanMealViewState
 ) {
     val image = viewState.image?.asImageBitmap()
@@ -84,7 +87,10 @@ fun ScanMealScreenContent(
                     fontWeight = FontWeight.Bold
                 )
 
-                CameraComponent(onImageTaken)
+                CameraComponent(
+                    onImageTaken = onImageTaken,
+                    showError = showError
+                )
             }
         }
     ) { innerPadding ->

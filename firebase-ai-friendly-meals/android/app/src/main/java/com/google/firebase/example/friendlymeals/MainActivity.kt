@@ -13,6 +13,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
@@ -35,6 +36,7 @@ import com.google.firebase.example.friendlymeals.ui.scanMeal.ScanMealScreen
 import com.google.firebase.example.friendlymeals.ui.shared.BottomNavBar
 import com.google.firebase.example.friendlymeals.ui.theme.FriendlyMealsTheme
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -44,6 +46,7 @@ class MainActivity : ComponentActivity() {
         setSoftInputMode()
 
         setContent {
+            val scope = rememberCoroutineScope()
             val snackbarHostState = remember { SnackbarHostState() }
             val navController = rememberNavController()
 
@@ -62,12 +65,21 @@ class MainActivity : ComponentActivity() {
                             startDestination = GenerateRoute,
                             modifier = Modifier.padding(innerPadding)
                         ) {
-                            composable<ScanMealRoute> { ScanMealScreen() }
+                            composable<ScanMealRoute> { ScanMealScreen(
+                                showError = {
+                                    val message = this@MainActivity.getString(R.string.error_message)
+                                    scope.launch { snackbarHostState.showSnackbar(message) }
+                                }
+                            ) }
                             composable<GenerateRoute> { GenerateScreen(
                                 openRecipeScreen = { recipeId ->
                                     navController.navigate(RecipeRoute(recipeId)) {
                                         launchSingleTop = true
                                     }
+                                },
+                                showError = {
+                                    val message = this@MainActivity.getString(R.string.error_message)
+                                    scope.launch { snackbarHostState.showSnackbar(message) }
                                 }
                             ) }
                             navigation<RecipeListGraph>(startDestination = RecipeListRoute) {

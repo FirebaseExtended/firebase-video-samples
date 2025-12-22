@@ -50,24 +50,30 @@ class GenerateViewModel @Inject constructor(
         )
     }
 
-    fun onImageTaken(image: Bitmap?) {
+    fun onImageTaken(image: Bitmap?, showError: () -> Unit) {
+        if (image == null) {
+            showError()
+            return
+        }
+
         launchCatching {
-            if (image != null) {
-                _viewState.value = _viewState.value.copy(
-                    ingredientsLoading = true
-                )
+            _viewState.value = _viewState.value.copy(
+                ingredientsLoading = true
+            )
 
-                val ingredients = aiRepository.generateIngredients(image)
+            val ingredients = aiRepository.generateIngredients(image)
 
-                _viewState.value = _viewState.value.copy(
-                    ingredientsLoading = false,
-                    ingredients = ingredients
-                )
-            }
+            _viewState.value = _viewState.value.copy(
+                ingredientsLoading = false,
+                ingredients = ingredients
+            )
         }
     }
 
-    fun generateRecipe(openRecipeScreen: (String) -> Unit) {
+    fun generateRecipe(
+        openRecipeScreen: (String) -> Unit,
+        showError: () -> Unit
+    ) {
         launchCatching {
             _viewState.value = _viewState.value.copy(
                 recipeLoading = true
@@ -77,6 +83,15 @@ class GenerateViewModel @Inject constructor(
                 _viewState.value.ingredients,
                 _viewState.value.notes
             )
+
+            if (generatedRecipe == null) {
+                _viewState.value = _viewState.value.copy(
+                    recipeLoading = false
+                )
+
+                showError()
+                return@launchCatching
+            }
 
             databaseRepository.addTags(generatedRecipe.tags)
 

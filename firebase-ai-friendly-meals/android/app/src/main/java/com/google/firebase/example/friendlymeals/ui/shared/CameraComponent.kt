@@ -48,7 +48,8 @@ import java.io.File
 
 @Composable
 fun CameraComponent(
-    onImageTaken: (Bitmap?) -> Unit,
+    onImageTaken: (Bitmap?, () -> Unit) -> Unit,
+    showError: () -> Unit,
     isTopBarIcon: Boolean = true
 ) {
     val context = LocalContext.current
@@ -57,7 +58,7 @@ fun CameraComponent(
     val cameraLauncher = rememberLauncherForActivityResult(TakePicture()) { imageTaken ->
         if (imageTaken) {
             val imageBitmap = createImageBitmap(context, tempFileUrl)
-            onImageTaken(imageBitmap)
+            onImageTaken(imageBitmap, showError)
         } else {
             tempFileUrl = null
         }
