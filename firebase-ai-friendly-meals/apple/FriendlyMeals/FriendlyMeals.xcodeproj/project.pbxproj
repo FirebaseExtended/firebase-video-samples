@@ -384,10 +384,10 @@
 		};
 		88C8FB772E13DEE1001B86C4 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/firebase/firebase-ios-sdk.git";
+			repositoryURL = "/Users/morganchen/dev/firebase-ios-sdk";
 			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 12.0.0;
+				branch = "feat/pipeline/private-preview";
+				kind = branch;
 			};
 		};
 		88FF5D522ECF579900646871 /* XCRemoteSwiftPackageReference "ConversationKit" */ = {

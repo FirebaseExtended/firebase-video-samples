@@ -27,9 +27,6 @@ struct RecipeListView: View {
           VStack(alignment: .leading) {
             Text(recipe.title)
               .font(.headline)
-            Text(recipe.description)
-              .font(.subheadline)
-              .lineLimit(2)
           }
           Spacer()
           if recipe.isFavorite {
@@ -54,14 +51,7 @@ struct RecipeListView: View {
       .swipeActions(edge: .leading) {
         Button {
           Task {
-            var updatedRecipe = recipe
-            updatedRecipe.isFavorite = !recipe.isFavorite
-            do {
-              try await recipeStore.update(updatedRecipe)
-            }
-            catch {
-              print("Error favoriting recipe: \(error)")
-            }
+            // TODO: add recipe to favorites
           }
         } label: {
           Label("Favorite", systemImage: recipe.isFavorite ? "star.slash" : "star")

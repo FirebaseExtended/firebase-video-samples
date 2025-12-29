@@ -52,12 +52,9 @@ extension RecipeDetailsView: View {
               .font(.largeTitle)
               .bold()
 
-            Text(recipe.description)
-              .font(.body)
-
             HStack {
               Image(systemName: "clock")
-              Text("Cooking time: \(recipe.cookingTime) minutes")
+              Text("Cooking time: \(recipe.cookTime) minutes")
             }
             .font(.subheadline)
             .foregroundStyle(.secondary)
@@ -66,18 +63,13 @@ extension RecipeDetailsView: View {
               ForEach(recipe.ingredients, id: \.self) { ingredient in
                 HStack(alignment: .top) {
                   Text("•")
-                  Text("\(ingredient.amount) \(ingredient.name)")
+                  Text("\(ingredient)")
                 }
               }
             }
 
             Section("Instructions") {
-              ForEach(Array(recipe.instructions.enumerated()), id: \.offset) { index, instruction in
-                HStack(alignment: .top) {
-                  Text("\(index + 1).")
-                  Text(instruction)
-                }
-              }
+              Text(recipe.instructions)
             }
           }
           .padding()
@@ -106,30 +98,37 @@ extension RecipeDetailsView: View {
   RecipeDetailsView(
     recipe: Recipe(
       title: "Mushroom Risotto",
-      description: "A creamy and delicious risotto with mushrooms.",
-      cookingTime: 45,
+      instructions:
+        """
+        In a large pot, heat olive oil over medium heat. Add chopped onion and garlic and cook until softened.
+        Add the rice and stir for 1 minute until toasted.",
+        Pour in the white wine and cook until it has been absorbed, stirring constantly.
+        Add the vegetable broth, one ladle at a time, waiting until it is absorbed before adding more.
+        In a separate pan, cook the mushrooms with butter until browned.
+        Once the rice is cooked, stir in the mushrooms, parmesan cheese, salt, and pepper.
+        Serve immediately.
+        """
+      ,
       ingredients: [
-        .init(name: "Chicken stock", amount: "1 cup"),
-        .init(name: "Arborio rice", amount: "1 cup"),
-        .init(name: "Mushrooms", amount: "200g"),
-        .init(name: "Vegetable broth", amount: "4 cups"),
-        .init(name: "Onion", amount: "1"),
-        .init(name: "Parmesan cheese", amount: "1/2 cup"),
-        .init(name: "White wine", amount: "1/4 cup"),
-        .init(name: "Olive oil", amount: "2 tbsp"),
-        .init(name: "Garlic", amount: "2 cloves"),
-        .init(name: "Butter", amount: "2 tbsp"),
-        .init(name: "Salt and pepper", amount: "to taste")
+        "Chicken stock",
+        "Arborio rice",
+        "Mushrooms",
+        "Vegetable broth",
+        "Onion",
+        "Parmesan cheese",
+        "White wine",
+        "Olive oil",
+        "Garlic",
+        "Butter",
+        "Salt and pepper",
       ],
-      instructions: [
-        "In a large pot, heat olive oil over medium heat. Add chopped onion and garlic and cook until softened.",
-        "Add the rice and stir for 1 minute until toasted.",
-        "Pour in the white wine and cook until it has been absorbed, stirring constantly.",
-        "Add the vegetable broth, one ladle at a time, waiting until it is absorbed before adding more.",
-        "In a separate pan, cook the mushrooms with butter until browned.",
-        "Once the rice is cooked, stir in the mushrooms, parmesan cheese, salt, and pepper.",
-        "Serve immediately."
-      ]
+      authorId: "no author",
+      tags: [],
+      averageRating: 4.5,
+      imageUrl: "https://www.gstatic.com/devrel-devsite/prod/ve08add287a6b4bdf8961ab8a1be50bf551be3816cdd70b7cc934114ff3ad5f10/firebase/images/lockup.svg",
+      prepTime: "30 minutes",
+      cookTime: "10 minutes",
+      servings: "3-5 servings"
     ),
     image: UIImage(systemName: "photo")
   )

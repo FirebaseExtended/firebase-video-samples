@@ -20,25 +20,43 @@ import FirebaseFirestore
 
 struct Recipe: Codable, Identifiable, Hashable, RecipeRepresentable {
   @DocumentID var id: String?
-  
+
   var title: String
-  var description: String
-  var cookingTime: Int
-  var ingredients: [Ingredient]
-  var instructions: [String]
-  var isFavorite: Bool = false
-  
-  var userId: String?
+  var instructions: String
+  var ingredients: [String]
+  var authorId: String
+
+  // These are document IDs
+  var tags: [String]
+
+  var averageRating: Double
+  var imageUrl: String?
+
+  // These are display strings
+  var prepTime: String
+  var cookTime: String
+  var servings: String
+
+  // TODO: implement favorites
+  var isFavorite: Bool {
+    return false
+  }
+
 }
 
 extension Recipe {
   init(from representable: RecipeRepresentable) {
     self.init(
       title: representable.title,
-      description: representable.description,
-      cookingTime: representable.cookingTime,
+      instructions: representable.instructions,
       ingredients: representable.ingredients,
-      instructions: representable.instructions
+      authorId: representable.authorId,
+      tags: representable.tags,
+      averageRating: representable.averageRating,
+      imageUrl: representable.imageUrl,
+      prepTime: representable.prepTime,
+      cookTime: representable.cookTime,
+      servings: representable.servings
     )
   }
 }

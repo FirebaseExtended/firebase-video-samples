@@ -18,9 +18,23 @@
 import Foundation
 
 struct GeneratedRecipe: Decodable, RecipeRepresentable {
+
   var title: String
-  var description: String
-  var cookingTime: Int
-  var ingredients: [Ingredient]
-  var instructions: [String]
+  var instructions: String
+  var ingredients: [String]
+  var authorId: String
+
+  // These are plain strings
+  var tags: [String]
+
+  var averageRating: Double
+  var imageUrl: String?
+
+  // These are display strings
+  var prepTime: String
+  var cookTime: String
+  var servings: String
+
+  var isFavorite: Bool = false
+
 }

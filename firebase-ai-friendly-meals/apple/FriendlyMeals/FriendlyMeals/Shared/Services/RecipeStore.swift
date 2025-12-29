@@ -25,11 +25,11 @@ enum RecipeStoreError: Error {
 
 @Observable
 class RecipeStore {
-  private let db = Firestore.firestore()
-  private let collectionName = "recipes"
+  private let db = Firestore.firestore(database: "default")
+  private let collectionName = "recipe"
   private var listener: ListenerRegistration?
 
-  var recipes = [Recipe]()
+  private(set) var recipes = [Recipe]()
 
   func add(_ recipe: Recipe) async throws {
     let collection = db.collection(collectionName)

@@ -65,7 +65,7 @@ class MealPlannerSuggestionViewModel {
   private lazy var imageModel: GenerativeModel = {
     let firebaseAI = FirebaseAI.firebaseAI(backend: .googleAI())
     return firebaseAI.generativeModel(
-      modelName: "gemini-2.5-flash-image-preview",
+      modelName: "gemini-2.5-flash-image",
       generationConfig: GenerationConfig(responseModalities: [.image])
     )
   }()
@@ -113,7 +113,7 @@ class MealPlannerSuggestionViewModel {
   }
 
   func generateImage(for recipe: Recipe) async {
-    let prompt = "A photo of \(recipe.title), \(recipe.description)"
+    let prompt = "A photo of \(recipe.title)"
     do {
       let response = try await imageModel.generateContent(prompt)
       if let inlineDataPart = response.inlineDataParts.first {
