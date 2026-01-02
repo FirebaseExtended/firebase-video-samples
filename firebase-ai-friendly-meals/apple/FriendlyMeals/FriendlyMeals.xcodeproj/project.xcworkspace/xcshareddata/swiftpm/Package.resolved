@@ -1,5 +1,5 @@
 {
-  "originHash" : "05d72795e05374075d04b17f4d0c65713f56f4f16744d9f66f74c12863264f21",
+  "originHash" : "bd80d546fed06caab93cd06569babf8198ad71db04d05caf877691575db6d741",
   "pins" : [
     {
       "identity" : "abseil-cpp-swiftpm",
@@ -39,8 +39,8 @@
     },
     {
       "identity" : "firebase-ios-sdk",
-      "kind" : "localSourceControl",
-      "location" : "/Users/morganchen/dev/firebase-ios-sdk",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/firebase/firebase-ios-sdk",
       "state" : {
         "branch" : "feat/pipeline/private-preview",
         "revision" : "a693b2af72b48b824b2a9ee8b3577122c4452389"
