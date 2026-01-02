@@ -19,6 +19,7 @@ import SwiftUI
 
 struct RecipeListView: View {
   @Environment(RecipeStore.self) private var recipeStore
+  @State @MainActor private var showFilterView = false
 
   var body: some View {
     List(recipeStore.recipes) { recipe in
@@ -60,11 +61,39 @@ struct RecipeListView: View {
       }
     }
     .navigationTitle("Cookbook")
-    .onAppear {
-      recipeStore.fetchRecipes()
-    }
     .navigationDestination(for: Recipe.self) { recipe in
       RecipeDetailsView(recipe: recipe, image: nil)
+    }
+    .toolbar {
+      Button("Filters") {
+        showFilterView = true
+      }
+      .sheet(isPresented: $showFilterView) {
+        FilterView(tags: recipeStore.topTags) { configuration in
+          recipeStore.applyConfiguration(configuration)
+
+          Task {
+            do {
+              try await recipeStore.fetchRecipes()
+            } catch {
+              print("Unable to fetch filtered results: \(error)")
+            }
+            showFilterView = false
+          }
+        }
+      }
+    }
+    .task {
+      do {
+        try await recipeStore.fetchRecipes()
+      } catch {
+        print("Error fetching recipes: \(error)")
+      }
+      do {
+        try await recipeStore.fetchPopularTags()
+      } catch {
+        print("Error fetching tags: \(error)")
+      }
     }
   }
 }

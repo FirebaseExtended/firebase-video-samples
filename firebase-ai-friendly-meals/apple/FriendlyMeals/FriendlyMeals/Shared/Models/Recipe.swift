@@ -19,6 +19,7 @@ import Foundation
 import FirebaseFirestore
 
 struct Recipe: Codable, Identifiable, Hashable, RecipeRepresentable {
+  // Used for list rendering
   @DocumentID var id: String?
 
   var title: String
@@ -26,7 +27,7 @@ struct Recipe: Codable, Identifiable, Hashable, RecipeRepresentable {
   var ingredients: [String]
   var authorId: String
 
-  // These are document IDs
+  // These are plain strings
   var tags: [String]
 
   var averageRating: Double

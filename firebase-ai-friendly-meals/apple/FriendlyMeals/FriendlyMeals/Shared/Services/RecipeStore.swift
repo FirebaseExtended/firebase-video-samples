@@ -18,6 +18,7 @@
 import Foundation
 import Observation
 import FirebaseFirestore
+import FirebaseAuth
 
 enum RecipeStoreError: Error {
   case missingRecipeID
@@ -26,46 +27,136 @@ enum RecipeStoreError: Error {
 @Observable
 class RecipeStore {
   private let db = Firestore.firestore(database: "default")
-  private let collectionName = "recipe"
-  private var listener: ListenerRegistration?
+  private static let collectionName = "recipe"
 
-  private(set) var recipes = [Recipe]()
+  @MainActor private(set) var topTags: [String] = []
+  @MainActor private(set) var recipes = [Recipe]()
+
+  private static func defaultFilter(_ store: Firestore) -> Pipeline {
+    return store.pipeline().collection(collectionName).sort([Field("title").ascending()])
+  }
+
+  private var activeQuery: Pipeline {
+    let filter = activeFilters ?? RecipeStore.defaultFilter
+    return filter(db)
+  }
+
+  private var activeFilters: ((Firestore) -> Pipeline)?
+
+  private func applyConfiguration(_ configuration: FilterConfiguration,
+                                  to pipeline: Pipeline,
+                                  currentUserID: String? = Auth.auth().currentUser?.uid) -> Pipeline {
+    var filters = pipeline
+    if let id = currentUserID, configuration.shouldShowOnlyOwnRecipes {
+      filters = filters.where(Field("authorId").equal(id))
+    }
+
+    if !configuration.recipeTitle.isEmpty {
+      filters = filters.where(Field("title").like("%\(configuration.recipeTitle)%"))
+    }
+
+    if configuration.minimumRating > 0 {
+      filters = filters.where(Field("averageRating").greaterThanOrEqual(configuration.minimumRating))
+    }
+
+    if !configuration.selectedTags.isEmpty {
+      filters = filters.where(Field("tags").arrayContainsAny(Array(configuration.selectedTags)))
+    }
+
+    switch configuration.sortOption {
+    case .alphabetical:
+      filters = filters.sort([Field("title").ascending()])
+    case .rating:
+      filters = filters.sort([Field("averageRating").descending()])
+    case .popularity:
+      filters = filters.sort([Field("saves").descending()])
+    case .none:
+      break
+    @unknown default:
+      break
+    }
+
+    return filters
+  }
+
+  func applyConfiguration(_ configuration: FilterConfiguration) {
+    let output = { (store: Firestore) -> Pipeline in
+      return self.applyConfiguration(configuration, to: store.pipeline().collection(RecipeStore.collectionName))
+    }
+    activeFilters = output
+  }
 
   func add(_ recipe: Recipe) async throws {
-    let collection = db.collection(collectionName)
+    let collection = db.collection(RecipeStore.collectionName)
     try collection.addDocument(from: recipe)
   }
   
-  func fetchRecipes() {
-    listener?.remove()
-    let query = db.collection(collectionName).order(by: "title")
-    self.listener = query.addSnapshotListener { snapshot, error in
-      if let error {
-        print("Error fetching recipes: \(error)")
-        return
+  func fetchRecipes() async throws {
+    let query = activeQuery
+
+    let snapshot = try await query.execute()
+    self.recipes = snapshot.results.compactMap { result in
+      let imageURL = result.data["imageUrl"] as? String
+
+      guard let title = result.data["title"] as? String,
+        let instructions = result.data["instructions"] as? String,
+        let ingredients = result.data["ingredients"] as? [String],
+        let authorID = result.data["authorId"] as? String,
+        let tags = result.data["tags"] as? [String],
+        let averageRating = result.data["averageRating"] as? Double,
+        let prepTime = result.data["prepTime"] as? String,
+        let cookTime = result.data["cookTime"] as? String,
+        let servings = result.data["servings"] as? String,
+        let documentID = result.id else {
+        print("Unable to initialize recipes from data: \(result.data)")
+        return nil
       }
 
-      guard let snapshot else {
-        print("No recipes found")
-        return
-      }
+      var recipe = Recipe(
+        title: title,
+        instructions: instructions,
+        ingredients: ingredients,
+        authorId: authorID,
+        tags: tags,
+        averageRating: averageRating,
+        imageUrl: imageURL,
+        prepTime: prepTime,
+        cookTime: cookTime,
+        servings: servings
+      )
 
-      self.recipes = snapshot.documents.compactMap { document in
-        do {
-          return try document.data(as: Recipe.self)
-        } catch {
-          print("Failed to decode recipe with ID \(document.documentID): \(error)")
-          return nil
-        }
-      }
+      recipe.id = documentID
+      return recipe
     }
+  }
+
+  @discardableResult
+  func fetchPopularTags() async throws -> [String] {
+    let snapshot = try await db.pipeline()
+      .collection(RecipeStore.collectionName)
+      .select([Field("tags")])
+      .unnest(Field("tags").as("tagName"))
+      .aggregate(
+        [
+          CountAll().as("tagCount")
+        ], groups: [Field("tagName")]
+      )
+      .sort([Field("tagCount").descending()])
+      .limit(10)
+      .execute()
+
+    let results = snapshot.results.map { result in
+      return result.data["tagName"] as! String
+    }
+    topTags = results
+    return results
   }
 
   func delete(_ recipe: Recipe) async throws {
     guard let id = recipe.id else {
       throw RecipeStoreError.missingRecipeID
     }
-    let docRef = db.collection(collectionName).document(id)
+    let docRef = db.collection(RecipeStore.collectionName).document(id)
     try await docRef.delete()
   }
 
@@ -73,7 +164,7 @@ class RecipeStore {
     guard let id = recipe.id else {
       throw RecipeStoreError.missingRecipeID
     }
-    let docRef = db.collection(collectionName).document(id)
+    let docRef = db.collection(RecipeStore.collectionName).document(id)
     try docRef.setData(from: recipe, mergeFields: ["isFavorite"])
   }
 }
