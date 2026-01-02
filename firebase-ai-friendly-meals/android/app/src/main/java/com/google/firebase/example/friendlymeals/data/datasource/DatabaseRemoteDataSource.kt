@@ -1,5 +1,6 @@
 package com.google.firebase.example.friendlymeals.data.datasource
 
+import android.util.Log
 import com.google.firebase.example.friendlymeals.data.model.Recipe
 import com.google.firebase.example.friendlymeals.data.model.Review
 import com.google.firebase.example.friendlymeals.data.model.Save
@@ -12,12 +13,13 @@ import com.google.firebase.firestore.AggregateField
 import com.google.firebase.firestore.AggregateSource
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.Query.Direction.DESCENDING
+import com.google.firebase.firestore.PipelineResult
 import com.google.firebase.firestore.SetOptions
 import com.google.firebase.firestore.pipeline.Expression.Companion.field
 import com.google.firebase.firestore.toObject
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
+import kotlin.collections.mapNotNull
 
 class DatabaseRemoteDataSource @Inject constructor(
     private val firestore: FirebaseFirestore
@@ -41,10 +43,10 @@ class DatabaseRemoteDataSource @Inject constructor(
     }
 
     suspend fun getAllRecipes(): List<RecipeListItem> {
-        return firestore.collection(RECIPE_COLLECTION)
-            .get()
-            .await()
-            .toObjects(RecipeListItem::class.java)
+        return firestore
+            .pipeline()
+            .collection(RECIPE_COLLECTION)
+            .execute().await().results.toRecipeListItem()
     }
 
     suspend fun addTags(tagNames: List<String>) {
@@ -70,14 +72,32 @@ class DatabaseRemoteDataSource @Inject constructor(
     }
 
     suspend fun getPopularTags(): List<Tag> {
-        return firestore.collection(TAG_COLLECTION)
-            .orderBy(TOTAL_RECIPES_FIELD, DESCENDING)
+        val results = firestore.pipeline()
+            .collection(TAG_COLLECTION)
+            .sort(field(TOTAL_RECIPES_FIELD).descending())
             .limit(10)
-            .get()
-            .await()
-            .toObjects(Tag::class.java)
+            .execute().await().results
+
+        return results.mapNotNull { result ->
+            val itemData = result.getData()
+            val name = itemData["name"] as? String
+
+            if (name.isNullOrEmpty()) {
+                Log.w(this::class.java.simpleName, "Empty tag name")
+                return@mapNotNull null
+            }
+
+            Tag(
+                name = name,
+                totalRecipes = itemData["totalRecipes"] as? Int ?: 0
+            )
+        }
     }
 
+    /*
+    NOTE: The right way to do this is in a transaction via Cloud Function,
+    this function is here just for demonstrating aggregate
+     */
     suspend fun setReview(review: Review) {
         val recipeRef = firestore
             .collection(RECIPE_COLLECTION)
@@ -164,7 +184,7 @@ class DatabaseRemoteDataSource @Inject constructor(
         if (filterOptions.recipeTitle.isNotBlank()) {
             pipeline = pipeline
                 .where(field(TITLE_FIELD).toLower()
-                    .stringContains(filterOptions.recipeTitle))
+                    .stringContains(filterOptions.recipeTitle.lowercase()))
         }
 
         if (filterOptions.filterByMine) {
@@ -203,13 +223,21 @@ class DatabaseRemoteDataSource @Inject constructor(
             }
         }
 
-        val results = pipeline.execute().await().results
+        return pipeline.execute().await().results.toRecipeListItem()
+    }
 
-        return results.map {
-            val itemData = it.getData()
+    private fun List<PipelineResult>.toRecipeListItem(): List<RecipeListItem> {
+        return this.mapNotNull { result ->
+            val itemData = result.getData()
+            val id = itemData["id"] as? String
+
+            if (id.isNullOrEmpty()) {
+                Log.w(this::class.java.simpleName, "Empty ID for item $itemData")
+                return@mapNotNull null
+            }
 
             RecipeListItem(
-                id = itemData["id"] as? String ?: "",
+                id = id,
                 title = itemData["title"] as? String ?: "",
                 averageRating = itemData["averageRating"] as? Double ?: 0.0,
                 imageUri = itemData["imageUri"] as? String
