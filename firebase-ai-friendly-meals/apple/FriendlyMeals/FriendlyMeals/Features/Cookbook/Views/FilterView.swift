@@ -62,8 +62,7 @@ struct FilterView: View {
   private let applyFilters: (FilterConfiguration) -> ()
 
   @State private var tagSelections: [Bool]
-
-  @State private var configuration: FilterConfiguration = .init()
+  @State private var configuration: FilterConfiguration
 
   var body: some View {
     VStack(alignment: .leading) {
@@ -118,6 +117,10 @@ struct FilterView: View {
           tagSelections = tagSelections.map { _ in false }
         }
         Button("Apply filters") {
+          let selectedTags = tags.indices
+            .filter { tagSelections[$0] }
+            .map { tags[$0] }
+          configuration.selectedTags = Set(selectedTags)
           applyFilters(configuration)
         }
       }

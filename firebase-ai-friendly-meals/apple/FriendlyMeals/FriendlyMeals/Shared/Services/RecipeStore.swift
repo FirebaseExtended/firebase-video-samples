@@ -145,8 +145,8 @@ class RecipeStore {
       .limit(10)
       .execute()
 
-    let results = snapshot.results.map { result in
-      return result.data["tagName"] as! String
+    let results = snapshot.results.compactMap { result in
+      return result.data["tagName"] as? String
     }
     topTags = results
     return results
