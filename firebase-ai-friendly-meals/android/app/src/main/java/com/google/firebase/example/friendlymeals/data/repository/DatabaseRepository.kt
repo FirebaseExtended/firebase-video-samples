@@ -21,7 +21,7 @@ class DatabaseRepository @Inject constructor(
         return databaseRemoteDataSource.addRecipe(recipe)
     }
 
-    suspend fun getRecipe(recipeId: String): Recipe? {
+    suspend fun getRecipe(recipeId: String): Recipe {
         return databaseRemoteDataSource.getRecipe(recipeId)
     }
 

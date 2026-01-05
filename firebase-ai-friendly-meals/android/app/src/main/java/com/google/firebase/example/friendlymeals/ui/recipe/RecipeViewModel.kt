@@ -3,7 +3,6 @@ package com.google.firebase.example.friendlymeals.ui.recipe
 import androidx.lifecycle.SavedStateHandle
 import androidx.navigation.toRoute
 import com.google.firebase.example.friendlymeals.MainViewModel
-import com.google.firebase.example.friendlymeals.data.model.Recipe
 import com.google.firebase.example.friendlymeals.data.model.Review
 import com.google.firebase.example.friendlymeals.data.model.Save
 import com.google.firebase.example.friendlymeals.data.repository.AuthRepository
@@ -36,7 +35,7 @@ class RecipeViewModel @Inject constructor(
     fun loadRecipe() {
         launchCatching {
             _recipeViewState.value = RecipeViewState(
-                recipe = databaseRepository.getRecipe(recipeId) ?: Recipe(),
+                recipe = databaseRepository.getRecipe(recipeId),
                 favorite = loadFavorite(),
                 rating = loadRating()
             )

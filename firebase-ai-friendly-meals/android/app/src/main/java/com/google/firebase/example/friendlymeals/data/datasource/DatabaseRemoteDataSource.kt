@@ -19,6 +19,7 @@ import com.google.firebase.firestore.pipeline.Expression.Companion.field
 import com.google.firebase.firestore.toObject
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
+import kotlin.collections.first
 import kotlin.collections.mapNotNull
 
 class DatabaseRemoteDataSource @Inject constructor(
@@ -35,11 +36,12 @@ class DatabaseRemoteDataSource @Inject constructor(
         return recipeRef.id
     }
 
-    suspend fun getRecipe(recipeId: String): Recipe? {
-        return firestore
-            .collection(RECIPE_COLLECTION)
-            .document(recipeId)
-            .get().await().toObject()
+    suspend fun getRecipe(recipeId: String): Recipe {
+        return firestore.pipeline().documents(
+            firestore
+                .collection(RECIPE_COLLECTION)
+                .document(recipeId)
+        ).execute().await().results.toRecipe()
     }
 
     suspend fun getAllRecipes(): List<RecipeListItem> {
@@ -166,13 +168,13 @@ class DatabaseRemoteDataSource @Inject constructor(
     }
 
     suspend fun getFavorite(userId: String, recipeId: String): Boolean {
-        val document = firestore.collection(SAVE_COLLECTION)
-            .document("${recipeId}_${userId}")
-            .get()
-            .await()
-            .toObject<Save>()
+        val results = firestore.pipeline().documents(
+            firestore
+                .collection(SAVE_COLLECTION)
+                .document("${recipeId}_${userId}")
+        ).execute().await().results
 
-        return document != null
+        return results.isNotEmpty()
     }
 
     suspend fun getFilteredRecipes(
@@ -224,6 +226,25 @@ class DatabaseRemoteDataSource @Inject constructor(
         }
 
         return pipeline.execute().await().results.toRecipeListItem()
+    }
+
+    private fun List<PipelineResult>.toRecipe(): Recipe {
+        val itemData = this.first().getData()
+
+        return Recipe(
+            id = itemData["id"] as? String ?: "",
+            title = itemData["title"] as? String ?: "",
+            instructions = itemData["instructions"] as? String ?: "",
+            ingredients = (itemData["ingredients"] as? List<*>)?.filterIsInstance<String>() ?: listOf(),
+            authorId = itemData["authorId"] as? String ?: "",
+            tags = (itemData["tags"] as? List<*>)?.filterIsInstance<String>() ?: listOf(),
+            averageRating = (itemData["averageRating"] as? Number)?.toDouble() ?: 0.0,
+            saves = (itemData["saves"] as? Number)?.toInt() ?: 0,
+            prepTime = itemData["prepTime"] as? String ?: "",
+            cookTime = itemData["cookTime"] as? String ?: "",
+            servings = itemData["servings"] as? String ?: "",
+            imageUri = itemData["imageUri"] as? String
+        )
     }
 
     private fun List<PipelineResult>.toRecipeListItem(): List<RecipeListItem> {
