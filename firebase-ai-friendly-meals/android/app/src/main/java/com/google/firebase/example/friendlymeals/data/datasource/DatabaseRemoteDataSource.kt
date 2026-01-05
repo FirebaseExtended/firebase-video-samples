@@ -9,14 +9,13 @@ import com.google.firebase.example.friendlymeals.data.model.User
 import com.google.firebase.example.friendlymeals.ui.recipeList.RecipeListItem
 import com.google.firebase.example.friendlymeals.ui.recipeList.filter.FilterOptions
 import com.google.firebase.example.friendlymeals.ui.recipeList.filter.SortByFilter
-import com.google.firebase.firestore.AggregateField
-import com.google.firebase.firestore.AggregateSource
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.PipelineResult
 import com.google.firebase.firestore.SetOptions
+import com.google.firebase.firestore.pipeline.AggregateFunction
+import com.google.firebase.firestore.pipeline.AggregateStage
 import com.google.firebase.firestore.pipeline.Expression.Companion.field
-import com.google.firebase.firestore.toObject
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 import kotlin.collections.first
@@ -37,11 +36,12 @@ class DatabaseRemoteDataSource @Inject constructor(
     }
 
     suspend fun getRecipe(recipeId: String): Recipe {
-        return firestore.pipeline().documents(
-            firestore
-                .collection(RECIPE_COLLECTION)
-                .document(recipeId)
-        ).execute().await().results.toRecipe()
+        val recipePath = "${RECIPE_COLLECTION}/${recipeId}"
+
+        return firestore
+            .pipeline()
+            .documents(recipePath)
+            .execute().await().results.toRecipe()
     }
 
     suspend fun getAllRecipes(): List<RecipeListItem> {
@@ -82,7 +82,7 @@ class DatabaseRemoteDataSource @Inject constructor(
 
         return results.mapNotNull { result ->
             val itemData = result.getData()
-            val name = itemData["name"] as? String
+            val name = itemData[NAME_FIELD] as? String
 
             if (name.isNullOrEmpty()) {
                 Log.w(this::class.java.simpleName, "Empty tag name")
@@ -91,7 +91,7 @@ class DatabaseRemoteDataSource @Inject constructor(
 
             Tag(
                 name = name,
-                totalRecipes = itemData["totalRecipes"] as? Int ?: 0
+                totalRecipes = itemData[TOTAL_RECIPES_FIELD] as? Int ?: 0
             )
         }
     }
@@ -116,27 +116,37 @@ class DatabaseRemoteDataSource @Inject constructor(
     }
 
     private suspend fun getAverageRatingForRecipe(recipeId: String): Double {
-        val collection = firestore.collection(RECIPE_COLLECTION)
-            .document(recipeId)
-            .collection(REVIEW_SUBCOLLECTION)
+        val collectionPath = "${RECIPE_COLLECTION}/${recipeId}/${REVIEW_SUBCOLLECTION}"
 
-        val snapshot = collection.aggregate(AggregateField.average(RATING_FIELD))
-            .get(AggregateSource.SERVER)
-            .await()
+        val results = firestore
+            .pipeline()
+            .collection(collectionPath)
+            .aggregate(
+                AggregateStage.withAccumulators(
+                AggregateFunction
+                    .average(RATING_FIELD)
+                    .alias(AVG_RATING_ALIAS)
+                )
+            ).execute().await().results
 
-        return snapshot.get(AggregateField.average(RATING_FIELD)) ?: 0.0
+        val itemData = results.first().getData()
+        return (itemData[AVG_RATING_ALIAS] as? Number)?.toDouble() ?: 0.0
     }
 
     suspend fun getReview(userId: String, recipeId: String): Int {
-        val document = firestore.collection(RECIPE_COLLECTION)
-            .document(recipeId)
-            .collection(REVIEW_SUBCOLLECTION)
-            .document("${recipeId}_${userId}")
-            .get()
-            .await()
-            .toObject<Review>()
+        val reviewId = "${recipeId}_${userId}"
+        val reviewPath = "${RECIPE_COLLECTION}/${recipeId}/${REVIEW_SUBCOLLECTION}/${reviewId}"
 
-        return document?.rating ?: 0
+        val results = firestore
+            .pipeline()
+            .documents(reviewPath)
+            .execute().await().results
+
+        if (results.isEmpty()) return 0
+
+        val reviewData = results.first().getData()
+
+        return (reviewData[RATING_FIELD] as? Number)?.toInt() ?: 0
     }
 
     suspend fun setFavorite(save: Save) {
@@ -168,13 +178,13 @@ class DatabaseRemoteDataSource @Inject constructor(
     }
 
     suspend fun getFavorite(userId: String, recipeId: String): Boolean {
-        val results = firestore.pipeline().documents(
-            firestore
-                .collection(SAVE_COLLECTION)
-                .document("${recipeId}_${userId}")
-        ).execute().await().results
+        val favoriteId = "${recipeId}_${userId}"
+        val favoritePath = "${SAVE_COLLECTION}/${favoriteId}"
 
-        return results.isNotEmpty()
+        return firestore
+            .pipeline()
+            .documents(favoritePath)
+            .execute().await().results.isNotEmpty()
     }
 
     suspend fun getFilteredRecipes(
@@ -232,25 +242,25 @@ class DatabaseRemoteDataSource @Inject constructor(
         val itemData = this.first().getData()
 
         return Recipe(
-            id = itemData["id"] as? String ?: "",
-            title = itemData["title"] as? String ?: "",
-            instructions = itemData["instructions"] as? String ?: "",
-            ingredients = (itemData["ingredients"] as? List<*>)?.filterIsInstance<String>() ?: listOf(),
-            authorId = itemData["authorId"] as? String ?: "",
-            tags = (itemData["tags"] as? List<*>)?.filterIsInstance<String>() ?: listOf(),
-            averageRating = (itemData["averageRating"] as? Number)?.toDouble() ?: 0.0,
-            saves = (itemData["saves"] as? Number)?.toInt() ?: 0,
-            prepTime = itemData["prepTime"] as? String ?: "",
-            cookTime = itemData["cookTime"] as? String ?: "",
-            servings = itemData["servings"] as? String ?: "",
-            imageUri = itemData["imageUri"] as? String
+            id = itemData[ID_FIELD] as? String ?: "",
+            title = itemData[TITLE_FIELD] as? String ?: "",
+            instructions = itemData[INSTRUCTIONS_FIELD] as? String ?: "",
+            ingredients = (itemData[INGREDIENTS_FIELD] as? List<*>)?.filterIsInstance<String>() ?: listOf(),
+            authorId = itemData[AUTHOR_ID_FIELD] as? String ?: "",
+            tags = (itemData[TAGS_FIELD] as? List<*>)?.filterIsInstance<String>() ?: listOf(),
+            averageRating = (itemData[AVERAGE_RATING_FIELD] as? Number)?.toDouble() ?: 0.0,
+            saves = (itemData[SAVES_FIELD] as? Number)?.toInt() ?: 0,
+            prepTime = itemData[PREP_TIME_FIELD] as? String ?: "",
+            cookTime = itemData[COOK_TIME_FIELD] as? String ?: "",
+            servings = itemData[SERVINGS_FIELD] as? String ?: "",
+            imageUri = itemData[IMAGE_URI_FIELD] as? String
         )
     }
 
     private fun List<PipelineResult>.toRecipeListItem(): List<RecipeListItem> {
         return this.mapNotNull { result ->
             val itemData = result.getData()
-            val id = itemData["id"] as? String
+            val id = itemData[ID_FIELD] as? String
 
             if (id.isNullOrEmpty()) {
                 Log.w(this::class.java.simpleName, "Empty ID for item $itemData")
@@ -259,9 +269,9 @@ class DatabaseRemoteDataSource @Inject constructor(
 
             RecipeListItem(
                 id = id,
-                title = itemData["title"] as? String ?: "",
-                averageRating = itemData["averageRating"] as? Double ?: 0.0,
-                imageUri = itemData["imageUri"] as? String
+                title = itemData[TITLE_FIELD] as? String ?: "",
+                averageRating = itemData[AVERAGE_RATING_FIELD] as? Double ?: 0.0,
+                imageUri = itemData[IMAGE_URI_FIELD] as? String
             )
         }
     }
@@ -275,6 +285,7 @@ class DatabaseRemoteDataSource @Inject constructor(
         private const val REVIEW_SUBCOLLECTION = "review"
 
         //Fields
+        private const val ID_FIELD = "id"
         private const val RATING_FIELD = "rating"
         private const val NAME_FIELD = "name"
         private const val TOTAL_RECIPES_FIELD = "totalRecipes"
@@ -283,5 +294,14 @@ class DatabaseRemoteDataSource @Inject constructor(
         private const val TITLE_FIELD = "title"
         private const val TAGS_FIELD = "tags"
         private const val SAVES_FIELD = "saves"
+        private const val IMAGE_URI_FIELD = "imageUri"
+        private const val PREP_TIME_FIELD = "prepTime"
+        private const val COOK_TIME_FIELD = "cookTime"
+        private const val SERVINGS_FIELD = "servings"
+        private const val INSTRUCTIONS_FIELD = "instructions"
+        private const val INGREDIENTS_FIELD = "ingredients"
+
+        //Field aliases
+        private const val AVG_RATING_ALIAS = "avg_rating"
     }
 }
