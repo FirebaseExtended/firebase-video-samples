@@ -35,7 +35,7 @@ class RecipeStore {
   @MainActor private(set) var recipes = [Recipe]()
 
   private static func defaultFilter(_ store: Firestore) -> Pipeline {
-    return store.pipeline().collection(collectionName).sort([Field("title").ascending()])
+    return store.pipeline().collection(collectionName)
   }
 
   private var activeQuery: Pipeline {

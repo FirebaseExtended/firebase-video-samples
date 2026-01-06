@@ -389,8 +389,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
 			requirement = {
-				branch = "feat/pipeline/private-preview";
-				kind = branch;
+				kind = revision;
+				revision = 1f7389bad09aa93c9eeb508e70013207813a4df2;
 			};
 		};
 		88FF5D522ECF579900646871 /* XCRemoteSwiftPackageReference "ConversationKit" */ = {
