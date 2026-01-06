@@ -17,6 +17,7 @@
 
 import SwiftUI
 import FirebaseCore
+import FirebaseAuth
 
 @main
 struct FriendlyMealsApp: App {
@@ -60,13 +61,19 @@ struct FriendlyMealsApp: App {
 
       }
       .environment(recipeStore)
-      .onAppear {
-        Task {
-          do {
-            try await RemoteConfigService.shared.fetchConfig()
-          } catch {
-            print("Failed to fetch remote config: \(error)")
-          }
+      .task {
+        // Fetch Remote Config params
+        do {
+          try await RemoteConfigService.shared.fetchConfig()
+        } catch {
+          print("Failed to fetch remote config: \(error)")
+        }
+
+        // Setup auth
+        do {
+          try await Auth.auth().signInAnonymously()
+        } catch {
+          print("Failed to authenticate anonymous user: \(error)")
         }
       }
     }
