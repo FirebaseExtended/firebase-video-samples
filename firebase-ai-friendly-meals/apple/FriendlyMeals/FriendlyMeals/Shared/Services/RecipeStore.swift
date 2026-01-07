@@ -99,7 +99,7 @@ class RecipeStore {
 
     let snapshot = try await query.execute()
     self.recipes = snapshot.results.compactMap { result in
-      let imageURL = result.data["imageUrl"] as? String
+      let imageURL = result.data["imageUri"] as? String
 
       guard let title = result.data["title"] as? String,
         let instructions = result.data["instructions"] as? String,

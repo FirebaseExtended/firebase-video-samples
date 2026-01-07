@@ -69,7 +69,13 @@ extension RecipeDetailsView: View {
             }
 
             Section("Instructions") {
-              Text(recipe.instructions)
+              let markdownRender = try? AttributedString(
+                markdown: recipe.instructions,
+                options: AttributedString.MarkdownParsingOptions(
+                  interpretedSyntax: .inlineOnlyPreservingWhitespace
+                )
+              )
+              markdownRender.map(Text.init) ?? Text(recipe.instructions)
             }
           }
           .padding()

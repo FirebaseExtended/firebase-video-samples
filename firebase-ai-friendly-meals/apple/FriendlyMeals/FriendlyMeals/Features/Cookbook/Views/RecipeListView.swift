@@ -25,6 +25,13 @@ struct RecipeListView: View {
     List(recipeStore.recipes) { recipe in
       NavigationLink(value: recipe) {
         HStack {
+          AsyncImage(
+            url: recipe.imageUrl.flatMap(URL.init(string:))
+          )
+          .scaledToFill()
+          .frame(width: 80, height: 80)
+          .clipShape(Capsule())
+          .padding(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 8))
           VStack(alignment: .leading) {
             Text(recipe.title)
               .font(.headline)
