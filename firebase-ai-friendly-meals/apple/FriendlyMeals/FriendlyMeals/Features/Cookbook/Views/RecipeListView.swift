@@ -69,7 +69,7 @@ struct RecipeListView: View {
     }
     .navigationTitle("Cookbook")
     .navigationDestination(for: Recipe.self) { recipe in
-      RecipeDetailsView(recipe: recipe, image: nil)
+      RecipeDetailsView(recipe: recipe)
     }
     .toolbar {
       Button("Filters") {

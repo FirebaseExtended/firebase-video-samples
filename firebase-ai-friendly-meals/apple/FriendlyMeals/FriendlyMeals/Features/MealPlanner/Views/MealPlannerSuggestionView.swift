@@ -62,7 +62,6 @@ struct MealPlannerSuggestionView: View {
       NavigationStack {
         RecipeDetailsView(
           recipe: viewModel.recipe,
-          image: viewModel.recipeImage,
           errorMessage: viewModel.errorMessage,
           isNew: true,
           onSave: {

@@ -21,14 +21,12 @@ struct RecipeDetailsView {
   @Environment(\.dismiss) private var dismiss
 
   let recipe: Recipe?
-  let image: UIImage?
   let errorMessage: String?
   var isNew = false
   var onSave: (() -> Void)? = nil
 
-  init(recipe: Recipe?, image: UIImage?, errorMessage: String? = nil, isNew: Bool = false, onSave: (() -> Void)? = nil) {
+  init(recipe: Recipe?, errorMessage: String? = nil, isNew: Bool = false, onSave: (() -> Void)? = nil) {
     self.recipe = recipe
-    self.image = image
     self.errorMessage = errorMessage
     self.isNew = isNew
     self.onSave = onSave
@@ -39,12 +37,15 @@ extension RecipeDetailsView: View {
   var body: some View {
     ScrollView {
       VStack(alignment: .leading) {
-        if let image {
-          Image(uiImage: image)
+        let url = recipe?.imageUrl.flatMap(URL.init)
+        AsyncImage(url: url) { image in
+          image
             .resizable()
             .scaledToFit()
             .cornerRadius(8)
             .padding(.horizontal)
+        } placeholder: {
+          Color.gray
         }
         if let recipe {
           VStack(alignment: .leading, spacing: 16) {
@@ -54,7 +55,7 @@ extension RecipeDetailsView: View {
 
             HStack {
               Image(systemName: "clock")
-              Text("Cooking time: \(recipe.cookTime) minutes")
+              Text("Cooking time: \(recipe.cookTime)")
             }
             .font(.subheadline)
             .foregroundStyle(.secondary)
@@ -136,14 +137,12 @@ extension RecipeDetailsView: View {
       cookTime: "10 minutes",
       servings: "3-5 servings"
     ),
-    image: UIImage(systemName: "photo")
   )
 }
 
 #Preview("With Error") {
   RecipeDetailsView(
     recipe: nil,
-    image: nil,
     errorMessage: "An error occurred while generating the recipe: The operation couldn’t be completed. (GoogleGenerativeAI.GenerateContentError error 1.)"
   )
 }
