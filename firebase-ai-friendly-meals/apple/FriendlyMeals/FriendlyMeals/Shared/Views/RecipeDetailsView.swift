@@ -88,6 +88,20 @@ extension RecipeDetailsView: View {
               )
               markdownRender.map(Text.init) ?? Text(recipe.instructions)
             }
+            Section(header: Text("Tags").font(.subheadline)) {
+              ScrollView(.horizontal, showsIndicators: true) {
+                HStack {
+                  ForEach(recipe.tags, id: \.self) { tag in
+                    Text(tag)
+                      .font(.caption.bold())
+                      .foregroundColor(.white)
+                      .padding(EdgeInsets(top: 4, leading: 8, bottom: 4, trailing: 8))
+                      .background(.green)
+                      .clipShape(Capsule())
+                  }
+                }
+              }
+            }
           }
           .padding()
         }
