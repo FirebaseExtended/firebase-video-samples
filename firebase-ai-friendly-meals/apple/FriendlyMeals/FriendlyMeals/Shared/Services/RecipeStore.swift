@@ -27,15 +27,20 @@ enum RecipeStoreError: Error {
 @Observable
 class RecipeStore {
   private let db = Firestore.firestore(database: "default")
-  private static let collectionName = "recipes"
 
   private(set) var filterConfiguration: FilterConfiguration? = nil
+
+  private static let recipeCollection = "recipes"
+  private static let savesCollection = "save"
 
   @MainActor private(set) var topTags: [String] = []
   @MainActor private(set) var recipes = [Recipe]()
 
+  // A list of just recipe IDs, for faster lookup.
+  @MainActor private(set) var saves = Set<String>()
+
   private static func defaultFilter(_ store: Firestore) -> Pipeline {
-    return store.pipeline().collection(collectionName)
+    return store.pipeline().collection(recipeCollection)
   }
 
   private var activeQuery: Pipeline {
@@ -84,17 +89,17 @@ class RecipeStore {
   func applyConfiguration(_ configuration: FilterConfiguration) {
     filterConfiguration = configuration
     let output = { (store: Firestore) -> Pipeline in
-      return self.applyConfiguration(configuration, to: store.pipeline().collection(RecipeStore.collectionName))
+      return self.applyConfiguration(configuration, to: store.pipeline().collection(RecipeStore.recipeCollection))
     }
     activeFilters = output
   }
 
   func add(_ recipe: Recipe) async throws {
-    let collection = db.collection(RecipeStore.collectionName)
+    let collection = db.collection(RecipeStore.recipeCollection)
     try collection.addDocument(from: recipe)
   }
   
-  func fetchRecipes() async throws {
+  func fetchRecipes(withUserID userID: String? = Auth.auth().currentUser?.uid) async throws {
     let query = activeQuery
 
     let snapshot = try await query.execute()
@@ -131,12 +136,17 @@ class RecipeStore {
       recipe.id = documentID
       return recipe
     }
+
+    if let id = userID {
+      let saves = try await fetchSaves(forUserID: id).map { $0.recipeId }
+      self.saves = Set(saves)
+    }
   }
 
   @discardableResult
   func fetchPopularTags() async throws -> [String] {
     let snapshot = try await db.pipeline()
-      .collection(RecipeStore.collectionName)
+      .collection(RecipeStore.recipeCollection)
       .select([Field("tags")])
       .unnest(Field("tags").as("tagName"))
       .aggregate(
@@ -159,7 +169,7 @@ class RecipeStore {
     guard let id = recipe.id else {
       throw RecipeStoreError.missingRecipeID
     }
-    let docRef = db.collection(RecipeStore.collectionName).document(id)
+    let docRef = db.collection(RecipeStore.recipeCollection).document(id)
     try await docRef.delete()
   }
 
@@ -167,7 +177,52 @@ class RecipeStore {
     guard let id = recipe.id else {
       throw RecipeStoreError.missingRecipeID
     }
-    let docRef = db.collection(RecipeStore.collectionName).document(id)
+    let docRef = db.collection(RecipeStore.recipeCollection).document(id)
     try docRef.setData(from: recipe, mergeFields: ["isFavorite"])
   }
+}
+
+// Favorites/Saves
+extension RecipeStore {
+
+  func fetchSave(for recipeID: String, userID: String) async throws -> RecipeSave? {
+    let documentID = RecipeSave(userID: userID, recipeID: recipeID).compositeID
+    let snapshot = try await db.collection(RecipeStore.savesCollection).document(documentID).getDocument()
+    if snapshot.data()?.isEmpty ?? false {
+      return nil
+    }
+
+    let save = try snapshot.data(as: RecipeSave.self)
+    return save
+  }
+
+  func addSave(_ save: RecipeSave) throws {
+    try db.collection(RecipeStore.savesCollection).document(save.compositeID).setData(from: save)
+    saves.insert(save.recipeId)
+  }
+
+  func fetchSaves(forUserID userID: String) async throws -> [RecipeSave] {
+    let snapshot = try await db.pipeline().collection(RecipeStore.savesCollection)
+      .where(Field("userId").equal(userID))
+      .execute()
+    let saves = try snapshot.results.map { result in
+      guard let userID = result.data["userId"] as? String,
+            let recipeID = result.data["recipeId"] as? String else {
+        let error = NSError(domain: "FIRAuthSampleErrorDomain",
+                            code: 2,
+                            userInfo: [NSLocalizedDescriptionKey: "Could not decode RecipeSave from Firestore document: \(result)"])
+        throw error
+      }
+      return RecipeSave(userID: userID, recipeID: recipeID)
+    }
+    print(saves)
+    return saves
+  }
+
+  func isSaved(_ recipe: Recipe) -> Bool {
+    return recipe.id.flatMap {
+      return saves.contains($0)
+    } ?? false
+  }
+
 }

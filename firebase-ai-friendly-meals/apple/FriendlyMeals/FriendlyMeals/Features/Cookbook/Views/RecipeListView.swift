@@ -37,7 +37,7 @@ struct RecipeListView: View {
               .font(.headline)
           }
           Spacer()
-          if recipe.isFavorite {
+          if recipeStore.isSaved(recipe) {
             Image(systemName: "star.fill")
               .foregroundColor(.yellow)
           }
@@ -58,13 +58,21 @@ struct RecipeListView: View {
       }
       .swipeActions(edge: .leading) {
         Button {
-          Task {
-            // TODO: add recipe to favorites
+          if let id = recipe.id, let save = RecipeSave(recipeID: id) {
+            Task {
+              do {
+                try recipeStore.addSave(save)
+                print("Saved")
+              } catch {
+                print("Unable to save recipe: \(error)")
+              }
+            }
           }
+          // TODO: This button has to also delete saves
         } label: {
-          Label("Favorite", systemImage: recipe.isFavorite ? "star.slash" : "star")
+          Label("Favorite", systemImage: recipeStore.isSaved(recipe) ? "star.slash" : "star")
         }
-        .tint(recipe.isFavorite ? .gray : .yellow)
+        .tint(recipeStore.isSaved(recipe) ? .gray : .yellow)
       }
     }
     .navigationTitle("Cookbook")
