@@ -26,7 +26,7 @@ struct RecipeListView: View {
       NavigationLink(value: recipe) {
         HStack {
           AsyncImage(
-            url: recipe.imageUrl.flatMap(URL.init(string:))
+            url: recipe.imageUri.flatMap(URL.init(string:))
           )
           .scaledToFill()
           .frame(width: 80, height: 80)

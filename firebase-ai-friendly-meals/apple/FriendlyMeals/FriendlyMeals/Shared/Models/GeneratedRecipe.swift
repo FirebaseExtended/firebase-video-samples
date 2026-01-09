@@ -17,24 +17,23 @@
 
 import Foundation
 
+/// Represents a recipe generated from Gemini.
+/// Don't add any user state to this struct or it will fail to properly decode from
+/// Gemini-generated JSON.
 struct GeneratedRecipe: Decodable, RecipeRepresentable {
 
   var title: String
   var instructions: String
   var ingredients: [String]
-  var authorId: String
 
   // These are plain strings
   var tags: [String]
 
-  var averageRating: Double
-  var imageUrl: String?
+  var imageUri: String?
 
   // These are display strings
   var prepTime: String
   var cookTime: String
   var servings: String
-
-  var isFavorite: Bool = false
 
 }

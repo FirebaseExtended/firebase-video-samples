@@ -122,7 +122,7 @@ class RecipeStore {
         authorId: authorID,
         tags: tags,
         averageRating: averageRating,
-        imageUrl: imageURL,
+        imageUri: imageURL,
         prepTime: prepTime,
         cookTime: cookTime,
         servings: servings

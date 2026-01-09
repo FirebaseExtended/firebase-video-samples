@@ -15,6 +15,7 @@
 		88C8FB7A2E13DF62001B86C4 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 88C8FB792E13DF62001B86C4 /* FirebaseCore */; };
 		8D1628B12EE8D9180038870D /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 8D1628B02EE8D9180038870D /* GoogleService-Info.plist */; };
 		8DAB5BA32F04A0FE000D464B /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 8DAB5BA22F04A0FE000D464B /* FirebaseAuth */; };
+		8DAB5BA82F107BA3000D464B /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 8DAB5BA72F107BA3000D464B /* FirebaseStorage */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -40,6 +41,7 @@
 				88C8FB7A2E13DF62001B86C4 /* FirebaseCore in Frameworks */,
 				887565922E86D6D80041DDEF /* FirebaseRemoteConfig in Frameworks */,
 				884ECEF72E8ABF9400E3B0CB /* FirebaseFirestore in Frameworks */,
+				8DAB5BA82F107BA3000D464B /* FirebaseStorage in Frameworks */,
 				8DAB5BA32F04A0FE000D464B /* FirebaseAuth in Frameworks */,
 				88BE941E2E1413D000C81FF5 /* FirebaseAI in Frameworks */,
 			);
@@ -104,6 +106,7 @@
 				884ECEF62E8ABF9400E3B0CB /* FirebaseFirestore */,
 				88FF5D532ECF579900646871 /* ConversationKit */,
 				8DAB5BA22F04A0FE000D464B /* FirebaseAuth */,
+				8DAB5BA72F107BA3000D464B /* FirebaseStorage */,
 			);
 			productName = FriendlyMeals;
 			productReference = 88C8FB652E13D879001B86C4 /* FriendlyMeals.app */;
@@ -117,7 +120,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 2600;
-				LastUpgradeCheck = 2600;
+				LastUpgradeCheck = 2610;
 				TargetAttributes = {
 					88C8FB642E13D879001B86C4 = {
 						CreatedOnToolsVersion = 26.0;
@@ -229,6 +232,7 @@
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
@@ -286,6 +290,7 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				VALIDATE_PRODUCT = YES;
 			};
@@ -454,6 +459,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 88C8FB772E13DEE1001B86C4 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseAuth;
+		};
+		8DAB5BA72F107BA3000D464B /* FirebaseStorage */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 88C8FB772E13DEE1001B86C4 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseStorage;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

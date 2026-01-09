@@ -62,13 +62,12 @@ struct MealPlannerSuggestionView: View {
       NavigationStack {
         RecipeDetailsView(
           recipe: viewModel.recipe,
+          placeholderImage: viewModel.recipeImage,
           errorMessage: viewModel.errorMessage,
           isNew: true,
           onSave: {
-            if let recipe = viewModel.recipe {
-              Task {
-                try? await recipeStore.add(recipe)
-              }
+            Task {
+              await viewModel.addRecipe(to: recipeStore)
             }
           }
         )

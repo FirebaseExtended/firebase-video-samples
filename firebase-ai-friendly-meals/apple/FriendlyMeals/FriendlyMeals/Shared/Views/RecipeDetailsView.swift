@@ -22,14 +22,16 @@ struct RecipeDetailsView {
 
   let recipe: Recipe?
   let errorMessage: String?
+  let placeholderImage: UIImage?
   var isNew = false
   var onSave: (() -> Void)? = nil
 
-  init(recipe: Recipe?, errorMessage: String? = nil, isNew: Bool = false, onSave: (() -> Void)? = nil) {
+  init(recipe: Recipe?, placeholderImage: UIImage? = nil, errorMessage: String? = nil, isNew: Bool = false, onSave: (() -> Void)? = nil) {
     self.recipe = recipe
     self.errorMessage = errorMessage
     self.isNew = isNew
     self.onSave = onSave
+    self.placeholderImage = placeholderImage
   }
 }
 
@@ -37,7 +39,7 @@ extension RecipeDetailsView: View {
   var body: some View {
     ScrollView {
       VStack(alignment: .leading) {
-        let url = recipe?.imageUrl.flatMap(URL.init)
+        let url = recipe?.imageUri.flatMap(URL.init)
         AsyncImage(url: url) { image in
           image
             .resizable()
@@ -45,7 +47,15 @@ extension RecipeDetailsView: View {
             .cornerRadius(8)
             .padding(.horizontal)
         } placeholder: {
-          Color.gray
+          if let placeholderImage {
+            Image(uiImage: placeholderImage)
+              .resizable()
+              .scaledToFit()
+              .cornerRadius(8)
+              .padding(.horizontal)
+          } else {
+            Color.gray
+          }
         }
         if let recipe {
           VStack(alignment: .leading, spacing: 16) {
@@ -132,7 +142,7 @@ extension RecipeDetailsView: View {
       authorId: "no author",
       tags: [],
       averageRating: 4.5,
-      imageUrl: "https://www.gstatic.com/devrel-devsite/prod/ve08add287a6b4bdf8961ab8a1be50bf551be3816cdd70b7cc934114ff3ad5f10/firebase/images/lockup.svg",
+      imageUri: "https://www.gstatic.com/devrel-devsite/prod/ve08add287a6b4bdf8961ab8a1be50bf551be3816cdd70b7cc934114ff3ad5f10/firebase/images/lockup.svg",
       prepTime: "30 minutes",
       cookTime: "10 minutes",
       servings: "3-5 servings"
