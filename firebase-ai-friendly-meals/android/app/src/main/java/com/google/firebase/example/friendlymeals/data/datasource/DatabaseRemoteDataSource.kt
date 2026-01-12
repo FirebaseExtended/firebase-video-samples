@@ -24,8 +24,8 @@ import kotlin.collections.mapNotNull
 class DatabaseRemoteDataSource @Inject constructor(
     private val firestore: FirebaseFirestore
 ) {
-    fun addUser(user: User) {
-        firestore.collection(USER_COLLECTION).add(user)
+    suspend fun addUser(user: User) {
+        firestore.collection(USER_COLLECTION).add(user).await()
     }
 
     suspend fun addRecipe(recipe: Recipe): String {
@@ -99,6 +99,10 @@ class DatabaseRemoteDataSource @Inject constructor(
     /*
     NOTE: The right way to do this is in a transaction via Cloud Function,
     this function is here just for demonstrating aggregate
+
+    To enforce a "one review per user" constraint, Review documents use a deterministic ID based on
+    the following pattern: "${recipeId}_${userId}". With this approach, you can retrieve a specific
+    review instantly without searching the entire collection.
      */
     suspend fun setReview(review: Review) {
         val recipeRef = firestore
@@ -133,7 +137,7 @@ class DatabaseRemoteDataSource @Inject constructor(
         return (itemData[AVG_RATING_ALIAS] as? Number)?.toDouble() ?: 0.0
     }
 
-    suspend fun getReview(userId: String, recipeId: String): Int {
+    suspend fun getRating(userId: String, recipeId: String): Int {
         val reviewId = "${recipeId}_${userId}"
         val reviewPath = "${RECIPE_COLLECTION}/${recipeId}/${REVIEW_SUBCOLLECTION}/${reviewId}"
 
@@ -149,6 +153,11 @@ class DatabaseRemoteDataSource @Inject constructor(
         return (reviewData[RATING_FIELD] as? Number)?.toInt() ?: 0
     }
 
+    /*
+    To enforce a "one favorite per user" constraint, Save documents use a deterministic ID based on
+    the following pattern: "${recipeId}_${userId}". With this approach, you can retrieve a specific
+    Save document instantly without searching the entire collection.
+     */
     suspend fun setFavorite(save: Save) {
         val saveRef = firestore
             .collection(SAVE_COLLECTION)

@@ -47,7 +47,7 @@ class RecipeViewModel @Inject constructor(
     }
 
     private suspend fun loadRating(): Int {
-        return databaseRepository.getReview(userId, recipeId)
+        return databaseRepository.getRating(userId, recipeId)
     }
 
     fun toggleFavorite() {

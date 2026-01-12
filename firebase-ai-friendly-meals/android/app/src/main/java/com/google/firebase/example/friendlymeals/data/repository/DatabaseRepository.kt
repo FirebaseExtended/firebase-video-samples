@@ -13,7 +13,7 @@ import javax.inject.Inject
 class DatabaseRepository @Inject constructor(
     private val databaseRemoteDataSource: DatabaseRemoteDataSource
 ) {
-    fun addUser(user: User) {
+    suspend fun addUser(user: User) {
         databaseRemoteDataSource.addUser(user)
     }
 
@@ -41,8 +41,8 @@ class DatabaseRepository @Inject constructor(
         databaseRemoteDataSource.setReview(review)
     }
 
-    suspend fun getReview(userId: String, recipeId: String): Int {
-        return databaseRemoteDataSource.getReview(userId, recipeId)
+    suspend fun getRating(userId: String, recipeId: String): Int {
+        return databaseRemoteDataSource.getRating(userId, recipeId)
     }
 
     suspend fun setFavorite(save: Save) {

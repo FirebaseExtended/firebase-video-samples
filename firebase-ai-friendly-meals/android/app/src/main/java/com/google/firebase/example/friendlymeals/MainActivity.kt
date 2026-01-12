@@ -65,23 +65,27 @@ class MainActivity : ComponentActivity() {
                             startDestination = GenerateRoute,
                             modifier = Modifier.padding(innerPadding)
                         ) {
-                            composable<ScanMealRoute> { ScanMealScreen(
-                                showError = {
-                                    val message = this@MainActivity.getString(R.string.error_message)
-                                    scope.launch { snackbarHostState.showSnackbar(message) }
-                                }
-                            ) }
-                            composable<GenerateRoute> { GenerateScreen(
-                                openRecipeScreen = { recipeId ->
-                                    navController.navigate(RecipeRoute(recipeId)) {
-                                        launchSingleTop = true
+                            composable<ScanMealRoute> {
+                                ScanMealScreen(
+                                    showError = {
+                                        val message = this@MainActivity.getString(R.string.error_message)
+                                        scope.launch { snackbarHostState.showSnackbar(message) }
                                     }
-                                },
-                                showError = {
-                                    val message = this@MainActivity.getString(R.string.error_message)
-                                    scope.launch { snackbarHostState.showSnackbar(message) }
-                                }
-                            ) }
+                                )
+                            }
+                            composable<GenerateRoute> {
+                                GenerateScreen(
+                                    openRecipeScreen = { recipeId ->
+                                        navController.navigate(RecipeRoute(recipeId)) {
+                                            launchSingleTop = true
+                                        }
+                                    },
+                                    showError = {
+                                        val message = this@MainActivity.getString(R.string.error_message)
+                                        scope.launch { snackbarHostState.showSnackbar(message) }
+                                    }
+                                )
+                            }
                             navigation<RecipeListGraph>(startDestination = RecipeListRoute) {
                                 composable<RecipeListRoute> { backStackEntry ->
                                     val parentEntry = remember(backStackEntry) {
