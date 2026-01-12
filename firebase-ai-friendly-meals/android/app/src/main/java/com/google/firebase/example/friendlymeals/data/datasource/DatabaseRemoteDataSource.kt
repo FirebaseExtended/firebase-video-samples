@@ -123,9 +123,9 @@ class DatabaseRemoteDataSource @Inject constructor(
             .collection(collectionPath)
             .aggregate(
                 AggregateStage.withAccumulators(
-                AggregateFunction
-                    .average(RATING_FIELD)
-                    .alias(AVG_RATING_ALIAS)
+                    AggregateFunction
+                        .average(RATING_FIELD)
+                        .alias(AVG_RATING_ALIAS)
                 )
             ).execute().await().results
 
@@ -195,8 +195,10 @@ class DatabaseRemoteDataSource @Inject constructor(
 
         if (filterOptions.recipeTitle.isNotBlank()) {
             pipeline = pipeline
-                .where(field(TITLE_FIELD).toLower()
-                    .stringContains(filterOptions.recipeTitle.lowercase()))
+                .where(
+                    field(TITLE_FIELD).toLower()
+                        .stringContains(filterOptions.recipeTitle.lowercase())
+                )
         }
 
         if (filterOptions.filterByMine) {

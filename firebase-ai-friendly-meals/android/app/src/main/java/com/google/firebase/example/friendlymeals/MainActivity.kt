@@ -115,9 +115,11 @@ class MainActivity : ComponentActivity() {
                                     )
                                 }
                             }
-                            composable<RecipeRoute> { RecipeScreen(
-                                navigateBack = { navController.popBackStack() }
-                            ) }
+                            composable<RecipeRoute> {
+                                RecipeScreen(
+                                    navigateBack = { navController.popBackStack() }
+                                )
+                            }
                         }
                     }
                 }

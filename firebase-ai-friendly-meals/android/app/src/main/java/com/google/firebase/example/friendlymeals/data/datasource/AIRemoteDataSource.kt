@@ -142,12 +142,14 @@ class AIRemoteDataSource @Inject constructor(
     suspend fun scanMeal(image: Bitmap): MealSchema? {
         val prompt = content {
             image(image)
-            text("""
-            Analyze this image of a meal and estimate the nutritional content.
-            Return the result in JSON format matching the schema:
-            - protein, fat, carbs, sugar (strings with units, e.g., '20g')
-            - ingredients (list of strings)
-        """.trimIndent())
+            text(
+                """
+                Analyze this image of a meal and estimate the nutritional content.
+                Return the result in JSON format matching the schema:
+                - protein, fat, carbs, sugar (strings with units, e.g., '20g')
+                - ingredients (list of strings)
+                """.trimIndent()
+            )
         }
 
         val response = mealSchemaModel.generateContent(prompt)
