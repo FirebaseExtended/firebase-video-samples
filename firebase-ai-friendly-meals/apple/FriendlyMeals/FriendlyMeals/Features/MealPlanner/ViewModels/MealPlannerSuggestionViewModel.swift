@@ -145,4 +145,22 @@ class MealPlannerSuggestionViewModel {
     }
   }
 
+  func writeSave(_ shouldSave: Bool, to store: RecipeStore) {
+    guard let save = recipe?.id.flatMap({
+      RecipeSave(recipeID: $0)
+    }) else {
+      print("No recipe to save")
+      return
+    }
+    do {
+      if shouldSave {
+        try store.addSave(save)
+      } else {
+        store.removeSave(save)
+      }
+    } catch {
+      print("Error writing save to store: \(error)")
+    }
+  }
+
 }

@@ -24,13 +24,23 @@ struct RecipeDetailsView {
   let errorMessage: String?
   let placeholderImage: UIImage?
   var isNew = false
-  var onSave: (() -> Void)? = nil
+  @State var isSaved = false
+  var onSaveToServer: (() -> Void)? = nil
+  var onSaveToUser: ((Bool) -> Void)? = nil
 
-  init(recipe: Recipe?, placeholderImage: UIImage? = nil, errorMessage: String? = nil, isNew: Bool = false, onSave: (() -> Void)? = nil) {
+  init(recipe: Recipe?,
+       placeholderImage: UIImage? = nil,
+       errorMessage: String? = nil,
+       isNew: Bool = false,
+       isSaved: Bool = false,
+       onSaveToServer: (() -> Void)? = nil,
+       onSaveToUser: ((Bool) -> Void)? = nil) {
     self.recipe = recipe
     self.errorMessage = errorMessage
     self.isNew = isNew
-    self.onSave = onSave
+    self.isSaved = isSaved
+    self.onSaveToServer = onSaveToServer
+    self.onSaveToUser = onSaveToUser
     self.placeholderImage = placeholderImage
   }
 }
@@ -115,10 +125,18 @@ extension RecipeDetailsView: View {
     .toolbar {
       if isNew {
         Button(action: {
-          onSave?()
+          onSaveToServer?()
           dismiss()
         }) {
           Label("Save", systemImage: "square.and.arrow.down")
+        }
+      } else {
+        Button(action: {
+          onSaveToUser?(!isSaved)
+          isSaved = !isSaved
+        }) {
+          let imageName = isSaved ? "heart.fill" : "heart"
+          Label("Save", systemImage: imageName)
         }
       }
     }

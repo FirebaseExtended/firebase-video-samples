@@ -21,6 +21,10 @@ struct MealPlannerSuggestionView: View {
   @State private var viewModel = MealPlannerSuggestionViewModel()
   @Environment(RecipeStore.self) private var recipeStore
 
+  var recipeIsSaved: Bool {
+    return viewModel.recipe.flatMap { recipeStore.isSaved($0) } ?? false
+  }
+
   var body: some View {
     Form {
       Section("Ingredients") {
@@ -65,10 +69,14 @@ struct MealPlannerSuggestionView: View {
           placeholderImage: viewModel.recipeImage,
           errorMessage: viewModel.errorMessage,
           isNew: true,
-          onSave: {
+          isSaved: recipeIsSaved,
+          onSaveToServer: {
             Task {
               await viewModel.addRecipe(to: recipeStore)
             }
+          },
+          onSaveToUser: { shouldSave in
+            viewModel.writeSave(shouldSave, to: recipeStore)
           }
         )
         .toolbar {

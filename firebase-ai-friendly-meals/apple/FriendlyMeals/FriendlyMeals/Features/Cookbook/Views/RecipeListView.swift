@@ -58,17 +58,23 @@ struct RecipeListView: View {
       }
       .swipeActions(edge: .leading) {
         Button {
-          if let id = recipe.id, let save = RecipeSave(recipeID: id) {
+          guard let save = recipe.id.flatMap({
+            RecipeSave(recipeID: $0)
+          }) else {
+            // User tried to save while unauthenticated
+            return
+          }
+          if recipeStore.isSaved(recipe) {
+            recipeStore.removeSave(save)
+          } else {
             Task {
               do {
                 try recipeStore.addSave(save)
-                print("Saved")
               } catch {
                 print("Unable to save recipe: \(error)")
               }
             }
           }
-          // TODO: This button has to also delete saves
         } label: {
           Label("Favorite", systemImage: recipeStore.isSaved(recipe) ? "star.slash" : "star")
         }
@@ -77,7 +83,20 @@ struct RecipeListView: View {
     }
     .navigationTitle("Cookbook")
     .navigationDestination(for: Recipe.self) { recipe in
-      RecipeDetailsView(recipe: recipe)
+      RecipeDetailsView(recipe: recipe,
+                        isSaved: recipeStore.isSaved(recipe),
+                        onSaveToUser: { shouldSave in
+        guard let save = recipe.id.flatMap({ RecipeSave(recipeID: $0) }) else { return }
+        if shouldSave {
+          do {
+            try recipeStore.addSave(save)
+          } catch {
+            print("Couldn't write save \(save) for recipe: \(recipe)")
+          }
+        } else {
+          recipeStore.removeSave(save)
+        }
+      })
     }
     .toolbar {
       Button("Filters") {

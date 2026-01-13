@@ -201,6 +201,11 @@ extension RecipeStore {
     saves.insert(save.recipeId)
   }
 
+  func removeSave(_ save: RecipeSave) {
+    db.collection(RecipeStore.savesCollection).document(save.compositeID).delete()
+    saves.remove(save.recipeId)
+  }
+
   func fetchSaves(forUserID userID: String) async throws -> [RecipeSave] {
     let snapshot = try await db.pipeline().collection(RecipeStore.savesCollection)
       .where(Field("userId").equal(userID))

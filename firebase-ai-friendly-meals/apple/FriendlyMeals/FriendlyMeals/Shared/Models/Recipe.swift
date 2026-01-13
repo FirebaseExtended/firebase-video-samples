@@ -38,11 +38,6 @@ struct Recipe: Codable, Identifiable, Hashable, RecipeRepresentable {
   var cookTime: String
   var servings: String
 
-  // TODO: implement favorites
-  var isFavorite: Bool {
-    return false
-  }
-
 }
 
 extension Recipe {
