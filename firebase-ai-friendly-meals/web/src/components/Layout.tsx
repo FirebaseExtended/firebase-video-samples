@@ -6,7 +6,7 @@ import {
   NavigationMenuList,
 } from "@/components/ui/navigation-menu"
 import { Outlet } from "react-router";
-import { useMatch } from "react-router";
+import { useMatch, Link } from "react-router";
 
 const MenuLink: React.FC<{ href: string, label: string }> = ({ href, label }) => {
   const active = useMatch(href);
@@ -14,7 +14,7 @@ const MenuLink: React.FC<{ href: string, label: string }> = ({ href, label }) =>
 
   return (
     <NavigationMenuLink asChild active={active !== null} className={classes}>
-      <a href={href}>{label}</a>
+      <Link to={href}>{label}</Link>
     </NavigationMenuLink>
   )
 }

@@ -3,6 +3,7 @@ import Markdown from "react-markdown";
 import { Button } from "@/components/ui/button";
 import { saveRecipe, type Recipe } from "../firebase/data";
 import { getUser } from "../firebase/auth";
+import { useNavigate } from "react-router";
 
 interface Ingredient {
   title: string;
@@ -14,25 +15,24 @@ interface Instruction {
   description: string;
 }
 
-export interface StructuredJsonRecipe {
-  ingredients: Ingredient[];
-  instructions: Instruction[];
-}
-
 interface GeneratedRecipeProp {
   data: GeneratedRecipeData;
 }
 
 export interface GeneratedRecipeData {
-  textRecipe?: string;
   errorMessage?: string;
-  structuredRecipe?: StructuredJsonRecipe;
+  structuredRecipe?: Recipe;
 }
 
 const GeneratedRecipe: React.FC<GeneratedRecipeProp> = ({
   data,
 }: GeneratedRecipeProp) => {
+  console.log(JSON.stringify(data, null, 2));
+  const navigate = useNavigate();
   const handleSave = async () => {
+    if (!data.structuredRecipe) {
+      return;
+    }
     const user = await getUser();
     if (user) {
       // If we are in the text recipe view (checked first), save text.
@@ -54,56 +54,39 @@ const GeneratedRecipe: React.FC<GeneratedRecipeProp> = ({
         imageUri: ""
       };
 
-      if (data.textRecipe) {
-        recipeToSave = {
-          ...baseRecipe,
-          instructions: data.textRecipe,
-          ingredients: []
-        };
-      } else if (data.structuredRecipe) {
-        recipeToSave = {
-          ...baseRecipe,
-          instructions: data.structuredRecipe.instructions.map(i => i.description).join('\n'),
-          ingredients: data.structuredRecipe.ingredients.map(i => `${i.amount} ${i.unit} ${i.title}`)
-        };
-      }
-      if (recipeToSave) {
-        await saveRecipe(user.uid, recipeToSave);
-        alert("Recipe saved!");
-      }
+      recipeToSave = {
+        ...baseRecipe,
+        ...(data.structuredRecipe)
+      };
+
+      const savedRecipeId = await saveRecipe(user.uid, recipeToSave);
+      navigate(`/recipes/${savedRecipeId}`);
     }
   };
 
-  if (data.textRecipe)
-    return (
-      <div className="flex flex-col items-start gap-4">
-        <div className="prose prose-slate">
-          <Markdown>{data.textRecipe}</Markdown>
-        </div>
-        <Button onClick={handleSave}>Save Recipe</Button>
-      </div>
-    );
   if (data.errorMessage) return <div>{data.errorMessage}</div>;
 
-
   if (data.structuredRecipe) {
-
     return (
       <div className="flex flex-col items-start gap-4">
         <div className="prose prose-slate">
+          <h2>{data.structuredRecipe.title}</h2>
+          <ul>
+            <li>Prep Time: {data.structuredRecipe.prepTime} minutes</li>
+            <li>Cook Time: {data.structuredRecipe.cookTime} minutes</li>
+            <li>Serves: {data.structuredRecipe.servings}</li>
+          </ul>
           <h3>Ingredients</h3>
           <ul>
             {data.structuredRecipe.ingredients.map((ingredient, index) => (
               <li key={index}>
-                {ingredient.title} {ingredient.amount} {ingredient.unit}
+                {ingredient}
               </li>
             ))}
           </ul>
           <h3>Instructions</h3>
           <ol>
-            {data.structuredRecipe.instructions.map((instruction, index) => (
-              <li key={index}>{instruction.description}</li>
-            ))}
+            {data.structuredRecipe.instructions}
           </ol>
         </div>
         <Button onClick={handleSave}>Save Recipe</Button>

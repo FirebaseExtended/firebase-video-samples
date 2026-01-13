@@ -1,5 +1,6 @@
 import { getGenerativeModel, Schema, type Part } from "firebase/ai";
 import { ai } from "./firebase";
+import type { Recipe } from "../data";
 
 // Calls Gemini to return text recipe based on ingredients and cuisine type
 export async function generateTextRecipe(
@@ -21,26 +22,18 @@ export async function generateTextRecipe(
 export async function generateStructuredJsonRecipe(
   ingredients: string,
   cuisineType: string
-): Promise<string> {
+): Promise<Recipe> {
+
   // Create a schema describing the response type
   const recipeSchema = Schema.object({
     properties: {
-      ingredients: Schema.array({
-        items: Schema.object({
-          properties: {
-            title: Schema.string(),
-            unit: Schema.string(),
-            amount: Schema.number(),
-          },
-        }),
-      }),
-      instructions: Schema.array({
-        items: Schema.object({
-          properties: {
-            description: Schema.string(),
-          },
-        }),
-      }),
+      title: Schema.string(),
+      ingredients: Schema.array({ items: Schema.string() }),
+      instructions: Schema.string(),
+      tags: Schema.array({ items: Schema.string() }),
+      prepTime: Schema.number(),
+      cookTime: Schema.number(),
+      servings: Schema.number(),
     },
   });
 
@@ -57,8 +50,8 @@ export async function generateStructuredJsonRecipe(
 
   const result = await model.generateContent(prompt);
 
-  // This returns a string containing JSON in the format described in the schema.
-  return result.response.text();
+  const recipe = JSON.parse(result.response.text());
+  return recipe;
 }
 
 // Converts a File object to a Part object.

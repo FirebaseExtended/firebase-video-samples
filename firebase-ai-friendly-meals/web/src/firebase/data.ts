@@ -1,4 +1,4 @@
-import { initializeFirestore, addDoc, collection, getDoc, doc, deleteDoc, persistentLocalCache } from "firebase/firestore";
+import { initializeFirestore, addDoc, collection, getDoc, doc, deleteDoc, updateDoc, persistentLocalCache } from "firebase/firestore";
 import { execute } from "firebase/firestore/pipelines";
 import { firebaseApp } from "./firebase";
 
@@ -36,8 +36,10 @@ export async function getRecipes(userId: string): Promise<Recipe[]> {
     });
 }
 
-export async function saveRecipe(userId: string, recipe: Omit<Recipe, "id">) {
-    await addDoc(collection(db, `users/${userId}/recipes`), recipe);
+export async function saveRecipe(userId: string, recipe: Omit<Recipe, "id">): Promise<string> {
+    const recipeRef = await addDoc(collection(db, `users/${userId}/recipes`), recipe);
+    console.log('saved recipe', recipeRef.id);
+    return recipeRef.id;
 }
 
 export async function getRecipe(userId: string, recipeId: string): Promise<Recipe | null> {
@@ -51,4 +53,9 @@ export async function getRecipe(userId: string, recipeId: string): Promise<Recip
 
 export async function deleteRecipe(userId: string, recipeId: string) {
     await deleteDoc(doc(db, `users/${userId}/recipes/${recipeId}`));
+}
+
+export async function updateRecipeRating(userId: string, recipeId: string, rating: number) {
+    const recipeRef = doc(db, `users/${userId}/recipes/${recipeId}`);
+    await updateDoc(recipeRef, { averageRating: rating });
 }

@@ -40,6 +40,7 @@ const router = createBrowserRouter([
           {
             index: true,
             Component: Recipes,
+            hydrateFallbackElement: <p>Loading...</p>,
             loader: async () => {
               const user = await getUser();
 
@@ -50,11 +51,14 @@ const router = createBrowserRouter([
           {
             path: ":recipeId",
             Component: Recipe,
+            hydrateFallbackElement: <p>Loading...</p>,
             loader: async ({ params }) => {
+              if (!params.recipeId) {
+                throw new Error("No recipe ID provided");
+              }
               console.log('recipe loader is running')
               const user = await getUser();
               const recipe = await getRecipe(user.uid, params.recipeId);
-              console.log(recipe)
               return recipe;
             },
           },

@@ -8,8 +8,16 @@ import {
     EmptyMedia
 } from "@/components/ui/empty";
 import { Button } from "@/components/ui/button";
-import { useLoaderData } from "react-router";
+import { useLoaderData, Link } from "react-router";
 import type { Recipe } from "../firebase/data";
+import {
+    Item,
+    ItemContent,
+    ItemDescription,
+    ItemGroup,
+    ItemActions,
+    ItemTitle,
+} from "@/components/ui/item"
 
 const ZeroState: React.FC = () => {
     return (
@@ -42,11 +50,23 @@ const Layout: React.FC = () => {
 
 
     return (
-        <ul>
+        <ItemGroup className='gap-4'>
             {recipes.map(recipe => (
-                <li key={recipe.id}><a href={`/recipes/${recipe.id}`}>{recipe.title}</a></li>
+                <Item variant="outline">
+                    <ItemContent>
+                        <ItemTitle>{recipe.title}</ItemTitle>
+                        <ItemDescription>
+                            {recipe.tags.join(", ")}
+                        </ItemDescription>
+                    </ItemContent>
+                    <ItemActions>
+                        <Button variant="outline" size="sm" asChild>
+                            <Link to={`/recipes/${recipe.id}`}>Open</Link>
+                        </Button>
+                    </ItemActions>
+                </Item>
             ))}
-        </ul>
+        </ItemGroup>
     );
 };
 

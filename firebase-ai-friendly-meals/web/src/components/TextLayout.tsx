@@ -3,7 +3,8 @@ import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { IngredientInput } from "./IngredientInput";
 import GeneratedRecipe, { type GeneratedRecipeData } from "./GeneratedRecipe";
-import { generateTextRecipe } from "../firebase/firebaseAILogic";
+import { generateStructuredJsonRecipe } from "../firebase/firebaseAILogic";
+import type { Recipe } from "../firebase/data";
 
 const Layout: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -15,14 +16,13 @@ const Layout: React.FC = () => {
   ) => {
     try {
       setIsLoading(true);
-      const generatedRecipe = await generateTextRecipe(
+      const generatedRecipe: Recipe = await generateStructuredJsonRecipe(
         ingredients,
         cuisineType
       );
       setGeneratedRecipe({
-        textRecipe: generatedRecipe
+        structuredRecipe: generatedRecipe
       });
-
     } catch (error) {
       console.error("Error generating text recipe:", error);
       setGeneratedRecipe({

@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useState } from "react";
 import { useLoaderData, useNavigate } from "react-router";
 import Markdown from "react-markdown";
+import { Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
     Card,
@@ -11,11 +12,19 @@ import {
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import type { Recipe } from "../firebase/data";
-import { deleteRecipe } from "../firebase/data";
+import { deleteRecipe, updateRecipeRating } from "../firebase/data";
 
 const Layout: React.FC = () => {
     const recipe = useLoaderData<Recipe>();
     const navigate = useNavigate();
+    const [rating, setRating] = useState(recipe?.averageRating || 0);
+
+    const handleRating = async (newRating: number) => {
+        setRating(newRating);
+        if (recipe) {
+            await updateRecipeRating(recipe.authorId, recipe.id, newRating);
+        }
+    };
 
     const handleDelete = async () => {
         if (confirm("Are you sure you want to delete this recipe?")) {
@@ -48,14 +57,18 @@ const Layout: React.FC = () => {
                     <div className="flex flex-col gap-2">
                         <div className="flex justify-between items-start">
                             <CardTitle className="text-3xl">{recipe.title}</CardTitle>
-                            {recipe.averageRating > 0 && (
-                                <div className="flex items-center gap-1 text-yellow-500">
-                                    <span>★</span>
-                                    <span className="text-foreground font-medium">
-                                        {recipe.averageRating.toFixed(1)}
-                                    </span>
-                                </div>
-                            )}
+                            <div className="flex items-center gap-1">
+                                {[1, 2, 3, 4, 5].map((star) => (
+                                    <Star
+                                        key={star}
+                                        className={`w-5 h-5 cursor-pointer transition-colors ${star <= rating
+                                                ? "fill-yellow-500 text-yellow-500"
+                                                : "text-muted-foreground/30 hover:text-yellow-500"
+                                            }`}
+                                        onClick={() => handleRating(star)}
+                                    />
+                                ))}
+                            </div>
                         </div>
 
                         <div className="flex flex-wrap gap-2 mt-2">
