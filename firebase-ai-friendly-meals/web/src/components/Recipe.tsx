@@ -1,20 +1,30 @@
 import React, { useState } from "react";
 import { useLoaderData, useNavigate } from "react-router";
 import Markdown from "react-markdown";
-import { Star } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
-} from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
+    Star,
+    Clock,
+    Flame,
+    Users,
+    ArrowLeft,
+    Share2,
+    Heart
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
 import type { Recipe } from "../firebase/data";
 import { deleteRecipe, updateRecipeRating } from "../firebase/data";
 
-const Layout: React.FC = () => {
+const InfoBox = ({ icon: Icon, label, value }: { icon: any, label: string, value: string | number }) => (
+    <div className="flex flex-col items-center justify-center p-3 py-4 bg-muted/40 rounded-2xl gap-2 flex-1 min-w-[30%]">
+        <div className="p-2 bg-background rounded-full shadow-sm text-emerald-600">
+            <Icon className="w-5 h-5" />
+        </div>
+        <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">{label}</span>
+        <span className="font-semibold text-sm text-center">{value}</span>
+    </div>
+);
+
+const RecipeDetail: React.FC = () => {
     const recipe = useLoaderData<Recipe>();
     const navigate = useNavigate();
     const [rating, setRating] = useState(recipe?.averageRating || 0);
@@ -35,103 +45,109 @@ const Layout: React.FC = () => {
 
     if (!recipe) {
         return (
-            <div className="flex items-center justify-center p-8">
+            <div className="flex items-center justify-center h-screen">
                 <h2 className="text-xl font-semibold">Recipe not found</h2>
             </div>
         );
     }
 
     return (
-        <div className="container mx-auto max-w-4xl py-6">
-            <Card>
-                {recipe.imageUri && (
-                    <div className="relative w-full h-64 overflow-hidden rounded-t-xl bg-muted">
+        <div className="flex items-center flex-col gap-8">
+            <div className="bg-background min-h-screen relative max-w-2xl mx-auto shadow-sm border rounded-xl overflow-hidden">
+                {/* Top Image Section */}
+                <div className="relative w-full aspect-[4/3] md:aspect-video bg-muted">
+                    {recipe.imageUri ? (
                         <img
                             src={recipe.imageUri}
                             alt={recipe.title}
                             className="w-full h-full object-cover"
                         />
-                    </div>
-                )}
-                <CardHeader>
-                    <div className="flex flex-col gap-2">
-                        <div className="flex justify-between items-start">
-                            <CardTitle className="text-3xl">{recipe.title}</CardTitle>
-                            <div className="flex items-center gap-1">
-                                {[1, 2, 3, 4, 5].map((star) => (
-                                    <Star
-                                        key={star}
-                                        className={`w-5 h-5 cursor-pointer transition-colors ${star <= rating
-                                                ? "fill-yellow-500 text-yellow-500"
-                                                : "text-muted-foreground/30 hover:text-yellow-500"
-                                            }`}
-                                        onClick={() => handleRating(star)}
-                                    />
-                                ))}
-                            </div>
+                    ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-emerald-50 text-emerald-200">
+                            <Flame className="w-20 h-20" />
                         </div>
+                    )}
 
-                        <div className="flex flex-wrap gap-2 mt-2">
-                            {recipe.tags.map((tag) => (
-                                <span
-                                    key={tag}
-                                    className="px-2 py-1 text-xs font-semibold rounded-full bg-primary/10 text-primary"
-                                >
-                                    {tag}
-                                </span>
+                    {/* FAB Heart */}
+                    <div className="absolute -bottom-6 right-6 z-20">
+                        <Button
+                            size="icon"
+                            className="rounded-full w-14 h-14 shadow-xl bg-emerald-500 hover:bg-emerald-600 text-white border-4 border-background"
+                        >
+                            <Heart className="w-7 h-7 fill-current" />
+                        </Button>
+                    </div>
+                </div>
+
+                {/* Content Container */}
+                <div className="px-6 pt-10 pb-6 space-y-8">
+                    {/* Title & Rating */}
+                    <div className="space-y-2">
+                        <h1 className="text-2xl md:text-3xl font-bold leading-tight text-foreground">
+                            {recipe.title}
+                        </h1>
+                        <div className="flex items-center gap-1">
+                            {[1, 2, 3, 4, 5].map((star) => (
+                                <Star
+                                    key={star}
+                                    className={`w-5 h-5 cursor-pointer transition-all ${star <= rating
+                                        ? "fill-amber-400 text-amber-400"
+                                        : "text-muted-foreground/20 hover:text-amber-400"
+                                        }`}
+                                    onClick={() => handleRating(star)}
+                                />
                             ))}
+                            <span className="ml-2 text-sm text-muted-foreground font-medium">
+                                {rating > 0 ? rating.toFixed(1) : 'No ratings'}
+                            </span>
                         </div>
-
-                        <CardDescription className="flex flex-wrap gap-4 mt-2 text-sm text-muted-foreground">
-                            {recipe.prepTime !== "Unknown" && (
-                                <div className="flex items-center gap-1">
-                                    <span className="font-semibold">Prep:</span> {recipe.prepTime}
-                                </div>
-                            )}
-                            {recipe.cookTime !== "Unknown" && (
-                                <div className="flex items-center gap-1">
-                                    <span className="font-semibold">Cook:</span> {recipe.cookTime}
-                                </div>
-                            )}
-                            {recipe.servings !== "Unknown" && (
-                                <div className="flex items-center gap-1">
-                                    <span className="font-semibold">Servings:</span> {recipe.servings}
-                                </div>
-                            )}
-                            <div className="flex items-center gap-1">
-                                <span className="font-semibold">Saves:</span> {recipe.saves}
-                            </div>
-                        </CardDescription>
                     </div>
-                </CardHeader>
 
-                <Separator />
+                    {/* Metadata Grid */}
+                    <div className="flex gap-4 justify-between">
+                        <InfoBox icon={Clock} label="Prep Time" value={recipe.prepTime} />
+                        <InfoBox icon={Flame} label="Cook Time" value={recipe.cookTime} />
+                        <InfoBox icon={Users} label="Servings" value={recipe.servings} />
+                    </div>
 
-                <CardContent className="grid gap-6 md:grid-cols-[1fr_2fr] pt-6">
-                    <div>
-                        <h3 className="text-lg font-semibold mb-3">Ingredients</h3>
-                        <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
+                    {/* Ingredients */}
+                    <div className="space-y-4">
+                        <h2 className="text-lg font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wide">
+                            Ingredients
+                        </h2>
+                        <div className="space-y-3 bg-muted/20 p-6 rounded-3xl border border-border/50">
                             {recipe.ingredients.map((ingredient, index) => (
-                                <li key={index}>{ingredient}</li>
+                                <div key={index} className="flex items-start gap-3">
+                                    <div className="mt-1 w-5 h-5 min-w-5 rounded-full border-2 border-muted-foreground/30 flex-shrink-0" />
+                                    <span className="text-foreground/90 leading-relaxed font-medium">
+                                        {ingredient}
+                                    </span>
+                                </div>
                             ))}
-                        </ul>
+                        </div>
                     </div>
 
-                    <div>
-                        <h3 className="text-lg font-semibold mb-3">Instructions</h3>
-                        <div className="prose prose-sm text-muted-foreground dark:prose-invert">
+                    {/* Instructions */}
+                    <div className="space-y-4">
+                        <h2 className="text-lg font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wide">
+                            Instructions
+                        </h2>
+                        <div className="p-6 rounded-3xl border border-border/50 bg-card prose prose-stone dark:prose-invert max-w-none prose-headings:text-foreground prose-p:text-foreground/90 prose-li:text-foreground/90">
                             <Markdown>{recipe.instructions}</Markdown>
                         </div>
                     </div>
-                </CardContent>
-            </Card>
-            <div className="flex justify-end mt-6">
-                <Button variant="destructive" onClick={handleDelete}>
-                    Delete Recipe
-                </Button>
-            </div>
-        </div >
+
+
+                </div>
+
+            </div><Button
+                variant="ghost"
+                className="text-muted-foreground hover:text-destructive hover:bg-destructive/5"
+                onClick={handleDelete}
+            >
+                Delete This Recipe
+            </Button></div>
     );
 };
 
-export default Layout;
+export default RecipeDetail;
