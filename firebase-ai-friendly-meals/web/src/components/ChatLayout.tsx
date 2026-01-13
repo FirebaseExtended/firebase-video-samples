@@ -1,8 +1,12 @@
 import React, { useCallback, useMemo, useState } from "react";
-import styles from "../styles/Layout.module.css";
 import { ai } from "../firebase/firebase";
 import { getGenerativeModel } from "firebase/ai";
 import ChatMessage from "./ChatMessage";
+
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Spinner } from "@/components/ui/spinner";
 
 const Layout: React.FC = () => {
   const [loading, setLoading] = useState(false);
@@ -77,22 +81,22 @@ const Layout: React.FC = () => {
   }
 
   return (
-    <div className={styles.mainContainer}>
-      <h1>Friendly Meals</h1>
-      <div className={styles.contentContainer}>
-        <div
-          className={[styles.layoutPane, styles.output, styles.chat].join(" ")}
-        >
-          {history.map((historyItem) => (
-            <ChatMessage
-              key={`${historyItem.timestamp}:${historyItem.role}`}
-              {...historyItem}
-            />
-          ))}
-          <div style={{ overflowAnchor: "auto", height: "1px" }}></div>
-        </div>
+    <Card className="h-[600px] flex flex-col max-w-2xl mx-auto">
+      <CardHeader>
+        <CardTitle>Chat with Chef AI</CardTitle>
+      </CardHeader>
+      <CardContent className="flex-1 overflow-auto p-4 space-y-4">
+        {history.map((historyItem) => (
+          <ChatMessage
+            key={`${historyItem.timestamp}:${historyItem.role}`}
+            {...historyItem}
+          />
+        ))}
+        <div style={{ overflowAnchor: "auto", height: "1px" }}></div>
+      </CardContent>
+      <CardFooter className="border-t">
         <form
-          className={[styles.layoutPane, styles.input].join(" ")}
+          className="flex w-full gap-2"
           onSubmit={async (e) => {
             e.preventDefault();
 
@@ -113,17 +117,22 @@ const Layout: React.FC = () => {
             input.focus();
           }}
         >
-          <input
-            className={styles.chatInput}
+          <Input
+            className="flex-1"
             disabled={loading}
             type="text"
             id="user-message"
             name="user-message"
+            placeholder="Ask for a recipe..."
             autoFocus
-          ></input>
+          />
+          <Button type="submit" disabled={loading}>
+            {loading && <Spinner className="mr-2 h-4 w-4" />}
+            {loading ? "Sending..." : "Send"}
+          </Button>
         </form>
-      </div>
-    </div>
+      </CardFooter>
+    </Card>
   );
 };
 

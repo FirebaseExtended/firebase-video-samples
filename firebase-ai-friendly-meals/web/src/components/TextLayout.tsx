@@ -1,8 +1,9 @@
+
 import React, { useState } from "react";
-import styles from "../styles/Layout.module.css";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { IngredientInput } from "./IngredientInput";
 import GeneratedRecipe, { type GeneratedRecipeData } from "./GeneratedRecipe";
-import { generateStructuredJsonRecipe, generateTextRecipe } from "../firebase/firebaseAILogic";
+import { generateTextRecipe } from "../firebase/firebaseAILogic";
 
 const Layout: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -12,10 +13,8 @@ const Layout: React.FC = () => {
     ingredients: string,
     cuisineType: string
   ) => {
-    setIsLoading(true);
-
     try {
-      // For text recipes, uncomment below
+      setIsLoading(true);
       const generatedRecipe = await generateTextRecipe(
         ingredients,
         cuisineType
@@ -30,26 +29,32 @@ const Layout: React.FC = () => {
         errorMessage:
           "An error occured while generating the recipe. See browser console logs for more details.",
       });
-      setIsLoading(false);
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className={styles.mainContainer}>
-      <h1>Friendly Meals</h1>
-      <div className={styles.contentContainer}>
-        <div className={[styles.layoutPane, styles.input].join(' ')}>
+    <div className="grid gap-4 md:grid-cols-2">
+      <Card className="h-full flex flex-col">
+        <CardHeader>
+          <CardTitle>Input</CardTitle>
+        </CardHeader>
+        <CardContent className="flex-1">
           <IngredientInput
             isLoading={isLoading}
             handleSubmit={generateTextRecipeHandler}
           />
-        </div>
-        <div className={[styles.layoutPane, styles.output].join(' ')}>
+        </CardContent>
+      </Card>
+      <Card className="h-full flex flex-col">
+        <CardHeader>
+          <CardTitle>Result</CardTitle>
+        </CardHeader>
+        <CardContent className="flex-1 overflow-auto">
           <GeneratedRecipe data={generatedRecipe} />
-        </div>
-      </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };

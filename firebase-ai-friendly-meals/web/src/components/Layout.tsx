@@ -1,63 +1,50 @@
-import React, { useState } from "react";
-import styles from "../styles/Layout.module.css";
-import { IngredientInput } from "./IngredientInput";
-import GeneratedRecipe, { type GeneratedRecipeData } from "./GeneratedRecipe";
-import { generateStructuredJsonRecipe, generateTextRecipe } from "../firebase/firebaseAILogic";
+import React from "react";
+import {
+  NavigationMenu,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+} from "@/components/ui/navigation-menu"
+import { Outlet } from "react-router";
+import { useMatch } from "react-router";
 
-const Layout: React.FC = () => {
-  const [isLoading, setIsLoading] = useState(false);
-  const [generatedRecipe, setGeneratedRecipe] = useState<GeneratedRecipeData>({});
-
-  const generateTextRecipeHandler = async (
-    ingredients: string,
-    cuisineType: string
-  ) => {
-    setIsLoading(true);
-
-    try {
-      // For text recipes, uncomment below
-      const generatedRecipe = await generateTextRecipe(
-        ingredients,
-        cuisineType
-      );
-      setGeneratedRecipe({
-        textRecipe: generatedRecipe
-      });
-
-      // For JSON recipes, uncomment below
-      // const generatedRecipe = await generateStructuredJsonRecipe(
-      //   ingredients,
-      //   cuisineType
-      // );
-      // setGeneratedRecipe({
-      //   structuredRecipe: JSON.parse(generatedRecipe)
-      // });
-    } catch (error) {
-      console.error("Error generating text recipe:", error);
-      setGeneratedRecipe({
-        errorMessage:
-          "An error occured while generating the recipe. See browser console logs for more details.",
-      });
-      setIsLoading(false);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+const MenuLink: React.FC<{ href: string, label: string }> = ({ href, label }) => {
+  const active = useMatch(href);
+  const classes = "group inline-flex h-9 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50 data-[state=open]:bg-accent/50"
 
   return (
-    <div className={styles.mainContainer}>
-      <h1>Friendly Meals</h1>
-      <div className={styles.contentContainer}>
-        <div className={styles.layoutPane}>
-          <IngredientInput
-            isLoading={isLoading}
-            handleSubmit={generateTextRecipeHandler}
-          />
-        </div>
-        <div className={styles.layoutPane}>
-          <GeneratedRecipe data={generatedRecipe} />
-        </div>
-      </div>
+    <NavigationMenuLink asChild active={active !== null} className={classes}>
+      <a href={href}>{label}</a>
+    </NavigationMenuLink>
+  )
+}
+
+const Layout: React.FC = () => {
+
+  return (
+    <div className="min-h-screen bg-background">
+      <header className="flex items-center justify-between p-4 border-b">
+        <h1 className="text-xl font-bold">Friendly Meals</h1>
+        <NavigationMenu>
+          <NavigationMenuList>
+            <NavigationMenuItem>
+              <MenuLink href="/generate" label="Generate" />
+            </NavigationMenuItem>
+            <NavigationMenuItem>
+              <MenuLink href="/chat" label="Chat" />
+            </NavigationMenuItem>
+            <NavigationMenuItem>
+              <MenuLink href="/image" label="Scan" />
+            </NavigationMenuItem>
+            <NavigationMenuItem>
+              <MenuLink href="/recipes" label="Recipes" />
+            </NavigationMenuItem>
+          </NavigationMenuList>
+        </NavigationMenu>
+      </header>
+      <main className="container mx-auto p-4">
+        <Outlet />
+      </main>
     </div>
   );
 };
