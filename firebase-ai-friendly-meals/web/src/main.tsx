@@ -41,10 +41,17 @@ const router = createBrowserRouter([
             index: true,
             Component: Recipes,
             hydrateFallbackElement: <p>Loading...</p>,
-            loader: async () => {
+            loader: async ({ request }) => {
               const user = await getUser();
+              const url = new URL(request.url);
+              const filters = {
+                name: url.searchParams.get('q') || undefined,
+                minRating: url.searchParams.get('minRating') ? Number(url.searchParams.get('minRating')) : undefined,
+                tags: url.searchParams.get('tags') ? url.searchParams.get('tags')!.split(',') : undefined,
+                sortBy: (url.searchParams.get('sort') as 'rating' | 'title') || undefined,
+              };
 
-              const recipes = await getRecipes(user.uid);
+              const recipes = await getRecipes(user.uid, filters);
               return recipes;
             },
           },

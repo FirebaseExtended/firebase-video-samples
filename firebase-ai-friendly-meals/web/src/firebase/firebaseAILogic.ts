@@ -1,6 +1,7 @@
 import { getGenerativeModel, Schema, type Part } from "firebase/ai";
 import { ai } from "./firebase";
-import type { Recipe } from "../data";
+import type { Recipe } from "./data";
+import { AVAILABLE_TAGS } from "@/components/Recipes";
 
 // Calls Gemini to return text recipe based on ingredients and cuisine type
 export async function generateTextRecipe(
@@ -30,7 +31,7 @@ export async function generateStructuredJsonRecipe(
       title: Schema.string(),
       ingredients: Schema.array({ items: Schema.string() }),
       instructions: Schema.string(),
-      tags: Schema.array({ items: Schema.string() }),
+      tags: Schema.array({ items: Schema.enumString({ enum: AVAILABLE_TAGS }) }),
       prepTime: Schema.number(),
       cookTime: Schema.number(),
       servings: Schema.number(),
@@ -46,7 +47,7 @@ export async function generateStructuredJsonRecipe(
     },
   });
 
-  const prompt = `Using the following list of ingredients, create a recipe in the ${cuisineType} cuisine: ${ingredients}`;
+  const prompt = `Using the following list of ingredients, create a recipe in the ${cuisineType} cuisine: ${ingredients}.`;
 
   const result = await model.generateContent(prompt);
 
