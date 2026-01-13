@@ -1,7 +1,6 @@
 //
 // FriendlyMeals
 //
-// Created by Peter Friese on 02.07.25.
 // Copyright © 2025 Google LLC.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,21 +20,54 @@ import FirebaseCore
 
 @main
 struct FriendlyMealsApp: App {
+  @State private var recipeStore: RecipeStore
+
   init () {
     FirebaseApp.configure()
+    _recipeStore = State(initialValue: RecipeStore())
   }
+
   var body: some Scene {
     WindowGroup {
       TabView {
-        SuggestRecipeView()
-          .tabItem {
-            Label("Suggest Recipes", systemImage: "fork.knife")
-          }
+        NavigationStack {
+          RecipeListView()
+        }
+        .tabItem {
+          Label("Cookbook", systemImage: "book.closed")
+        }
+
+        NavigationStack {
+          MealPlannerSuggestionView()
+        }
+        .tabItem {
+          Label("Suggest Recipe", systemImage: "wand.and.stars")
+        }
+
+        NavigationStack {
+          MealPlannerChatView()
+        }
+        .tabItem {
+          Label("Meal Planner", systemImage: "bubble.left.and.bubble.right")
+        }
         
-        MealPlannerChatView()
-          .tabItem {
-            Label("Meal Planner", systemImage: "message")
+        NavigationStack {
+          NutritionView()
+        }
+        .tabItem {
+          Label("Nutrition", systemImage: "camera.macro")
+        }
+
+      }
+      .environment(recipeStore)
+      .onAppear {
+        Task {
+          do {
+            try await RemoteConfigService.shared.fetchConfig()
+          } catch {
+            print("Failed to fetch remote config: \(error)")
           }
+        }
       }
     }
   }
