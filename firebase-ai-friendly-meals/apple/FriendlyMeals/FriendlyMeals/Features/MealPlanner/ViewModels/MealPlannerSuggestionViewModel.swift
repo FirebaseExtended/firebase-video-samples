@@ -34,7 +34,7 @@ class MealPlannerSuggestionViewModel {
   var errorMessage: String?
 
   @ObservationIgnored
-  private lazy var storageWriter = StorageWriter()
+  private lazy var imageStore = RecipeImageStore()
 
   @ObservationIgnored
   private lazy var model: GenerativeModel = {
@@ -136,7 +136,7 @@ class MealPlannerSuggestionViewModel {
     if var recipe = recipe,
        let image = recipeImage {
       do {
-        let url = try await storageWriter.writeImage(image)
+        let url = try await imageStore.writeImage(image)
         recipe.imageUri = url.absoluteString
         try await store.add(recipe)
       } catch {

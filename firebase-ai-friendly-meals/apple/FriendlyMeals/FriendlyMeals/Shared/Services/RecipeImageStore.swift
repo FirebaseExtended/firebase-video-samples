@@ -18,7 +18,7 @@
 import FirebaseStorage
 import SwiftUI
 
-class StorageWriter {
+class RecipeImageStore {
 
   private let storage: Storage
 
