@@ -22,7 +22,7 @@ import FirebaseAuth
 
 enum RecipeStoreError: Error {
   case missingRecipeID
-  case saveDecodingError(String)
+  case likeDecodingError(String)
   case recipeDecodingError(String)
   case reviewDecodingError(String)
 }
@@ -39,7 +39,7 @@ class RecipeStore {
   @MainActor private(set) var recipes = [Recipe]()
 
   // A list of just recipe IDs, for faster lookup.
-  @MainActor private(set) var saves = Set<String>()
+  @MainActor private(set) var likes = Set<String>()
 
   private static func defaultFilter(_ store: Firestore) -> Pipeline {
     return store.pipeline().collection(recipeCollection)
@@ -140,8 +140,8 @@ class RecipeStore {
     }
 
     if let id = userID {
-      let saves = try await fetchSaves(forUserID: id).map { $0.recipeId }
-      self.saves = Set(saves)
+      let likes = try await fetchLikes(forUserID: id).map { $0.recipeId }
+      self.likes = Set(likes)
     }
   }
 
@@ -184,50 +184,50 @@ class RecipeStore {
   }
 }
 
-// Favorites/Saves
+// Likes
 extension RecipeStore {
 
-  private static let savesCollection = "saves"
+  private static let likesCollection = "saves"
 
-  func fetchSave(for recipeID: String, userID: String) async throws -> RecipeSave? {
-    let documentID = RecipeSave(userID: userID, recipeID: recipeID).compositeID
-    let snapshot = try await db.collection(RecipeStore.savesCollection).document(documentID).getDocument()
+  func fetchLike(for recipeID: String, userID: String) async throws -> RecipeLike? {
+    let documentID = RecipeLike(userID: userID, recipeID: recipeID).compositeID
+    let snapshot = try await db.collection(RecipeStore.likesCollection).document(documentID).getDocument()
     if snapshot.data()?.isEmpty ?? false {
       return nil
     }
 
-    let save = try snapshot.data(as: RecipeSave.self)
-    return save
+    let like = try snapshot.data(as: RecipeLike.self)
+    return like
   }
 
-  func addSave(_ save: RecipeSave) throws {
-    try db.collection(RecipeStore.savesCollection).document(save.compositeID).setData(from: save)
-    saves.insert(save.recipeId)
+  func addLike(_ like: RecipeLike) throws {
+    try db.collection(RecipeStore.likesCollection).document(like.compositeID).setData(from: like)
+    likes.insert(like.recipeId)
   }
 
-  func removeSave(_ save: RecipeSave) {
-    db.collection(RecipeStore.savesCollection).document(save.compositeID).delete()
-    saves.remove(save.recipeId)
+  func removeLike(_ like: RecipeLike) {
+    db.collection(RecipeStore.likesCollection).document(like.compositeID).delete()
+    likes.remove(like.recipeId)
   }
 
-  func fetchSaves(forUserID userID: String) async throws -> [RecipeSave] {
-    let snapshot = try await db.pipeline().collection(RecipeStore.savesCollection)
+  func fetchLikes(forUserID userID: String) async throws -> [RecipeLike] {
+    let snapshot = try await db.pipeline().collection(RecipeStore.likesCollection)
       .where(Field("userId").equal(userID))
       .execute()
-    let saves = try snapshot.results.map { result in
+    let likes = try snapshot.results.map { result in
       guard let userID = result.data["userId"] as? String,
             let recipeID = result.data["recipeId"] as? String else {
-        let errorMessage = "Could not decode RecipeSave from Firestore document: \(result)"
-        throw RecipeStoreError.saveDecodingError(errorMessage)
+        let errorMessage = "Could not decode RecipeLike from Firestore document: \(result)"
+        throw RecipeStoreError.likeDecodingError(errorMessage)
       }
-      return RecipeSave(userID: userID, recipeID: recipeID)
+      return RecipeLike(userID: userID, recipeID: recipeID)
     }
-    return saves
+    return likes
   }
 
-  func isSaved(_ recipe: Recipe) -> Bool {
+  func isLiked(_ recipe: Recipe) -> Bool {
     return recipe.id.flatMap {
-      return saves.contains($0)
+      return likes.contains($0)
     } ?? false
   }
 

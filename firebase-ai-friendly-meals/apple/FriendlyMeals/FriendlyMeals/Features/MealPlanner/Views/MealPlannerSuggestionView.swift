@@ -21,8 +21,8 @@ struct MealPlannerSuggestionView: View {
   @State private var viewModel = MealPlannerSuggestionViewModel()
   @Environment(RecipeStore.self) private var recipeStore
 
-  var recipeIsSaved: Bool {
-    return viewModel.recipe.flatMap { recipeStore.isSaved($0) } ?? false
+  var recipeIsLiked: Bool {
+    return viewModel.recipe.flatMap { recipeStore.isLiked($0) } ?? false
   }
 
   var body: some View {
@@ -69,14 +69,14 @@ struct MealPlannerSuggestionView: View {
           placeholderImage: viewModel.recipeImage,
           errorMessage: viewModel.errorMessage,
           isNew: true,
-          isSaved: recipeIsSaved,
-          onSaveToServer: {
+          isLiked: recipeIsLiked,
+          onSave: {
             Task {
               await viewModel.addRecipe(to: recipeStore)
             }
           },
-          onSaveToUser: { shouldSave in
-            viewModel.writeSave(shouldSave, to: recipeStore)
+          onLike: { newLike in
+            viewModel.writeLike(newLike, to: recipeStore)
           }
         )
         .toolbar {

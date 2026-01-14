@@ -37,9 +37,9 @@ struct RecipeListView: View {
               .font(.headline)
           }
           Spacer()
-          if recipeStore.isSaved(recipe) {
-            Image(systemName: "star.fill")
-              .foregroundColor(.yellow)
+          if recipeStore.isLiked(recipe) {
+            Image(systemName: "heart.fill")
+              .foregroundColor(.pink)
           }
         }
       }
@@ -58,43 +58,43 @@ struct RecipeListView: View {
       }
       .swipeActions(edge: .leading) {
         Button {
-          guard let save = recipe.id.flatMap({
-            RecipeSave(recipeID: $0)
+          guard let like = recipe.id.flatMap({
+            RecipeLike(recipeID: $0)
           }) else {
-            // User tried to save while unauthenticated
+            // User tried to like a recipe while unauthenticated
             return
           }
-          if recipeStore.isSaved(recipe) {
-            recipeStore.removeSave(save)
+          if recipeStore.isLiked(recipe) {
+            recipeStore.removeLike(like)
           } else {
             Task {
               do {
-                try recipeStore.addSave(save)
+                try recipeStore.addLike(like)
               } catch {
-                print("Unable to save recipe: \(error)")
+                print("Unable to like recipe: \(error)")
               }
             }
           }
         } label: {
-          Label("Favorite", systemImage: recipeStore.isSaved(recipe) ? "star.slash" : "star")
+          Label("Favorite", systemImage: recipeStore.isLiked(recipe) ? "heart.slash" : "heart")
         }
-        .tint(recipeStore.isSaved(recipe) ? .gray : .yellow)
+        .tint(recipeStore.isLiked(recipe) ? .gray : .pink)
       }
     }
     .navigationTitle("Cookbook")
     .navigationDestination(for: Recipe.self) { recipe in
       RecipeDetailsView(recipe: recipe,
-                        isSaved: recipeStore.isSaved(recipe),
-                        onSaveToUser: { shouldSave in
-        guard let save = recipe.id.flatMap({ RecipeSave(recipeID: $0) }) else { return }
-        if shouldSave {
+                        isLiked: recipeStore.isLiked(recipe),
+                        onLike: { newLike in
+        guard let like = recipe.id.flatMap({ RecipeLike(recipeID: $0) }) else { return }
+        if newLike {
           do {
-            try recipeStore.addSave(save)
+            try recipeStore.addLike(like)
           } catch {
-            print("Couldn't write save \(save) for recipe: \(recipe)")
+            print("Couldn't write like \(like) for recipe: \(recipe)")
           }
         } else {
-          recipeStore.removeSave(save)
+          recipeStore.removeLike(like)
         }
       })
     }

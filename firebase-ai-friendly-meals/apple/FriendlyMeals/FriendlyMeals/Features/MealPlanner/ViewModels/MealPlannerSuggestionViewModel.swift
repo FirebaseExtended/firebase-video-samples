@@ -145,21 +145,21 @@ class MealPlannerSuggestionViewModel {
     }
   }
 
-  func writeSave(_ shouldSave: Bool, to store: RecipeStore) {
-    guard let save = recipe?.id.flatMap({
-      RecipeSave(recipeID: $0)
+  func writeLike(_ newLike: Bool, to store: RecipeStore) {
+    guard let like = recipe?.id.flatMap({
+      RecipeLike(recipeID: $0)
     }) else {
-      print("No recipe to save")
+      print("No recipe to like")
       return
     }
     do {
-      if shouldSave {
-        try store.addSave(save)
+      if newLike {
+        try store.addLike(like)
       } else {
-        store.removeSave(save)
+        store.removeLike(like)
       }
     } catch {
-      print("Error writing save to store: \(error)")
+      print("Error writing like to store: \(error)")
     }
   }
 

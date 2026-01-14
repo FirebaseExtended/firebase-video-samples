@@ -17,7 +17,7 @@
 
 import FirebaseAuth
 
-struct RecipeSave: Codable, Hashable {
+struct RecipeLike: Codable, Hashable {
 
   var userId: String
   var recipeId: String
@@ -32,7 +32,7 @@ struct RecipeSave: Codable, Hashable {
   }
 }
 
-extension RecipeSave {
+extension RecipeLike {
 
   init?(recipeID: String, user: User? = Auth.auth().currentUser) {
     guard let id = user?.uid else { return nil }

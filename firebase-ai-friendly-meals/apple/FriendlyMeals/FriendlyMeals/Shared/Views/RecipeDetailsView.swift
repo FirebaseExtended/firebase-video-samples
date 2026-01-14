@@ -25,25 +25,25 @@ struct RecipeDetailsView {
   let errorMessage: String?
   let placeholderImage: UIImage?
   var isNew = false
-  var onSaveToServer: (() -> Void)? = nil
-  var onSaveToUser: ((Bool) -> Void)? = nil
+  var onSave: (() -> Void)? = nil
+  var onLike: ((Bool) -> Void)? = nil
 
-  @State var isSaved = false
+  @State var isLiked = false
   @State var rating: Double = 0
 
   init(recipe: Recipe?,
        placeholderImage: UIImage? = nil,
        errorMessage: String? = nil,
        isNew: Bool = false,
-       isSaved: Bool = false,
-       onSaveToServer: (() -> Void)? = nil,
-       onSaveToUser: ((Bool) -> Void)? = nil) {
+       isLiked: Bool = false,
+       onSave: (() -> Void)? = nil,
+       onLike: ((Bool) -> Void)? = nil) {
     self.recipe = recipe
     self.errorMessage = errorMessage
     self.isNew = isNew
-    self.isSaved = isSaved
-    self.onSaveToServer = onSaveToServer
-    self.onSaveToUser = onSaveToUser
+    self.isLiked = isLiked
+    self.onSave = onSave
+    self.onLike = onLike
     self.placeholderImage = placeholderImage
   }
 }
@@ -167,17 +167,17 @@ extension RecipeDetailsView: View {
     .toolbar {
       if isNew {
         Button(action: {
-          onSaveToServer?()
+          onSave?()
           dismiss()
         }) {
           Label("Save", systemImage: "square.and.arrow.down")
         }
       } else {
         Button(action: {
-          onSaveToUser?(!isSaved)
-          isSaved = !isSaved
+          onLike?(!isLiked)
+          isLiked = !isLiked
         }) {
-          let imageName = isSaved ? "heart.fill" : "heart"
+          let imageName = isLiked ? "heart.fill" : "heart"
           Label("Save", systemImage: imageName)
         }
       }
