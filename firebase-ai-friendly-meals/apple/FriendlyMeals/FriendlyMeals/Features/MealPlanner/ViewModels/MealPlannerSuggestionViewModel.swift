@@ -136,7 +136,7 @@ class MealPlannerSuggestionViewModel {
     if var recipe = recipe,
        let image = recipeImage {
       do {
-        let url = try await imageStore.writeImage(image)
+        let url = try await imageStore.saveImage(image)
         recipe.imageUri = url.absoluteString
         try await store.add(recipe)
       } catch {

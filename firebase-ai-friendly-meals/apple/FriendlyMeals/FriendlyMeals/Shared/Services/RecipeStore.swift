@@ -202,7 +202,7 @@ extension RecipeStore {
     return Review(userID: user, recipeID: recipe, rating: rating)
   }
 
-  func writeReview(_ review: Review) throws {
+  func saveReview(_ review: Review) throws {
     let compositeID = review.compositeID
     try db.collection(RecipeStore.recipeCollection)
       .document(review.recipeId)

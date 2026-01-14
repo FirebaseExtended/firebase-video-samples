@@ -26,7 +26,7 @@ class RecipeImageStore {
     self.storage = storage
   }
 
-  func writeImage(_ image: UIImage, named name: String? = nil) async throws -> URL {
+  func saveImage(_ image: UIImage, named name: String? = nil) async throws -> URL {
     let fileName = name ?? UUID().uuidString
     let reference = storage.reference().child("images/\(fileName).jpg")
     guard let data = image.jpegData(compressionQuality: 0.9) else {

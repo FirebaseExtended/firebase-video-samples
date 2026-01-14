@@ -146,7 +146,7 @@ extension RecipeDetailsView: View {
                   .onChange(of: rating) { _, newRating in
                     if let review = Review(recipeID: id, rating: newRating) {
                       do {
-                        try recipeStore.writeReview(review)
+                        try recipeStore.saveReview(review)
                       } catch {
                         print("Failed to write recipe review: \(error)")
                       }
