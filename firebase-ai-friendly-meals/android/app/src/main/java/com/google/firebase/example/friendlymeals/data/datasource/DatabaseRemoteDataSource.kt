@@ -8,13 +8,9 @@ import com.google.firebase.example.friendlymeals.data.model.Tag
 import com.google.firebase.example.friendlymeals.data.model.User
 import com.google.firebase.example.friendlymeals.ui.recipeList.RecipeListItem
 import com.google.firebase.example.friendlymeals.ui.recipeList.filter.FilterOptions
-import com.google.firebase.example.friendlymeals.ui.recipeList.filter.SortByFilter
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.PipelineResult
-import com.google.firebase.firestore.SetOptions
-import com.google.firebase.firestore.pipeline.AggregateFunction
-import com.google.firebase.firestore.pipeline.AggregateStage
 import com.google.firebase.firestore.pipeline.Expression.Companion.field
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
@@ -25,7 +21,7 @@ class DatabaseRemoteDataSource @Inject constructor(
     private val firestore: FirebaseFirestore
 ) {
     suspend fun addUser(user: User) {
-        firestore.collection(USER_COLLECTION).add(user).await()
+        firestore.collection(USERS_COLLECTION).add(user).await()
     }
 
     suspend fun addRecipe(recipe: Recipe): String {
@@ -46,7 +42,7 @@ class DatabaseRemoteDataSource @Inject constructor(
 
     suspend fun getPopularTags(): List<Tag> {
         val results = firestore.pipeline()
-            .collection(TAG_COLLECTION)
+            .collection(TAGS_COLLECTION)
             .sort(field(TOTAL_RECIPES_FIELD).descending())
             .limit(10)
             .execute().await().results
@@ -77,11 +73,11 @@ class DatabaseRemoteDataSource @Inject constructor(
      */
     suspend fun setReview(review: Review) {
         val recipeRef = firestore
-            .collection(RECIPE_COLLECTION)
+            .collection(RECIPES_COLLECTION)
             .document(review.recipeId)
 
         val reviewRef = recipeRef
-            .collection(REVIEW_SUBCOLLECTION)
+            .collection(REVIEWS_SUBCOLLECTION)
             .document("${review.recipeId}_${review.userId}")
 
         reviewRef.set(review).await()
@@ -96,7 +92,7 @@ class DatabaseRemoteDataSource @Inject constructor(
 
     suspend fun getRating(userId: String, recipeId: String): Int {
         val reviewId = "${recipeId}_${userId}"
-        val reviewPath = "${RECIPE_COLLECTION}/${recipeId}/${REVIEW_SUBCOLLECTION}/${reviewId}"
+        val reviewPath = "${RECIPES_COLLECTION}/${recipeId}/${REVIEWS_SUBCOLLECTION}/${reviewId}"
 
         val results = firestore
             .pipeline()
@@ -117,13 +113,13 @@ class DatabaseRemoteDataSource @Inject constructor(
      */
     suspend fun setFavorite(save: Save) {
         val saveRef = firestore
-            .collection(SAVE_COLLECTION)
+            .collection(SAVES_COLLECTION)
             .document("${save.recipeId}_${save.userId}")
 
         saveRef.set(save).await()
 
         firestore
-            .collection(RECIPE_COLLECTION)
+            .collection(RECIPES_COLLECTION)
             .document(save.recipeId)
             .update(SAVES_FIELD, FieldValue.increment(1))
             .await()
@@ -131,13 +127,13 @@ class DatabaseRemoteDataSource @Inject constructor(
 
     suspend fun removeFavorite(save: Save) {
         firestore
-            .collection(SAVE_COLLECTION)
+            .collection(SAVES_COLLECTION)
             .document("${save.recipeId}_${save.userId}")
             .delete()
             .await()
 
         firestore
-            .collection(RECIPE_COLLECTION)
+            .collection(RECIPES_COLLECTION)
             .document(save.recipeId)
             .update(SAVES_FIELD, FieldValue.increment(-1))
             .await()
@@ -145,7 +141,7 @@ class DatabaseRemoteDataSource @Inject constructor(
 
     suspend fun getFavorite(userId: String, recipeId: String): Boolean {
         val favoriteId = "${recipeId}_${userId}"
-        val favoritePath = "${SAVE_COLLECTION}/${favoriteId}"
+        val favoritePath = "${SAVES_COLLECTION}/${favoriteId}"
 
         return firestore
             .pipeline()
@@ -200,11 +196,11 @@ class DatabaseRemoteDataSource @Inject constructor(
 
     companion object {
         //Collections
-        private const val USER_COLLECTION = "user"
-        private const val RECIPE_COLLECTION = "recipe"
-        private const val TAG_COLLECTION = "tag"
-        private const val SAVE_COLLECTION = "save"
-        private const val REVIEW_SUBCOLLECTION = "review"
+        private const val USERS_COLLECTION = "users"
+        private const val RECIPES_COLLECTION = "recipes"
+        private const val TAGS_COLLECTION = "tags"
+        private const val SAVES_COLLECTION = "saves"
+        private const val REVIEWS_SUBCOLLECTION = "reviews"
 
         //Fields
         private const val ID_FIELD = "id"

@@ -17,8 +17,6 @@ import dagger.hilt.components.SingletonComponent
 @Module
 @InstallIn(SingletonComponent::class)
 object FirebaseHiltModule {
-    private const val TAG = "FirebaseHiltModule"
-
     @Provides fun auth(): FirebaseAuth = Firebase.auth
 
     @Provides fun firebaseAI(): FirebaseAI {
