@@ -231,6 +231,17 @@ extension RecipeStore {
     } ?? false
   }
 
+  func toggleLikeIfAuthenticated(recipe: Recipe) async throws {
+    guard let like = recipe.id.flatMap({ RecipeLike(recipeID: $0) }) else {
+      return
+    }
+    if isLiked(recipe) {
+      removeLike(like)
+    } else {
+      try addLike(like)
+    }
+  }
+
 }
 
 // Reviews

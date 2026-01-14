@@ -58,21 +58,11 @@ struct RecipeListView: View {
       }
       .swipeActions(edge: .leading) {
         Button {
-          guard let like = recipe.id.flatMap({
-            RecipeLike(recipeID: $0)
-          }) else {
-            // User tried to like a recipe while unauthenticated
-            return
-          }
-          if recipeStore.isLiked(recipe) {
-            recipeStore.removeLike(like)
-          } else {
-            Task {
-              do {
-                try recipeStore.addLike(like)
-              } catch {
-                print("Unable to like recipe: \(error)")
-              }
+          Task {
+            do {
+              try await recipeStore.toggleLikeIfAuthenticated(recipe: recipe)
+            } catch {
+              print("Unable to like recipe: \(error)")
             }
           }
         } label: {
@@ -86,15 +76,12 @@ struct RecipeListView: View {
       RecipeDetailsView(recipe: recipe,
                         isLiked: recipeStore.isLiked(recipe),
                         onLike: { newLike in
-        guard let like = recipe.id.flatMap({ RecipeLike(recipeID: $0) }) else { return }
-        if newLike {
+        Task {
           do {
-            try recipeStore.addLike(like)
+            try await recipeStore.toggleLikeIfAuthenticated(recipe: recipe)
           } catch {
-            print("Couldn't write like \(like) for recipe: \(recipe)")
+            print("Unable to like recipe: \(error)")
           }
-        } else {
-          recipeStore.removeLike(like)
         }
       })
     }
