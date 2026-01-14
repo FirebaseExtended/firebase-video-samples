@@ -19,6 +19,7 @@ import SwiftUI
 
 struct RecipeListView: View {
   @Environment(RecipeStore.self) private var recipeStore
+  @Environment(LikesStore.self) private var likesStore
   @State @MainActor private var showFilterView = false
 
   var body: some View {
@@ -37,7 +38,7 @@ struct RecipeListView: View {
               .font(.headline)
           }
           Spacer()
-          if recipeStore.isLiked(recipe) {
+          if likesStore.isLiked(recipe) {
             Image(systemName: "heart.fill")
               .foregroundColor(.pink)
           }
@@ -60,25 +61,25 @@ struct RecipeListView: View {
         Button {
           Task {
             do {
-              try await recipeStore.toggleLikeIfAuthenticated(recipe: recipe)
+              try await likesStore.toggleLikeIfAuthenticated(recipe: recipe)
             } catch {
               print("Unable to like recipe: \(error)")
             }
           }
         } label: {
-          Label("Favorite", systemImage: recipeStore.isLiked(recipe) ? "heart.slash" : "heart")
+          Label("Favorite", systemImage: likesStore.isLiked(recipe) ? "heart.slash" : "heart")
         }
-        .tint(recipeStore.isLiked(recipe) ? .gray : .pink)
+        .tint(likesStore.isLiked(recipe) ? .gray : .pink)
       }
     }
     .navigationTitle("Cookbook")
     .navigationDestination(for: Recipe.self) { recipe in
       RecipeDetailsView(recipe: recipe,
-                        isLiked: recipeStore.isLiked(recipe),
+                        isLiked: likesStore.isLiked(recipe),
                         onLike: { newLike in
         Task {
           do {
-            try await recipeStore.toggleLikeIfAuthenticated(recipe: recipe)
+            try await likesStore.toggleLikeIfAuthenticated(recipe: recipe)
           } catch {
             print("Unable to like recipe: \(error)")
           }
@@ -104,6 +105,11 @@ struct RecipeListView: View {
       }
     }
     .task {
+      do {
+        try await likesStore.fetchLikesForDefaultUser()
+      } catch {
+        print("Error fetching recipes: \(error)")
+      }
       do {
         try await recipeStore.fetchRecipes()
       } catch {

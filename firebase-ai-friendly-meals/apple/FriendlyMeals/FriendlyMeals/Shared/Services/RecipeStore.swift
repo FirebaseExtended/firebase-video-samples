@@ -38,9 +38,6 @@ class RecipeStore {
   @MainActor private(set) var topTags: [String] = []
   @MainActor private(set) var recipes = [Recipe]()
 
-  // A list of just recipe IDs, for faster lookup.
-  @MainActor private(set) var likes = Set<String>()
-
   private static func defaultFilter(_ store: Firestore) -> Pipeline {
     return store.pipeline().collection(recipeCollection)
   }
@@ -139,10 +136,6 @@ class RecipeStore {
       return recipe
     }
 
-    if let id = userID {
-      let likes = try await fetchLikes(forUserID: id).map { $0.recipeId }
-      self.likes = Set(likes)
-    }
   }
 
   @discardableResult
@@ -182,66 +175,6 @@ class RecipeStore {
     let docRef = db.collection(RecipeStore.recipeCollection).document(id)
     try docRef.setData(from: recipe, mergeFields: ["isFavorite"])
   }
-}
-
-// Likes
-extension RecipeStore {
-
-  private static let likesCollection = "saves"
-
-  func fetchLike(for recipeID: String, userID: String) async throws -> RecipeLike? {
-    let documentID = RecipeLike(userID: userID, recipeID: recipeID).compositeID
-    let snapshot = try await db.collection(RecipeStore.likesCollection).document(documentID).getDocument()
-    if snapshot.data()?.isEmpty ?? false {
-      return nil
-    }
-
-    let like = try snapshot.data(as: RecipeLike.self)
-    return like
-  }
-
-  func addLike(_ like: RecipeLike) throws {
-    try db.collection(RecipeStore.likesCollection).document(like.compositeID).setData(from: like)
-    likes.insert(like.recipeId)
-  }
-
-  func removeLike(_ like: RecipeLike) {
-    db.collection(RecipeStore.likesCollection).document(like.compositeID).delete()
-    likes.remove(like.recipeId)
-  }
-
-  func fetchLikes(forUserID userID: String) async throws -> [RecipeLike] {
-    let snapshot = try await db.pipeline().collection(RecipeStore.likesCollection)
-      .where(Field("userId").equal(userID))
-      .execute()
-    let likes = try snapshot.results.map { result in
-      guard let userID = result.data["userId"] as? String,
-            let recipeID = result.data["recipeId"] as? String else {
-        let errorMessage = "Could not decode RecipeLike from Firestore document: \(result)"
-        throw RecipeStoreError.likeDecodingError(errorMessage)
-      }
-      return RecipeLike(userID: userID, recipeID: recipeID)
-    }
-    return likes
-  }
-
-  func isLiked(_ recipe: Recipe) -> Bool {
-    return recipe.id.flatMap {
-      return likes.contains($0)
-    } ?? false
-  }
-
-  func toggleLikeIfAuthenticated(recipe: Recipe) async throws {
-    guard let like = recipe.id.flatMap({ RecipeLike(recipeID: $0) }) else {
-      return
-    }
-    if isLiked(recipe) {
-      removeLike(like)
-    } else {
-      try addLike(like)
-    }
-  }
-
 }
 
 // Reviews

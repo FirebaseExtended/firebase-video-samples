@@ -20,9 +20,10 @@ import SwiftUI
 struct MealPlannerSuggestionView: View {
   @State private var viewModel = MealPlannerSuggestionViewModel()
   @Environment(RecipeStore.self) private var recipeStore
+  @Environment(LikesStore.self) private var likesStore
 
   var recipeIsLiked: Bool {
-    return viewModel.recipe.flatMap { recipeStore.isLiked($0) } ?? false
+    return viewModel.recipe.flatMap { likesStore.isLiked($0) } ?? false
   }
 
   var body: some View {
@@ -76,7 +77,7 @@ struct MealPlannerSuggestionView: View {
             }
           },
           onLike: { newLike in
-            viewModel.writeLike(newLike, to: recipeStore)
+            viewModel.writeLike(newLike, to: likesStore)
           }
         )
         .toolbar {

@@ -22,10 +22,12 @@ import FirebaseAuth
 @main
 struct FriendlyMealsApp: App {
   @State private var recipeStore: RecipeStore
+  @State private var likesStore: LikesStore
 
   init () {
     FirebaseApp.configure()
     _recipeStore = State(initialValue: RecipeStore())
+    _likesStore = State(initialValue: LikesStore())
   }
 
   var body: some Scene {
@@ -61,6 +63,7 @@ struct FriendlyMealsApp: App {
 
       }
       .environment(recipeStore)
+      .environment(likesStore)
       .task {
         // Fetch Remote Config params
         do {

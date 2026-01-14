@@ -145,7 +145,7 @@ class MealPlannerSuggestionViewModel {
     }
   }
 
-  func writeLike(_ newLike: Bool, to store: RecipeStore) {
+  func writeLike(_ newLike: Bool, to store: LikesStore) {
     guard let like = recipe?.id.flatMap({
       RecipeLike(recipeID: $0)
     }) else {
