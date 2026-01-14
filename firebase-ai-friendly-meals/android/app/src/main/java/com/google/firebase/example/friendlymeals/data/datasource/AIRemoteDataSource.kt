@@ -17,19 +17,17 @@ import com.google.firebase.ai.type.generationConfig
 import com.google.firebase.ai.type.imagenGenerationConfig
 import com.google.firebase.example.friendlymeals.data.schema.MealSchema
 import com.google.firebase.example.friendlymeals.data.schema.RecipeSchema
-import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import kotlinx.serialization.json.Json
 import javax.inject.Inject
 
 class AIRemoteDataSource @Inject constructor(
-    private val firebaseAI: FirebaseAI,
-    private val remoteConfig: FirebaseRemoteConfig
+    private val firebaseAI: FirebaseAI
 ) {
     private val json = Json { ignoreUnknownKeys = true }
 
     private val generativeModel: GenerativeModel get() =
         firebaseAI.generativeModel(
-            modelName = remoteConfig.getString("model_name"),
+            modelName = "gemini-2.5-flash-image",
             generationConfig = generationConfig {
                 responseModalities = listOf(ResponseModality.TEXT, ResponseModality.IMAGE)
             }
@@ -37,7 +35,7 @@ class AIRemoteDataSource @Inject constructor(
 
     private val imagenModel: ImagenModel get() =
         firebaseAI.imagenModel(
-            modelName = remoteConfig.getString("imagen_name"),
+            modelName = "imagen-4.0-fast-generate-001",
             generationConfig = imagenGenerationConfig {
                 numberOfImages = 1
                 aspectRatio = ImagenAspectRatio.SQUARE_1x1
@@ -51,7 +49,7 @@ class AIRemoteDataSource @Inject constructor(
 
     private val mealSchemaModel: GenerativeModel get() =
         firebaseAI.generativeModel(
-            modelName = remoteConfig.getString("schema_model_name"),
+            modelName = "gemini-2.5-flash",
             generationConfig = generationConfig {
                 responseMimeType = "application/json"
                 responseSchema = Schema.obj(
@@ -68,7 +66,7 @@ class AIRemoteDataSource @Inject constructor(
 
     private val recipeSchemaModel: GenerativeModel get() =
         firebaseAI.generativeModel(
-            modelName = remoteConfig.getString("schema_model_name"),
+            modelName = "gemini-2.5-flash",
             generationConfig = generationConfig {
                 responseMimeType = "application/json"
                 responseSchema = Schema.obj(
