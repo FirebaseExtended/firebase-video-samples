@@ -34,7 +34,6 @@ class RecipeStore {
   private(set) var filterConfiguration: FilterConfiguration? = nil
 
   private static let recipeCollection = "recipes"
-  private static let savesCollection = "save"
 
   @MainActor private(set) var topTags: [String] = []
   @MainActor private(set) var recipes = [Recipe]()
@@ -188,7 +187,7 @@ class RecipeStore {
 // Favorites/Saves
 extension RecipeStore {
 
-  private static let savesCollection = "save"
+  private static let savesCollection = "saves"
 
   func fetchSave(for recipeID: String, userID: String) async throws -> RecipeSave? {
     let documentID = RecipeSave(userID: userID, recipeID: recipeID).compositeID
@@ -237,7 +236,7 @@ extension RecipeStore {
 // Reviews
 extension RecipeStore {
 
-  private static let reviewsSubcollection = "review"
+  private static let reviewsSubcollection = "reviews"
 
   func fetchReview(userID: String, recipeID: String) async throws -> Review? {
     let compositeID = "\(recipeID)_\(userID)"
