@@ -22,6 +22,9 @@ import FirebaseAuth
 
 enum RecipeStoreError: Error {
   case missingRecipeID
+  case saveDecodingError(String)
+  case recipeDecodingError(String)
+  case reviewDecodingError(String)
 }
 
 @Observable
@@ -103,7 +106,7 @@ class RecipeStore {
     let query = activeQuery
 
     let snapshot = try await query.execute()
-    self.recipes = snapshot.results.compactMap { result in
+    self.recipes = try snapshot.results.compactMap { result in
       let imageURL = result.data["imageUri"] as? String
 
       guard let title = result.data["title"] as? String,
@@ -116,8 +119,8 @@ class RecipeStore {
         let cookTime = result.data["cookTime"] as? String,
         let servings = result.data["servings"] as? String,
         let documentID = result.id else {
-        print("Unable to initialize recipes from data: \(result.data)")
-        return nil
+        let errorMessage = "Unable to initialize recipes from data: \(result.data)"
+        throw RecipeStoreError.recipeDecodingError(errorMessage)
       }
 
       var recipe = Recipe(
@@ -185,6 +188,8 @@ class RecipeStore {
 // Favorites/Saves
 extension RecipeStore {
 
+  private static let savesCollection = "save"
+
   func fetchSave(for recipeID: String, userID: String) async throws -> RecipeSave? {
     let documentID = RecipeSave(userID: userID, recipeID: recipeID).compositeID
     let snapshot = try await db.collection(RecipeStore.savesCollection).document(documentID).getDocument()
@@ -213,14 +218,11 @@ extension RecipeStore {
     let saves = try snapshot.results.map { result in
       guard let userID = result.data["userId"] as? String,
             let recipeID = result.data["recipeId"] as? String else {
-        let error = NSError(domain: "FIRAuthSampleErrorDomain",
-                            code: 2,
-                            userInfo: [NSLocalizedDescriptionKey: "Could not decode RecipeSave from Firestore document: \(result)"])
-        throw error
+        let errorMessage = "Could not decode RecipeSave from Firestore document: \(result)"
+        throw RecipeStoreError.saveDecodingError(errorMessage)
       }
       return RecipeSave(userID: userID, recipeID: recipeID)
     }
-    print(saves)
     return saves
   }
 
@@ -230,4 +232,53 @@ extension RecipeStore {
     } ?? false
   }
 
+}
+
+// Reviews
+extension RecipeStore {
+
+  private static let reviewsSubcollection = "review"
+
+  func fetchReview(userID: String, recipeID: String) async throws -> Review? {
+    let compositeID = "\(recipeID)_\(userID)"
+    let snapshot = try await db.pipeline().documents([
+      db.collection(RecipeStore.recipeCollection).document(recipeID)
+        .collection(RecipeStore.reviewsSubcollection).document(compositeID),
+    ]).execute()
+    guard let reviewData = snapshot.results.first?.data else {
+      return nil // Review didn't exist
+    }
+
+    guard let user = reviewData["userId"] as? String,
+          let recipe = reviewData["recipeId"] as? String,
+          let rating = reviewData["rating"] as? Double else {
+      let errorMessage = "Couldn't initialize review from data: \(reviewData)"
+      throw RecipeStoreError.reviewDecodingError(errorMessage)
+    }
+
+    return Review(userID: user, recipeID: recipe, rating: rating)
+  }
+
+  func writeReview(_ review: Review) throws {
+    let compositeID = review.compositeID
+    try db.collection(RecipeStore.recipeCollection)
+      .document(review.recipeId)
+      .collection(RecipeStore.reviewsSubcollection)
+      .document(compositeID)
+      .setData(from: review)
+  }
+
+  func fetchRating(recipeID: String) async throws -> Double {
+    let collectionPath = "\(RecipeStore.recipeCollection)/\(recipeID)/\(RecipeStore.reviewsSubcollection)"
+    let snapshot = try await db.pipeline()
+      .collection(collectionPath)
+      .aggregate([
+        Field("rating").average().as("averageRating")
+      ]).execute()
+    guard let rating = snapshot.results.first?.data["averageRating"] as? Double else {
+      print("warning: unable to find rating in \(snapshot.results)")
+      return 0
+    }
+    return rating
+  }
 }

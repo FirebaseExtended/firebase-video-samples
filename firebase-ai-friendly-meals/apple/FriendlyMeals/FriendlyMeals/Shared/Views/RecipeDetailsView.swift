@@ -19,14 +19,17 @@ import SwiftUI
 
 struct RecipeDetailsView {
   @Environment(\.dismiss) private var dismiss
+  @Environment(RecipeStore.self) private var recipeStore
 
   let recipe: Recipe?
   let errorMessage: String?
   let placeholderImage: UIImage?
   var isNew = false
-  @State var isSaved = false
   var onSaveToServer: (() -> Void)? = nil
   var onSaveToUser: ((Bool) -> Void)? = nil
+
+  @State var isSaved = false
+  @State var rating: Double = 0
 
   init(recipe: Recipe?,
        placeholderImage: UIImage? = nil,
@@ -73,6 +76,31 @@ extension RecipeDetailsView: View {
               .font(.largeTitle)
               .bold()
 
+            if let id = recipe.id {
+              HStack {
+                Text("Rating: ")
+                  .font(.subheadline)
+                  .foregroundStyle(.secondary)
+                let wholeStars = Int(rating)
+                ForEach(0..<wholeStars, id: \.self) { index in
+                  Image(systemName: "star.fill")
+                    .foregroundColor(.yellow)
+                    .aspectRatio(contentMode: .fit)
+                    .padding(0)
+                }
+                let remainder = rating.truncatingRemainder(dividingBy: 1)
+                if remainder > 0 {
+                  partialStar(percentage: remainder)
+                }
+              }
+              .task {
+                do {
+                  rating = try await recipeStore.fetchRating(recipeID: id)
+                } catch {
+                  print("unable to fetch recipe rating: \(error)")
+                }
+              }
+            }
             HStack {
               Image(systemName: "clock")
               Text("Cooking time: \(recipe.cookTime)")
@@ -112,6 +140,20 @@ extension RecipeDetailsView: View {
                 }
               }
             }
+            if let id = recipe.id {
+              Section("Leave a review") {
+                RatingSliderView(rating: $rating)
+                  .onChange(of: rating) { _, newRating in
+                    if let review = Review(recipeID: id, rating: newRating) {
+                      do {
+                        try recipeStore.writeReview(review)
+                      } catch {
+                        print("Failed to write recipe review: \(error)")
+                      }
+                    }
+                  }
+              }
+            }
           }
           .padding()
         }
@@ -139,6 +181,23 @@ extension RecipeDetailsView: View {
           Label("Save", systemImage: imageName)
         }
       }
+    }
+  }
+
+  private func partialStar(percentage: Double) -> ZStack<some View> {
+    return ZStack {
+      Image(systemName: "star")
+        .foregroundColor(.clear)
+
+      Image(systemName: "star.fill")
+        .foregroundColor(.yellow)
+        .mask {
+          GeometryReader { geometry in
+            Rectangle()
+              .frame(width: geometry.size.width * percentage)
+              .frame(maxWidth: .infinity, alignment: .leading)
+          }
+        }
     }
   }
 }
