@@ -44,12 +44,23 @@ struct FilterView: View {
 
   init(
     tags: [String],
-    configuration: FilterConfiguration = FilterConfiguration(),
+    configuration: FilterConfiguration? = FilterConfiguration(),
     applyFilters: @escaping (FilterConfiguration) -> ()
   ) {
     self.tags = tags
-    self.tagSelections = Array(repeating: false, count: tags.count)
-    self.configuration = configuration
+    var tagSelections = Array(repeating: false, count: tags.count)
+
+    if let configuration = configuration {
+      for i in 0 ..< tags.count {
+        if configuration.selectedTags.contains(tags[i]) {
+          tagSelections[i] = true
+        }
+      }
+      self.configuration = configuration
+    } else {
+      self.configuration = FilterConfiguration()
+    }
+    self.tagSelections = tagSelections
     self.applyFilters = applyFilters
   }
 

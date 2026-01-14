@@ -27,7 +27,9 @@ enum RecipeStoreError: Error {
 @Observable
 class RecipeStore {
   private let db = Firestore.firestore(database: "default")
-  private static let collectionName = "recipe"
+  private static let collectionName = "recipes"
+
+  private(set) var filterConfiguration: FilterConfiguration? = nil
 
   @MainActor private(set) var topTags: [String] = []
   @MainActor private(set) var recipes = [Recipe]()
@@ -80,6 +82,7 @@ class RecipeStore {
   }
 
   func applyConfiguration(_ configuration: FilterConfiguration) {
+    filterConfiguration = configuration
     let output = { (store: Firestore) -> Pipeline in
       return self.applyConfiguration(configuration, to: store.pipeline().collection(RecipeStore.collectionName))
     }

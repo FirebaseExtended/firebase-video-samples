@@ -69,9 +69,8 @@ struct RecipeListView: View {
         showFilterView = true
       }
       .sheet(isPresented: $showFilterView) {
-        FilterView(tags: recipeStore.topTags) { configuration in
+        FilterView(tags: recipeStore.topTags, configuration: recipeStore.filterConfiguration) { configuration in
           recipeStore.applyConfiguration(configuration)
-
           Task {
             do {
               try await recipeStore.fetchRecipes()
