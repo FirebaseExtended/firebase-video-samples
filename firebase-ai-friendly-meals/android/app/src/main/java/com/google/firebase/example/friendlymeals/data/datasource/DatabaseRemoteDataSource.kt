@@ -25,18 +25,16 @@ class DatabaseRemoteDataSource @Inject constructor(
     private val firestore: FirebaseFirestore
 ) {
     suspend fun addUser(user: User) {
-        firestore.collection(USER_COLLECTION).add(user).await()
+        firestore.collection(USERS_COLLECTION).add(user).await()
     }
 
     suspend fun addRecipe(recipe: Recipe): String {
-        val recipeRef = firestore.collection(RECIPE_COLLECTION).document()
-        val finalRecipe = recipe.copy(id = recipeRef.id)
-        recipeRef.set(finalRecipe).await()
+        val recipeRef = firestore.collection(RECIPES_COLLECTION).add(recipe).await()
         return recipeRef.id
     }
 
     suspend fun getRecipe(recipeId: String): Recipe {
-        val recipePath = "${RECIPE_COLLECTION}/${recipeId}"
+        val recipePath = "${RECIPES_COLLECTION}/${recipeId}"
 
         return firestore
             .pipeline()
@@ -47,7 +45,7 @@ class DatabaseRemoteDataSource @Inject constructor(
     suspend fun getAllRecipes(): List<RecipeListItem> {
         return firestore
             .pipeline()
-            .collection(RECIPE_COLLECTION)
+            .collection(RECIPES_COLLECTION)
             .execute().await().results.toRecipeListItem()
     }
 
@@ -57,7 +55,7 @@ class DatabaseRemoteDataSource @Inject constructor(
             .distinct()
 
         val batch = firestore.batch()
-        val tagsCollection = firestore.collection(TAG_COLLECTION)
+        val tagsCollection = firestore.collection(TAGS_COLLECTION)
 
         normalizedTags.forEach { tagName ->
             val tagRef = tagsCollection.document(tagName)
@@ -75,7 +73,7 @@ class DatabaseRemoteDataSource @Inject constructor(
 
     suspend fun getPopularTags(): List<Tag> {
         val results = firestore.pipeline()
-            .collection(TAG_COLLECTION)
+            .collection(TAGS_COLLECTION)
             .sort(field(TOTAL_RECIPES_FIELD).descending())
             .limit(10)
             .execute().await().results
@@ -106,11 +104,11 @@ class DatabaseRemoteDataSource @Inject constructor(
      */
     suspend fun setReview(review: Review) {
         val recipeRef = firestore
-            .collection(RECIPE_COLLECTION)
+            .collection(RECIPES_COLLECTION)
             .document(review.recipeId)
 
         val reviewRef = recipeRef
-            .collection(REVIEW_SUBCOLLECTION)
+            .collection(REVIEWS_SUBCOLLECTION)
             .document("${review.recipeId}_${review.userId}")
 
         reviewRef.set(review).await()
@@ -120,7 +118,7 @@ class DatabaseRemoteDataSource @Inject constructor(
     }
 
     private suspend fun getAverageRatingForRecipe(recipeId: String): Double {
-        val collectionPath = "${RECIPE_COLLECTION}/${recipeId}/${REVIEW_SUBCOLLECTION}"
+        val collectionPath = "${RECIPES_COLLECTION}/${recipeId}/${REVIEWS_SUBCOLLECTION}"
 
         val results = firestore
             .pipeline()
@@ -139,7 +137,7 @@ class DatabaseRemoteDataSource @Inject constructor(
 
     suspend fun getRating(userId: String, recipeId: String): Int {
         val reviewId = "${recipeId}_${userId}"
-        val reviewPath = "${RECIPE_COLLECTION}/${recipeId}/${REVIEW_SUBCOLLECTION}/${reviewId}"
+        val reviewPath = "${RECIPES_COLLECTION}/${recipeId}/${REVIEWS_SUBCOLLECTION}/${reviewId}"
 
         val results = firestore
             .pipeline()
@@ -160,13 +158,13 @@ class DatabaseRemoteDataSource @Inject constructor(
      */
     suspend fun setFavorite(save: Save) {
         val saveRef = firestore
-            .collection(SAVE_COLLECTION)
+            .collection(SAVES_COLLECTION)
             .document("${save.recipeId}_${save.userId}")
 
         saveRef.set(save).await()
 
         firestore
-            .collection(RECIPE_COLLECTION)
+            .collection(RECIPES_COLLECTION)
             .document(save.recipeId)
             .update(SAVES_FIELD, FieldValue.increment(1))
             .await()
@@ -174,13 +172,13 @@ class DatabaseRemoteDataSource @Inject constructor(
 
     suspend fun removeFavorite(save: Save) {
         firestore
-            .collection(SAVE_COLLECTION)
+            .collection(SAVES_COLLECTION)
             .document("${save.recipeId}_${save.userId}")
             .delete()
             .await()
 
         firestore
-            .collection(RECIPE_COLLECTION)
+            .collection(RECIPES_COLLECTION)
             .document(save.recipeId)
             .update(SAVES_FIELD, FieldValue.increment(-1))
             .await()
@@ -188,7 +186,7 @@ class DatabaseRemoteDataSource @Inject constructor(
 
     suspend fun getFavorite(userId: String, recipeId: String): Boolean {
         val favoriteId = "${recipeId}_${userId}"
-        val favoritePath = "${SAVE_COLLECTION}/${favoriteId}"
+        val favoritePath = "${SAVES_COLLECTION}/${favoriteId}"
 
         return firestore
             .pipeline()
@@ -200,7 +198,7 @@ class DatabaseRemoteDataSource @Inject constructor(
         filterOptions: FilterOptions,
         userId: String
     ): List<RecipeListItem> {
-        var pipeline = firestore.pipeline().collection(RECIPE_COLLECTION)
+        var pipeline = firestore.pipeline().collection(RECIPES_COLLECTION)
 
         if (filterOptions.recipeTitle.isNotBlank()) {
             pipeline = pipeline
@@ -253,7 +251,6 @@ class DatabaseRemoteDataSource @Inject constructor(
         val itemData = this.first().getData()
 
         return Recipe(
-            id = itemData[ID_FIELD] as? String ?: "",
             title = itemData[TITLE_FIELD] as? String ?: "",
             instructions = itemData[INSTRUCTIONS_FIELD] as? String ?: "",
             ingredients = (itemData[INGREDIENTS_FIELD] as? List<*>)?.filterIsInstance<String>() ?: listOf(),
@@ -270,13 +267,14 @@ class DatabaseRemoteDataSource @Inject constructor(
 
     private fun List<PipelineResult>.toRecipeListItem(): List<RecipeListItem> {
         return this.mapNotNull { result ->
-            val itemData = result.getData()
-            val id = itemData[ID_FIELD] as? String
+            val id = result.getId()
 
             if (id.isNullOrEmpty()) {
-                Log.w(this::class.java.simpleName, "Empty ID for item $itemData")
+                Log.w(this::class.java.simpleName, "Empty recipe ID")
                 return@mapNotNull null
             }
+
+            val itemData = result.getData()
 
             RecipeListItem(
                 id = id,
@@ -289,11 +287,11 @@ class DatabaseRemoteDataSource @Inject constructor(
 
     companion object {
         //Collections
-        private const val USER_COLLECTION = "user"
-        private const val RECIPE_COLLECTION = "recipe"
-        private const val TAG_COLLECTION = "tag"
-        private const val SAVE_COLLECTION = "save"
-        private const val REVIEW_SUBCOLLECTION = "review"
+        private const val USERS_COLLECTION = "users"
+        private const val RECIPES_COLLECTION = "recipes"
+        private const val TAGS_COLLECTION = "tags"
+        private const val SAVES_COLLECTION = "saves"
+        private const val REVIEWS_SUBCOLLECTION = "reviews"
 
         //Fields
         private const val ID_FIELD = "id"

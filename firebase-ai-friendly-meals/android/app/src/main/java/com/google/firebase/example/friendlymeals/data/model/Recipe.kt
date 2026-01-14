@@ -1,7 +1,6 @@
 package com.google.firebase.example.friendlymeals.data.model
 
 data class Recipe(
-    val id: String = "",
     val title: String = "",
     val instructions: String = "",
     val ingredients: List<String> = listOf(),
