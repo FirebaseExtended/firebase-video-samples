@@ -61,7 +61,7 @@ struct RecipeListView: View {
         Button {
           Task {
             do {
-              try await likesStore.toggleLikeIfAuthenticated(recipe: recipe)
+              try await likesStore.toggleLike(recipe: recipe)
             } catch {
               print("Unable to like recipe: \(error)")
             }
@@ -79,7 +79,7 @@ struct RecipeListView: View {
                         onLike: { newLike in
         Task {
           do {
-            try await likesStore.toggleLikeIfAuthenticated(recipe: recipe)
+            try await likesStore.toggleLike(recipe: recipe)
           } catch {
             print("Unable to like recipe: \(error)")
           }

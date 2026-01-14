@@ -70,7 +70,7 @@ class LikesStore {
     } ?? false
   }
 
-  func toggleLikeIfAuthenticated(recipe: Recipe) async throws {
+  func toggleLike(recipe: Recipe) async throws {
     guard let like = recipe.id.flatMap({ RecipeLike(recipeID: $0) }) else {
       return
     }
