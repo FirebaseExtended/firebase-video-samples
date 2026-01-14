@@ -87,8 +87,10 @@ struct RecipeListView: View {
       })
     }
     .toolbar {
-      Button("Filters") {
+      Button {
         showFilterView = true
+      } label: {
+        Label("Filters", systemImage: "line.3.horizontal.decrease")
       }
       .sheet(isPresented: $showFilterView) {
         FilterView(tags: recipeStore.topTags, configuration: recipeStore.filterConfiguration) { configuration in
