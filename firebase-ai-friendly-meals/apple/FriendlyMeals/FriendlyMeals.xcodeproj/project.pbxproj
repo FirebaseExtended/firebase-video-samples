@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		882C18B42F192F2500110675 /* ConversationKit in Frameworks */ = {isa = PBXBuildFile; productRef = 88665A882E1D2DB00039990B /* ConversationKit */; };
+		882C18B52F192F2500110675 /* ConversationKit in Frameworks */ = {isa = PBXBuildFile; productRef = 883F6FA82E86969900519CE3 /* ConversationKit */; };
+		882C18B62F192F2500110675 /* ConversationKit in Frameworks */ = {isa = PBXBuildFile; productRef = 88C207D72E8AA5C6004CD918 /* ConversationKit */; };
+		882C18B72F192F2500110675 /* ConversationKit in Frameworks */ = {isa = PBXBuildFile; productRef = 88FF5D532ECF579900646871 /* ConversationKit */; };
 		884B2CF22E144BA7007B2E0E /* MarkdownUI in Frameworks */ = {isa = PBXBuildFile; productRef = 884B2CF12E144BA7007B2E0E /* MarkdownUI */; };
 		884ECEF72E8ABF9400E3B0CB /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 884ECEF62E8ABF9400E3B0CB /* FirebaseFirestore */; };
 		887565682E86CCEE0041DDEF /* ConversationKit in Frameworks */ = {isa = PBXBuildFile; productRef = 887565672E86CCEE0041DDEF /* ConversationKit */; };
@@ -42,6 +46,10 @@
 				8DBC83FC2F17076D00DAC906 /* ConversationKit in Frameworks */,
 				8DBC83FB2F17076D00DAC906 /* ConversationKit in Frameworks */,
 				8DBC83FA2F17076D00DAC906 /* ConversationKit in Frameworks */,
+				882C18B72F192F2500110675 /* ConversationKit in Frameworks */,
+				882C18B62F192F2500110675 /* ConversationKit in Frameworks */,
+				882C18B52F192F2500110675 /* ConversationKit in Frameworks */,
+				882C18B42F192F2500110675 /* ConversationKit in Frameworks */,
 				887565682E86CCEE0041DDEF /* ConversationKit in Frameworks */,
 				884B2CF22E144BA7007B2E0E /* MarkdownUI in Frameworks */,
 				88C8FB7A2E13DF62001B86C4 /* FirebaseCore in Frameworks */,

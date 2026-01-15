@@ -23,6 +23,7 @@ import FirebaseAuth
 struct FriendlyMealsApp: App {
   @State private var recipeStore: RecipeStore
   @State private var likesStore: LikesStore
+  @State private var selectedTab: AppTab = .cookbook
 
   init () {
     FirebaseApp.configure()
@@ -32,13 +33,14 @@ struct FriendlyMealsApp: App {
 
   var body: some Scene {
     WindowGroup {
-      TabView {
+      TabView(selection: $selectedTab) {
         NavigationStack {
           RecipeListView()
         }
         .tabItem {
           Label("Cookbook", systemImage: "book.closed")
         }
+        .tag(AppTab.cookbook)
 
         NavigationStack {
           MealPlannerSuggestionView()
@@ -46,6 +48,7 @@ struct FriendlyMealsApp: App {
         .tabItem {
           Label("Suggest Recipe", systemImage: "wand.and.stars")
         }
+        .tag(AppTab.suggestRecipe)
 
         NavigationStack {
           MealPlannerChatView()
@@ -53,6 +56,7 @@ struct FriendlyMealsApp: App {
         .tabItem {
           Label("Meal Planner", systemImage: "bubble.left.and.bubble.right")
         }
+        .tag(AppTab.mealPlanner)
         
         NavigationStack {
           NutritionView()
@@ -60,10 +64,12 @@ struct FriendlyMealsApp: App {
         .tabItem {
           Label("Nutrition", systemImage: "camera.macro")
         }
+        .tag(AppTab.nutrition)
 
       }
       .environment(recipeStore)
       .environment(likesStore)
+      .environment(\.selectedTab, $selectedTab)
       .task {
         // Fetch Remote Config params
         do {
