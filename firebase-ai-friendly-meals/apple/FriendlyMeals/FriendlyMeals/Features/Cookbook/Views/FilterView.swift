@@ -1,7 +1,7 @@
 //
 // FriendlyMeals
 //
-// Copyright © 2025 Google LLC.
+// Copyright © 2026 Google LLC.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,14 +19,16 @@ import SwiftUI
 
 struct FilterConfiguration {
 
-  enum SortOptions: String {
+  enum SortOptions: String, CaseIterable, Identifiable {
     case none = "None"
     case rating = "Rating"
     case alphabetical = "Alphabetical"
     case popularity = "Popularity"
+    
+    var id: String { rawValue }
   }
 
-  static let sortOptions: [SortOptions] = [.none, .rating, .alphabetical, .popularity]
+  static let sortOptions: [SortOptions] = SortOptions.allCases
 
   var shouldShowOnlyOwnRecipes: Bool = false
 
@@ -41,6 +43,7 @@ struct FilterConfiguration {
 }
 
 struct FilterView: View {
+  @Environment(\.dismiss) var dismiss
 
   init(
     tags: [String],
@@ -48,96 +51,98 @@ struct FilterView: View {
     applyFilters: @escaping (FilterConfiguration) -> ()
   ) {
     self.tags = tags
-    var tagSelections = Array(repeating: false, count: tags.count)
-
-    if let configuration = configuration {
-      for i in 0 ..< tags.count {
-        if configuration.selectedTags.contains(tags[i]) {
-          tagSelections[i] = true
-        }
-      }
-      self.configuration = configuration
-    } else {
-      self.configuration = FilterConfiguration()
-    }
-    self.tagSelections = tagSelections
     self.applyFilters = applyFilters
+    
+    let initialConfig = configuration ?? FilterConfiguration()
+    _configuration = State(initialValue: initialConfig)
   }
 
-  var tags: [String] {
-    didSet {
-      tagSelections = Array(repeating: false, count: tags.count)
-    }
-  }
+  let tags: [String]
+  let applyFilters: (FilterConfiguration) -> ()
 
-  private let applyFilters: (FilterConfiguration) -> ()
-
-  @State private var tagSelections: [Bool]
   @State private var configuration: FilterConfiguration
 
   var body: some View {
-    VStack(alignment: .leading) {
-      Text("Filters")
-        .font(.largeTitle)
-
-      Toggle(isOn: $configuration.shouldShowOnlyOwnRecipes) {
-        Text("View only my recipes")
-      }
-
-      Text("Filter by title")
-      TextField("Scallops", text: $configuration.recipeTitle)
-
-      Text("Minimum rating: \(configuration.minimumRating.formatted())")
-      Slider(
-        value: $configuration.minimumRating,
-        in: 0...5,
-        step: 0.25
-      ) {
-        Text("Minimum rating")
-      } minimumValueLabel: {
-        Text("0")
-      } maximumValueLabel: {
-        Text("5")
-      } onEditingChanged: { _ in
-        // do nothing
-      }
-
-      Text("Tags")
-      ScrollView(.horizontal, showsIndicators: true) {
-        HStack {
-          ForEach(0 ..< tags.count, id: \.self) { index in
-            let tag = tags[index]
-            let isSelected = tagSelections[index]
-            Toggle(tag, isOn: $tagSelections[index])
-              .toggleStyle(.button)
-              .tint(isSelected ? .blue : .secondary)
+    NavigationView {
+      Form {
+        Section(header: Text("General")) {
+          Toggle(isOn: $configuration.shouldShowOnlyOwnRecipes) {
+            Text("View only my recipes")
+          }
+          
+          TextField("Filter by title", text: $configuration.recipeTitle)
+            .textInputAutocapitalization(.never)
+            .autocorrectionDisabled(true)
+        }
+        
+        Section(header: Text("Rating")) {
+          HStack {
+            Text("Minimum rating: \(configuration.minimumRating.formatted())")
+            Spacer()
+            StarRatingView(rating: $configuration.minimumRating)
+          }
+        }
+        
+        Section(header: Text("Tags")) {
+          ScrollView(.horizontal, showsIndicators: false) {
+            HStack {
+              ForEach(tags, id: \.self) { tag in
+                let isSelected = configuration.selectedTags.contains(tag)
+                Toggle(tag, isOn: Binding(
+                  get: { isSelected },
+                  set: { isSelected in
+                    if isSelected {
+                      configuration.selectedTags.insert(tag)
+                    } else {
+                      configuration.selectedTags.remove(tag)
+                    }
+                  }
+                ))
+                .toggleStyle(.button)
+                .tint(isSelected ? .blue : .secondary)
+              }
+            }
+            .padding(.vertical, 4)
+          }
+        }
+        
+        Section(header: Text("Sort by")) {
+          Picker("Choose a sort method", selection: $configuration.sortOption) {
+            ForEach(FilterConfiguration.SortOptions.allCases) { option in
+              Text(option.rawValue).tag(option)
+            }
+          }
+        }
+        
+        Section {
+          Button(role: .destructive) {
+             configuration = FilterConfiguration()
+          } label: {
+             Text("Reset Filters")
+               .frame(maxWidth: .infinity)
           }
         }
       }
-
-      Text("Sort by")
-      Picker("Choose a sort method", selection: $configuration.sortOption) {
-        ForEach(FilterConfiguration.sortOptions, id: \.self) { option in
-          Text(option.rawValue).tag(option.rawValue)
+      .navigationTitle("Filters")
+      .toolbar {
+        ToolbarItem(placement: .cancellationAction) {
+          Button {
+            dismiss()
+          } label: {
+            Label("Cancel", systemImage: "xmark")
+          }
+        }
+        ToolbarItem(placement: .confirmationAction) {
+          Button {
+            applyFilters(configuration)
+            dismiss()
+          } label: {
+            Label("Apply", systemImage: "checkmark")
+          }
         }
       }
-
-      HStack {
-        Button("Remove filters") {
-          configuration = FilterConfiguration()
-          tagSelections = tagSelections.map { _ in false }
-        }
-        Button("Apply filters") {
-          let selectedTags = tags.indices
-            .filter { tagSelections[$0] }
-            .map { tags[$0] }
-          configuration.selectedTags = Set(selectedTags)
-          applyFilters(configuration)
-        }
-      }
-      Spacer()
     }
-    .padding(16)
   }
 
 }
+
