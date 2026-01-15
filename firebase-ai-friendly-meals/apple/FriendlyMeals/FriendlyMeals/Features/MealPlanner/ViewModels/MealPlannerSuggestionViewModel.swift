@@ -16,6 +16,7 @@
 // limitations under the License.
 
 import FirebaseAI
+import FirebaseAuth
 import FirebaseRemoteConfig
 import SwiftUI
 import UIKit
@@ -33,6 +34,9 @@ class MealPlannerSuggestionViewModel {
   var errorMessage: String?
 
   @ObservationIgnored
+  private lazy var imageStore = RecipeImageStore()
+
+  @ObservationIgnored
   private lazy var model: GenerativeModel = {
     let generationConfig = GenerationConfig(
       temperature: 0.9,
@@ -43,13 +47,12 @@ class MealPlannerSuggestionViewModel {
       responseSchema: .object(
         properties: [
           "title": .string(),
-          "description": .string(),
-          "cookingTime": .integer(),
-          "ingredients": .array(items: .object(properties: [
-            "name": .string(),
-            "amount": .string()
-          ])),
-          "instructions": .array(items: .string())
+          "cookTime": .string(),
+          "prepTime": .string(),
+          "ingredients": .array(items: .string()),
+          "servings": .string(),
+          "instructions": .string(),
+          "tags": .array(items: .string())
         ]
       ),
       responseModalities: [.text]
@@ -82,15 +85,20 @@ class MealPlannerSuggestionViewModel {
     recipe = nil
     errorMessage = nil
 
-    var prompt = "Create a recipe using the following ingredients: \(ingredients)."
+    var prompt =
+      """
+      Create a detailed recipe based on these ingredients: \(ingredients).
+      
+      Format requirements:
+      - 'instructions': Provide the cooking steps as a clear list of instructions separated by newlines. Use bold formatting on the step numbers. Use Markdown.
+      - 'ingredients': List all necessary items, including quantities.
+      - 'prepTime', 'cookTime', 'servings': Short strings (e.g., "15 mins").
+      - 'tags': Generate a list of 3-5 relevant category tags (e.g., "Healthy", "Vegan", "Gluten-Free", "Dessert", "Quick").
+
+      """
 
     if !notes.isEmpty {
-      prompt.append(
-        """
-        Please make sure to consider the following notes
-        when creating the recipe: \(notes)
-        """
-      )
+      prompt.append("\n\nIMPORTANT CUISINE AND DIETARY NOTES: \(notes)")
     }
 
     do {
@@ -99,17 +107,16 @@ class MealPlannerSuggestionViewModel {
         let jsonData = Data(jsonString.utf8)
         let decoder = JSONDecoder()
         let generatedRecipe = try decoder.decode(GeneratedRecipe.self, from: jsonData)
-        self.recipe = Recipe(from: generatedRecipe)
+        self.recipe = Recipe(from: generatedRecipe, authorID: Auth.auth().currentUser?.uid)
         if let recipe {
           await generateImage(for: recipe)
         }
       }
       UsageTrackingService.shared.incrementGenerationCount()
-      isPresentingRecipe = true
     } catch {
-      errorMessage = "An error occurred while generating the recipe: \(error.localizedDescription)."
-      isPresentingRecipe = true
+      errorMessage = "An error occurred while generating the recipe: \(error)."
     }
+    isPresentingRecipe = true
   }
 
   func generateImage(for recipe: Recipe) async {
@@ -122,6 +129,37 @@ class MealPlannerSuggestionViewModel {
     }
     catch {
       print("Error generating image: \(error.localizedDescription)")
+    }
+  }
+
+  func addRecipe(to store: RecipeStore) async {
+    if var recipe = recipe,
+       let image = recipeImage {
+      do {
+        let url = try await imageStore.saveImage(image)
+        recipe.imageUri = url.absoluteString
+        try await store.add(recipe)
+      } catch {
+        print("Error writing recipe to store: \(error)")
+      }
+    }
+  }
+
+  func writeLike(_ newLike: Bool, to store: LikesStore) {
+    guard let like = recipe?.id.flatMap({
+      RecipeLike(recipeID: $0)
+    }) else {
+      print("No recipe to like")
+      return
+    }
+    do {
+      if newLike {
+        try store.addLike(like)
+      } else {
+        store.removeLike(like)
+      }
+    } catch {
+      print("Error writing like to store: \(error)")
     }
   }
 

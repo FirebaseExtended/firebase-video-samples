@@ -22,10 +22,8 @@ protocol RecipeRepresentable {
   var title: String { get }
   var instructions: String { get }
   var ingredients: [String] { get }
-  var authorId: String { get }
   var tags: [String] { get }
-  var averageRating: Double { get }
-  var imageUrl: String? { get }
+  var imageUri: String? { get }
   var prepTime: String { get }
   var cookTime: String { get }
   var servings: String { get }

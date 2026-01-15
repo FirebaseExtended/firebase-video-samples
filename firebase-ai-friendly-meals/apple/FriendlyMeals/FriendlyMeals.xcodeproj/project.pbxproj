@@ -13,13 +13,16 @@
 		887565922E86D6D80041DDEF /* FirebaseRemoteConfig in Frameworks */ = {isa = PBXBuildFile; productRef = 887565912E86D6D80041DDEF /* FirebaseRemoteConfig */; };
 		88BE941E2E1413D000C81FF5 /* FirebaseAI in Frameworks */ = {isa = PBXBuildFile; productRef = 88BE941D2E1413D000C81FF5 /* FirebaseAI */; };
 		88C8FB7A2E13DF62001B86C4 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 88C8FB792E13DF62001B86C4 /* FirebaseCore */; };
-		8D1628B12EE8D9180038870D /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 8D1628B02EE8D9180038870D /* GoogleService-Info.plist */; };
 		8DAB5BA32F04A0FE000D464B /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 8DAB5BA22F04A0FE000D464B /* FirebaseAuth */; };
+		8DAB5BA82F107BA3000D464B /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 8DAB5BA72F107BA3000D464B /* FirebaseStorage */; };
+		8DBC83FA2F17076D00DAC906 /* ConversationKit in Frameworks */ = {isa = PBXBuildFile; productRef = 88665A882E1D2DB00039990B /* ConversationKit */; };
+		8DBC83FB2F17076D00DAC906 /* ConversationKit in Frameworks */ = {isa = PBXBuildFile; productRef = 883F6FA82E86969900519CE3 /* ConversationKit */; };
+		8DBC83FC2F17076D00DAC906 /* ConversationKit in Frameworks */ = {isa = PBXBuildFile; productRef = 88C207D72E8AA5C6004CD918 /* ConversationKit */; };
+		8DBC83FD2F17076D00DAC906 /* ConversationKit in Frameworks */ = {isa = PBXBuildFile; productRef = 88FF5D532ECF579900646871 /* ConversationKit */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		88C8FB652E13D879001B86C4 /* FriendlyMeals.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FriendlyMeals.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		8D1628B02EE8D9180038870D /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -35,11 +38,16 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8DBC83FD2F17076D00DAC906 /* ConversationKit in Frameworks */,
+				8DBC83FC2F17076D00DAC906 /* ConversationKit in Frameworks */,
+				8DBC83FB2F17076D00DAC906 /* ConversationKit in Frameworks */,
+				8DBC83FA2F17076D00DAC906 /* ConversationKit in Frameworks */,
 				887565682E86CCEE0041DDEF /* ConversationKit in Frameworks */,
 				884B2CF22E144BA7007B2E0E /* MarkdownUI in Frameworks */,
 				88C8FB7A2E13DF62001B86C4 /* FirebaseCore in Frameworks */,
 				887565922E86D6D80041DDEF /* FirebaseRemoteConfig in Frameworks */,
 				884ECEF72E8ABF9400E3B0CB /* FirebaseFirestore in Frameworks */,
+				8DAB5BA82F107BA3000D464B /* FirebaseStorage in Frameworks */,
 				8DAB5BA32F04A0FE000D464B /* FirebaseAuth in Frameworks */,
 				88BE941E2E1413D000C81FF5 /* FirebaseAI in Frameworks */,
 			);
@@ -51,7 +59,6 @@
 		88C8FB5C2E13D879001B86C4 = {
 			isa = PBXGroup;
 			children = (
-				8D1628B02EE8D9180038870D /* GoogleService-Info.plist */,
 				88C8FB672E13D879001B86C4 /* FriendlyMeals */,
 				88C8FB782E13DF62001B86C4 /* Frameworks */,
 				88C8FB662E13D879001B86C4 /* Products */,
@@ -104,6 +111,7 @@
 				884ECEF62E8ABF9400E3B0CB /* FirebaseFirestore */,
 				88FF5D532ECF579900646871 /* ConversationKit */,
 				8DAB5BA22F04A0FE000D464B /* FirebaseAuth */,
+				8DAB5BA72F107BA3000D464B /* FirebaseStorage */,
 			);
 			productName = FriendlyMeals;
 			productReference = 88C8FB652E13D879001B86C4 /* FriendlyMeals.app */;
@@ -117,7 +125,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 2600;
-				LastUpgradeCheck = 2600;
+				LastUpgradeCheck = 2610;
 				TargetAttributes = {
 					88C8FB642E13D879001B86C4 = {
 						CreatedOnToolsVersion = 26.0;
@@ -153,7 +161,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8D1628B12EE8D9180038870D /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -229,6 +236,7 @@
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
@@ -286,6 +294,7 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				VALIDATE_PRODUCT = YES;
 			};
@@ -389,8 +398,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
 			requirement = {
-				branch = "feat/pipeline/private-preview";
-				kind = branch;
+				kind = revision;
+				revision = 1f7389bad09aa93c9eeb508e70013207813a4df2;
 			};
 		};
 		88FF5D522ECF579900646871 /* XCRemoteSwiftPackageReference "ConversationKit" */ = {
@@ -454,6 +463,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 88C8FB772E13DEE1001B86C4 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseAuth;
+		};
+		8DAB5BA72F107BA3000D464B /* FirebaseStorage */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 88C8FB772E13DEE1001B86C4 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseStorage;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

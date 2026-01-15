@@ -1,7 +1,7 @@
 //
 // FriendlyMeals
 //
-// Copyright © 2025 Google LLC.
+// Copyright © 2022 Google LLC.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,25 +15,31 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
+import FirebaseAuth
 
-/// Represents a recipe generated from Gemini.
-/// Don't add any user state to this struct or it will fail to properly decode from
-/// Gemini-generated JSON.
-struct GeneratedRecipe: Decodable, RecipeRepresentable {
+struct Review: Codable, Hashable {
 
-  var title: String
-  var instructions: String
-  var ingredients: [String]
+  var userId: String
+  var recipeId: String
+  var rating: Double
 
-  // These are plain strings
-  var tags: [String]
+  var compositeID: String {
+    return "\(recipeId)_\(userId)"
+  }
 
-  var imageUri: String?
+  init(userID: String, recipeID: String, rating: Double) {
+    self.userId = userID
+    self.recipeId = recipeID
+    self.rating = rating
+  }
+}
 
-  // These are display strings
-  var prepTime: String
-  var cookTime: String
-  var servings: String
+extension Review {
+
+  init?(recipeID: String, user: User? = Auth.auth().currentUser, rating: Double) {
+    guard let id = user?.uid else { return nil }
+    self.init(userID: id, recipeID: recipeID, rating: rating)
+  }
 
 }
+

@@ -17,14 +17,17 @@
 
 import SwiftUI
 import FirebaseCore
+import FirebaseAuth
 
 @main
 struct FriendlyMealsApp: App {
   @State private var recipeStore: RecipeStore
+  @State private var likesStore: LikesStore
 
   init () {
     FirebaseApp.configure()
     _recipeStore = State(initialValue: RecipeStore())
+    _likesStore = State(initialValue: LikesStore())
   }
 
   var body: some Scene {
@@ -60,13 +63,20 @@ struct FriendlyMealsApp: App {
 
       }
       .environment(recipeStore)
-      .onAppear {
-        Task {
-          do {
-            try await RemoteConfigService.shared.fetchConfig()
-          } catch {
-            print("Failed to fetch remote config: \(error)")
-          }
+      .environment(likesStore)
+      .task {
+        // Fetch Remote Config params
+        do {
+          try await RemoteConfigService.shared.fetchConfig()
+        } catch {
+          print("Failed to fetch remote config: \(error)")
+        }
+
+        // Setup auth
+        do {
+          try await Auth.auth().signInAnonymously()
+        } catch {
+          print("Failed to authenticate anonymous user: \(error)")
         }
       }
     }

@@ -31,30 +31,25 @@ struct Recipe: Codable, Identifiable, Hashable, RecipeRepresentable {
   var tags: [String]
 
   var averageRating: Double
-  var imageUrl: String?
+  var imageUri: String?
 
   // These are display strings
   var prepTime: String
   var cookTime: String
   var servings: String
 
-  // TODO: implement favorites
-  var isFavorite: Bool {
-    return false
-  }
-
 }
 
 extension Recipe {
-  init(from representable: RecipeRepresentable) {
+  init(from representable: RecipeRepresentable, authorID: String?) {
     self.init(
       title: representable.title,
       instructions: representable.instructions,
       ingredients: representable.ingredients,
-      authorId: representable.authorId,
+      authorId: authorID ?? "anonymous",
       tags: representable.tags,
-      averageRating: representable.averageRating,
-      imageUrl: representable.imageUrl,
+      averageRating: 0,
+      imageUri: representable.imageUri,
       prepTime: representable.prepTime,
       cookTime: representable.cookTime,
       servings: representable.servings

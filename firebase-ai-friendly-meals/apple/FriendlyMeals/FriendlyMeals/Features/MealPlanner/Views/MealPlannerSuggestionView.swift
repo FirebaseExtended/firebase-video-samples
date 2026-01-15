@@ -20,6 +20,11 @@ import SwiftUI
 struct MealPlannerSuggestionView: View {
   @State private var viewModel = MealPlannerSuggestionViewModel()
   @Environment(RecipeStore.self) private var recipeStore
+  @Environment(LikesStore.self) private var likesStore
+
+  var recipeIsLiked: Bool {
+    return viewModel.recipe.flatMap { likesStore.isLiked($0) } ?? false
+  }
 
   var body: some View {
     Form {
@@ -62,15 +67,17 @@ struct MealPlannerSuggestionView: View {
       NavigationStack {
         RecipeDetailsView(
           recipe: viewModel.recipe,
-          image: viewModel.recipeImage,
+          placeholderImage: viewModel.recipeImage,
           errorMessage: viewModel.errorMessage,
           isNew: true,
+          isLiked: recipeIsLiked,
           onSave: {
-            if let recipe = viewModel.recipe {
-              Task {
-                try? await recipeStore.add(recipe)
-              }
+            Task {
+              await viewModel.addRecipe(to: recipeStore)
             }
+          },
+          onLike: { newLike in
+            viewModel.writeLike(newLike, to: likesStore)
           }
         )
         .toolbar {

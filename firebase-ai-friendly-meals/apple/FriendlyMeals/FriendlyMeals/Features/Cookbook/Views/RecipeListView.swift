@@ -19,20 +19,28 @@ import SwiftUI
 
 struct RecipeListView: View {
   @Environment(RecipeStore.self) private var recipeStore
+  @Environment(LikesStore.self) private var likesStore
   @State @MainActor private var showFilterView = false
 
   var body: some View {
     List(recipeStore.recipes) { recipe in
       NavigationLink(value: recipe) {
         HStack {
+          AsyncImage(
+            url: recipe.imageUri.flatMap(URL.init(string:))
+          )
+          .scaledToFill()
+          .frame(width: 80, height: 80)
+          .clipShape(Capsule())
+          .padding(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 8))
           VStack(alignment: .leading) {
             Text(recipe.title)
               .font(.headline)
           }
           Spacer()
-          if recipe.isFavorite {
-            Image(systemName: "star.fill")
-              .foregroundColor(.yellow)
+          if likesStore.isLiked(recipe) {
+            Image(systemName: "heart.fill")
+              .foregroundColor(.pink)
           }
         }
       }
@@ -52,21 +60,37 @@ struct RecipeListView: View {
       .swipeActions(edge: .leading) {
         Button {
           Task {
-            // TODO: add recipe to favorites
+            do {
+              try await likesStore.toggleLike(recipe: recipe)
+            } catch {
+              print("Unable to like recipe: \(error)")
+            }
           }
         } label: {
-          Label("Favorite", systemImage: recipe.isFavorite ? "star.slash" : "star")
+          Label("Favorite", systemImage: likesStore.isLiked(recipe) ? "heart.slash" : "heart")
         }
-        .tint(recipe.isFavorite ? .gray : .yellow)
+        .tint(likesStore.isLiked(recipe) ? .gray : .pink)
       }
     }
     .navigationTitle("Cookbook")
     .navigationDestination(for: Recipe.self) { recipe in
-      RecipeDetailsView(recipe: recipe, image: nil)
+      RecipeDetailsView(recipe: recipe,
+                        isLiked: likesStore.isLiked(recipe),
+                        onLike: { newLike in
+        Task {
+          do {
+            try await likesStore.toggleLike(recipe: recipe)
+          } catch {
+            print("Unable to like recipe: \(error)")
+          }
+        }
+      })
     }
     .toolbar {
-      Button("Filters") {
+      Button {
         showFilterView = true
+      } label: {
+        Label("Filters", systemImage: "line.3.horizontal.decrease")
       }
       .sheet(isPresented: $showFilterView) {
         FilterView(tags: recipeStore.topTags, configuration: recipeStore.filterConfiguration) { configuration in
@@ -83,6 +107,11 @@ struct RecipeListView: View {
       }
     }
     .task {
+      do {
+        try await likesStore.fetchLikesForDefaultUser()
+      } catch {
+        print("Error fetching recipes: \(error)")
+      }
       do {
         try await recipeStore.fetchRecipes()
       } catch {
