@@ -107,13 +107,13 @@ class DatabaseRemoteDataSource @Inject constructor(
     }
 
     /*
-    To enforce a "one favorite per user" constraint, Save documents use a deterministic ID based on
+    To enforce a "one favorite per user" constraint, Like documents use a deterministic ID based on
     the following pattern: "${recipeId}_${userId}". With this approach, you can retrieve a specific
-    Save document instantly without searching the entire collection.
+    Like document instantly without searching the entire collection.
      */
     suspend fun setFavorite(save: Save) {
         val saveRef = firestore
-            .collection(SAVES_COLLECTION)
+            .collection(LIKES_COLLECTION)
             .document("${save.recipeId}_${save.userId}")
 
         saveRef.set(save).await()
@@ -127,7 +127,7 @@ class DatabaseRemoteDataSource @Inject constructor(
 
     suspend fun removeFavorite(save: Save) {
         firestore
-            .collection(SAVES_COLLECTION)
+            .collection(LIKES_COLLECTION)
             .document("${save.recipeId}_${save.userId}")
             .delete()
             .await()
@@ -141,7 +141,7 @@ class DatabaseRemoteDataSource @Inject constructor(
 
     suspend fun getFavorite(userId: String, recipeId: String): Boolean {
         val favoriteId = "${recipeId}_${userId}"
-        val favoritePath = "${SAVES_COLLECTION}/${favoriteId}"
+        val favoritePath = "${LIKES_COLLECTION}/${favoriteId}"
 
         return firestore
             .pipeline()
@@ -199,7 +199,7 @@ class DatabaseRemoteDataSource @Inject constructor(
         private const val USERS_COLLECTION = "users"
         private const val RECIPES_COLLECTION = "recipes"
         private const val TAGS_COLLECTION = "tags"
-        private const val SAVES_COLLECTION = "saves"
+        private const val LIKES_COLLECTION = "likes"
         private const val REVIEWS_SUBCOLLECTION = "reviews"
 
         //Fields
