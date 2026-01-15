@@ -18,9 +18,14 @@
 import Foundation
 
 protocol RecipeRepresentable {
+
   var title: String { get }
-  var description: String { get }
-  var cookingTime: Int { get }
-  var ingredients: [Ingredient] { get }
-  var instructions: [String] { get }
+  var instructions: String { get }
+  var ingredients: [String] { get }
+  var tags: [String] { get }
+  var imageUri: String? { get }
+  var prepTime: String { get }
+  var cookTime: String { get }
+  var servings: String { get }
+
 }

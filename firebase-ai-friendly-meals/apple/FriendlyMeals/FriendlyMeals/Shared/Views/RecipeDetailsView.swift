@@ -19,19 +19,32 @@ import SwiftUI
 
 struct RecipeDetailsView {
   @Environment(\.dismiss) private var dismiss
+  @Environment(RecipeStore.self) private var recipeStore
 
   let recipe: Recipe?
-  let image: UIImage?
   let errorMessage: String?
+  let placeholderImage: UIImage?
   var isNew = false
   var onSave: (() -> Void)? = nil
+  var onLike: ((Bool) -> Void)? = nil
 
-  init(recipe: Recipe?, image: UIImage?, errorMessage: String? = nil, isNew: Bool = false, onSave: (() -> Void)? = nil) {
+  @State var isLiked = false
+  @State var rating: Double = 0
+
+  init(recipe: Recipe?,
+       placeholderImage: UIImage? = nil,
+       errorMessage: String? = nil,
+       isNew: Bool = false,
+       isLiked: Bool = false,
+       onSave: (() -> Void)? = nil,
+       onLike: ((Bool) -> Void)? = nil) {
     self.recipe = recipe
-    self.image = image
     self.errorMessage = errorMessage
     self.isNew = isNew
+    self.isLiked = isLiked
     self.onSave = onSave
+    self.onLike = onLike
+    self.placeholderImage = placeholderImage
   }
 }
 
@@ -39,12 +52,23 @@ extension RecipeDetailsView: View {
   var body: some View {
     ScrollView {
       VStack(alignment: .leading) {
-        if let image {
-          Image(uiImage: image)
+        let url = recipe?.imageUri.flatMap(URL.init)
+        AsyncImage(url: url) { image in
+          image
             .resizable()
             .scaledToFit()
             .cornerRadius(8)
             .padding(.horizontal)
+        } placeholder: {
+          if let placeholderImage {
+            Image(uiImage: placeholderImage)
+              .resizable()
+              .scaledToFit()
+              .cornerRadius(8)
+              .padding(.horizontal)
+          } else {
+            Color.gray
+          }
         }
         if let recipe {
           VStack(alignment: .leading, spacing: 16) {
@@ -52,12 +76,34 @@ extension RecipeDetailsView: View {
               .font(.largeTitle)
               .bold()
 
-            Text(recipe.description)
-              .font(.body)
-
+            if let id = recipe.id {
+              HStack {
+                Text("Rating: ")
+                  .font(.subheadline)
+                  .foregroundStyle(.secondary)
+                let wholeStars = Int(rating)
+                ForEach(0..<wholeStars, id: \.self) { index in
+                  Image(systemName: "star.fill")
+                    .foregroundColor(.yellow)
+                    .aspectRatio(contentMode: .fit)
+                    .padding(0)
+                }
+                let remainder = rating.truncatingRemainder(dividingBy: 1)
+                if remainder > 0 {
+                  partialStar(percentage: remainder)
+                }
+              }
+              .task {
+                do {
+                  rating = try await recipeStore.fetchRating(recipeID: id)
+                } catch {
+                  print("unable to fetch recipe rating: \(error)")
+                }
+              }
+            }
             HStack {
               Image(systemName: "clock")
-              Text("Cooking time: \(recipe.cookingTime) minutes")
+              Text("Cooking time: \(recipe.cookTime)")
             }
             .font(.subheadline)
             .foregroundStyle(.secondary)
@@ -66,17 +112,46 @@ extension RecipeDetailsView: View {
               ForEach(recipe.ingredients, id: \.self) { ingredient in
                 HStack(alignment: .top) {
                   Text("•")
-                  Text("\(ingredient.amount) \(ingredient.name)")
+                  Text("\(ingredient)")
                 }
               }
             }
 
             Section("Instructions") {
-              ForEach(Array(recipe.instructions.enumerated()), id: \.offset) { index, instruction in
-                HStack(alignment: .top) {
-                  Text("\(index + 1).")
-                  Text(instruction)
+              let markdownRender = try? AttributedString(
+                markdown: recipe.instructions,
+                options: AttributedString.MarkdownParsingOptions(
+                  interpretedSyntax: .inlineOnlyPreservingWhitespace
+                )
+              )
+              markdownRender.map(Text.init) ?? Text(recipe.instructions)
+            }
+            Section(header: Text("Tags").font(.subheadline)) {
+              ScrollView(.horizontal, showsIndicators: true) {
+                HStack {
+                  ForEach(recipe.tags, id: \.self) { tag in
+                    Text(tag)
+                      .font(.caption.bold())
+                      .foregroundColor(.white)
+                      .padding(EdgeInsets(top: 4, leading: 8, bottom: 4, trailing: 8))
+                      .background(.green)
+                      .clipShape(Capsule())
+                  }
                 }
+              }
+            }
+            if let id = recipe.id {
+              Section("Leave a review") {
+                RatingSliderView(rating: $rating)
+                  .onChange(of: rating) { _, newRating in
+                    if let review = Review(recipeID: id, rating: newRating) {
+                      do {
+                        try recipeStore.saveReview(review)
+                      } catch {
+                        print("Failed to write recipe review: \(error)")
+                      }
+                    }
+                  }
               }
             }
           }
@@ -97,7 +172,32 @@ extension RecipeDetailsView: View {
         }) {
           Label("Save", systemImage: "square.and.arrow.down")
         }
+      } else {
+        Button(action: {
+          onLike?(!isLiked)
+          isLiked = !isLiked
+        }) {
+          let imageName = isLiked ? "heart.fill" : "heart"
+          Label("Save", systemImage: imageName)
+        }
       }
+    }
+  }
+
+  private func partialStar(percentage: Double) -> ZStack<some View> {
+    return ZStack {
+      Image(systemName: "star")
+        .foregroundColor(.clear)
+
+      Image(systemName: "star.fill")
+        .foregroundColor(.yellow)
+        .mask {
+          GeometryReader { geometry in
+            Rectangle()
+              .frame(width: geometry.size.width * percentage)
+              .frame(maxWidth: .infinity, alignment: .leading)
+          }
+        }
     }
   }
 }
@@ -106,39 +206,44 @@ extension RecipeDetailsView: View {
   RecipeDetailsView(
     recipe: Recipe(
       title: "Mushroom Risotto",
-      description: "A creamy and delicious risotto with mushrooms.",
-      cookingTime: 45,
+      instructions:
+        """
+        In a large pot, heat olive oil over medium heat. Add chopped onion and garlic and cook until softened.
+        Add the rice and stir for 1 minute until toasted.",
+        Pour in the white wine and cook until it has been absorbed, stirring constantly.
+        Add the vegetable broth, one ladle at a time, waiting until it is absorbed before adding more.
+        In a separate pan, cook the mushrooms with butter until browned.
+        Once the rice is cooked, stir in the mushrooms, parmesan cheese, salt, and pepper.
+        Serve immediately.
+        """
+      ,
       ingredients: [
-        .init(name: "Chicken stock", amount: "1 cup"),
-        .init(name: "Arborio rice", amount: "1 cup"),
-        .init(name: "Mushrooms", amount: "200g"),
-        .init(name: "Vegetable broth", amount: "4 cups"),
-        .init(name: "Onion", amount: "1"),
-        .init(name: "Parmesan cheese", amount: "1/2 cup"),
-        .init(name: "White wine", amount: "1/4 cup"),
-        .init(name: "Olive oil", amount: "2 tbsp"),
-        .init(name: "Garlic", amount: "2 cloves"),
-        .init(name: "Butter", amount: "2 tbsp"),
-        .init(name: "Salt and pepper", amount: "to taste")
+        "Chicken stock",
+        "Arborio rice",
+        "Mushrooms",
+        "Vegetable broth",
+        "Onion",
+        "Parmesan cheese",
+        "White wine",
+        "Olive oil",
+        "Garlic",
+        "Butter",
+        "Salt and pepper",
       ],
-      instructions: [
-        "In a large pot, heat olive oil over medium heat. Add chopped onion and garlic and cook until softened.",
-        "Add the rice and stir for 1 minute until toasted.",
-        "Pour in the white wine and cook until it has been absorbed, stirring constantly.",
-        "Add the vegetable broth, one ladle at a time, waiting until it is absorbed before adding more.",
-        "In a separate pan, cook the mushrooms with butter until browned.",
-        "Once the rice is cooked, stir in the mushrooms, parmesan cheese, salt, and pepper.",
-        "Serve immediately."
-      ]
+      authorId: "no author",
+      tags: [],
+      averageRating: 4.5,
+      imageUri: "https://www.gstatic.com/devrel-devsite/prod/ve08add287a6b4bdf8961ab8a1be50bf551be3816cdd70b7cc934114ff3ad5f10/firebase/images/lockup.svg",
+      prepTime: "30 minutes",
+      cookTime: "10 minutes",
+      servings: "3-5 servings"
     ),
-    image: UIImage(systemName: "photo")
   )
 }
 
 #Preview("With Error") {
   RecipeDetailsView(
     recipe: nil,
-    image: nil,
     errorMessage: "An error occurred while generating the recipe: The operation couldn’t be completed. (GoogleGenerativeAI.GenerateContentError error 1.)"
   )
 }

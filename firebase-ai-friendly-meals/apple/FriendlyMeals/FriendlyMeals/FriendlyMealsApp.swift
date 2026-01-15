@@ -17,25 +17,30 @@
 
 import SwiftUI
 import FirebaseCore
+import FirebaseAuth
 
 @main
 struct FriendlyMealsApp: App {
   @State private var recipeStore: RecipeStore
+  @State private var likesStore: LikesStore
+  @State private var selectedTab: AppTab = .cookbook
 
   init () {
     FirebaseApp.configure()
     _recipeStore = State(initialValue: RecipeStore())
+    _likesStore = State(initialValue: LikesStore())
   }
 
   var body: some Scene {
     WindowGroup {
-      TabView {
+      TabView(selection: $selectedTab) {
         NavigationStack {
           RecipeListView()
         }
         .tabItem {
           Label("Cookbook", systemImage: "book.closed")
         }
+        .tag(AppTab.cookbook)
 
         NavigationStack {
           MealPlannerSuggestionView()
@@ -43,6 +48,7 @@ struct FriendlyMealsApp: App {
         .tabItem {
           Label("Suggest Recipe", systemImage: "wand.and.stars")
         }
+        .tag(AppTab.suggestRecipe)
 
         NavigationStack {
           MealPlannerChatView()
@@ -50,6 +56,7 @@ struct FriendlyMealsApp: App {
         .tabItem {
           Label("Meal Planner", systemImage: "bubble.left.and.bubble.right")
         }
+        .tag(AppTab.mealPlanner)
         
         NavigationStack {
           NutritionView()
@@ -57,16 +64,25 @@ struct FriendlyMealsApp: App {
         .tabItem {
           Label("Nutrition", systemImage: "camera.macro")
         }
+        .tag(AppTab.nutrition)
 
       }
       .environment(recipeStore)
-      .onAppear {
-        Task {
-          do {
-            try await RemoteConfigService.shared.fetchConfig()
-          } catch {
-            print("Failed to fetch remote config: \(error)")
-          }
+      .environment(likesStore)
+      .environment(\.selectedTab, $selectedTab)
+      .task {
+        // Fetch Remote Config params
+        do {
+          try await RemoteConfigService.shared.fetchConfig()
+        } catch {
+          print("Failed to fetch remote config: \(error)")
+        }
+
+        // Setup auth
+        do {
+          try await Auth.auth().signInAnonymously()
+        } catch {
+          print("Failed to authenticate anonymous user: \(error)")
         }
       }
     }
