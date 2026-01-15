@@ -16,7 +16,7 @@ class LikesStore {
   // A list of just recipe IDs, for faster lookup.
   @MainActor private(set) var likes = Set<String>()
 
-  private static let likesCollection = "saves"
+  private static let likesCollection = "likes"
 
   func fetchLike(for recipeID: String, userID: String) async throws -> RecipeLike? {
     let documentID = RecipeLike(userID: userID, recipeID: recipeID).compositeID

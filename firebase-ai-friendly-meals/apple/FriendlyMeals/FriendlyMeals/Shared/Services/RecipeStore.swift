@@ -75,7 +75,7 @@ class RecipeStore {
     case .rating:
       filters = filters.sort([Field("averageRating").descending()])
     case .popularity:
-      filters = filters.sort([Field("saves").descending()])
+      filters = filters.sort([Field("likes").descending()])
     case .none:
       break
     @unknown default:
