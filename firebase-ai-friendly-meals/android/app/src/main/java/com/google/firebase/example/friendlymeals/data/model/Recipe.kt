@@ -7,7 +7,7 @@ data class Recipe(
     val authorId: String = "",
     val tags: List<String> = listOf(),
     val averageRating: Double = 0.0,
-    val saves: Int = 0,
+    val likes: Int = 0,
     val prepTime: String = "",
     val cookTime: String = "",
     val servings: String = "",

@@ -3,7 +3,7 @@ package com.google.firebase.example.friendlymeals.data.repository
 import com.google.firebase.example.friendlymeals.data.datasource.DatabaseRemoteDataSource
 import com.google.firebase.example.friendlymeals.data.model.Recipe
 import com.google.firebase.example.friendlymeals.data.model.Review
-import com.google.firebase.example.friendlymeals.data.model.Save
+import com.google.firebase.example.friendlymeals.data.model.Like
 import com.google.firebase.example.friendlymeals.data.model.Tag
 import com.google.firebase.example.friendlymeals.data.model.User
 import com.google.firebase.example.friendlymeals.ui.recipeList.RecipeListItem
@@ -45,12 +45,12 @@ class DatabaseRepository @Inject constructor(
         return databaseRemoteDataSource.getRating(userId, recipeId)
     }
 
-    suspend fun setFavorite(save: Save) {
-        databaseRemoteDataSource.setFavorite(save)
+    suspend fun setFavorite(like: Like) {
+        databaseRemoteDataSource.setFavorite(like)
     }
 
-    suspend fun removeFavorite(save: Save) {
-        databaseRemoteDataSource.removeFavorite(save)
+    suspend fun removeFavorite(like: Like) {
+        databaseRemoteDataSource.removeFavorite(like)
     }
 
     suspend fun getFavorite(userId: String, recipeId: String): Boolean {

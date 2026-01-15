@@ -3,7 +3,7 @@ package com.google.firebase.example.friendlymeals.data.datasource
 import android.util.Log
 import com.google.firebase.example.friendlymeals.data.model.Recipe
 import com.google.firebase.example.friendlymeals.data.model.Review
-import com.google.firebase.example.friendlymeals.data.model.Save
+import com.google.firebase.example.friendlymeals.data.model.Like
 import com.google.firebase.example.friendlymeals.data.model.Tag
 import com.google.firebase.example.friendlymeals.data.model.User
 import com.google.firebase.example.friendlymeals.ui.recipeList.RecipeListItem
@@ -152,41 +152,41 @@ class DatabaseRemoteDataSource @Inject constructor(
     }
 
     /*
-    To enforce a "one favorite per user" constraint, Save documents use a deterministic ID based on
+    To enforce a "one favorite per user" constraint, Like documents use a deterministic ID based on
     the following pattern: "${recipeId}_${userId}". With this approach, you can retrieve a specific
-    Save document instantly without searching the entire collection.
+    Like document instantly without searching the entire collection.
      */
-    suspend fun setFavorite(save: Save) {
-        val saveRef = firestore
-            .collection(SAVES_COLLECTION)
-            .document("${save.recipeId}_${save.userId}")
+    suspend fun setFavorite(like: Like) {
+        val likeRef = firestore
+            .collection(LIKES_COLLECTION)
+            .document("${like.recipeId}_${like.userId}")
 
-        saveRef.set(save).await()
+        likeRef.set(like).await()
 
         firestore
             .collection(RECIPES_COLLECTION)
-            .document(save.recipeId)
-            .update(SAVES_FIELD, FieldValue.increment(1))
+            .document(like.recipeId)
+            .update(LIKES_FIELD, FieldValue.increment(1))
             .await()
     }
 
-    suspend fun removeFavorite(save: Save) {
+    suspend fun removeFavorite(like: Like) {
         firestore
-            .collection(SAVES_COLLECTION)
-            .document("${save.recipeId}_${save.userId}")
+            .collection(LIKES_COLLECTION)
+            .document("${like.recipeId}_${like.userId}")
             .delete()
             .await()
 
         firestore
             .collection(RECIPES_COLLECTION)
-            .document(save.recipeId)
-            .update(SAVES_FIELD, FieldValue.increment(-1))
+            .document(like.recipeId)
+            .update(LIKES_FIELD, FieldValue.increment(-1))
             .await()
     }
 
     suspend fun getFavorite(userId: String, recipeId: String): Boolean {
         val favoriteId = "${recipeId}_${userId}"
-        val favoritePath = "${SAVES_COLLECTION}/${favoriteId}"
+        val favoritePath = "${LIKES_COLLECTION}/${favoriteId}"
 
         return firestore
             .pipeline()
@@ -239,7 +239,7 @@ class DatabaseRemoteDataSource @Inject constructor(
             }
             SortByFilter.POPULARITY -> {
                 pipeline = pipeline
-                    .sort(field(SAVES_FIELD)
+                    .sort(field(LIKES_FIELD)
                         .descending())
             }
         }
@@ -257,7 +257,7 @@ class DatabaseRemoteDataSource @Inject constructor(
             authorId = itemData[AUTHOR_ID_FIELD] as? String ?: "",
             tags = (itemData[TAGS_FIELD] as? List<*>)?.filterIsInstance<String>() ?: listOf(),
             averageRating = (itemData[AVERAGE_RATING_FIELD] as? Number)?.toDouble() ?: 0.0,
-            saves = (itemData[SAVES_FIELD] as? Number)?.toInt() ?: 0,
+            likes = (itemData[LIKES_FIELD] as? Number)?.toInt() ?: 0,
             prepTime = itemData[PREP_TIME_FIELD] as? String ?: "",
             cookTime = itemData[COOK_TIME_FIELD] as? String ?: "",
             servings = itemData[SERVINGS_FIELD] as? String ?: "",
@@ -290,11 +290,10 @@ class DatabaseRemoteDataSource @Inject constructor(
         private const val USERS_COLLECTION = "users"
         private const val RECIPES_COLLECTION = "recipes"
         private const val TAGS_COLLECTION = "tags"
-        private const val SAVES_COLLECTION = "saves"
+        private const val LIKES_COLLECTION = "likes"
         private const val REVIEWS_SUBCOLLECTION = "reviews"
 
         //Fields
-        private const val ID_FIELD = "id"
         private const val RATING_FIELD = "rating"
         private const val NAME_FIELD = "name"
         private const val TOTAL_RECIPES_FIELD = "totalRecipes"
@@ -302,7 +301,7 @@ class DatabaseRemoteDataSource @Inject constructor(
         private const val AUTHOR_ID_FIELD = "authorId"
         private const val TITLE_FIELD = "title"
         private const val TAGS_FIELD = "tags"
-        private const val SAVES_FIELD = "saves"
+        private const val LIKES_FIELD = "likes"
         private const val IMAGE_URI_FIELD = "imageUri"
         private const val PREP_TIME_FIELD = "prepTime"
         private const val COOK_TIME_FIELD = "cookTime"

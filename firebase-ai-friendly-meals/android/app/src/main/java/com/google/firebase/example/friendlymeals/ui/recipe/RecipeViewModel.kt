@@ -4,7 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.navigation.toRoute
 import com.google.firebase.example.friendlymeals.MainViewModel
 import com.google.firebase.example.friendlymeals.data.model.Review
-import com.google.firebase.example.friendlymeals.data.model.Save
+import com.google.firebase.example.friendlymeals.data.model.Like
 import com.google.firebase.example.friendlymeals.data.repository.AuthRepository
 import com.google.firebase.example.friendlymeals.data.repository.DatabaseRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -51,16 +51,16 @@ class RecipeViewModel @Inject constructor(
     }
 
     fun toggleFavorite() {
-        val save = Save(
+        val like = Like(
             recipeId = recipeId,
             userId = userId
         )
 
         launchCatching {
             if (_recipeViewState.value.favorite) {
-                databaseRepository.removeFavorite(save)
+                databaseRepository.removeFavorite(like)
             } else {
-                databaseRepository.setFavorite(save)
+                databaseRepository.setFavorite(like)
             }
 
             _recipeViewState.value = _recipeViewState.value.copy(
