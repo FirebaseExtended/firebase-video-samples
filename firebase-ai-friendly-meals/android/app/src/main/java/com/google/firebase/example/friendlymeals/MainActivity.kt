@@ -13,14 +13,30 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.google.firebase.example.friendlymeals.ui.home.HomeRoute
-import com.google.firebase.example.friendlymeals.ui.home.HomeScreen
+import androidx.navigation.navigation
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.google.firebase.example.friendlymeals.ui.generate.GenerateRoute
+import com.google.firebase.example.friendlymeals.ui.generate.GenerateScreen
+import com.google.firebase.example.friendlymeals.ui.recipe.RecipeRoute
+import com.google.firebase.example.friendlymeals.ui.recipe.RecipeScreen
+import com.google.firebase.example.friendlymeals.ui.recipeList.RecipeListGraph
+import com.google.firebase.example.friendlymeals.ui.recipeList.RecipeListRoute
+import com.google.firebase.example.friendlymeals.ui.recipeList.RecipeListScreen
+import com.google.firebase.example.friendlymeals.ui.recipeList.RecipeListViewModel
+import com.google.firebase.example.friendlymeals.ui.recipeList.filter.FilterRoute
+import com.google.firebase.example.friendlymeals.ui.recipeList.filter.FilterScreen
+import com.google.firebase.example.friendlymeals.ui.scanMeal.ScanMealRoute
+import com.google.firebase.example.friendlymeals.ui.scanMeal.ScanMealScreen
+import com.google.firebase.example.friendlymeals.ui.shared.BottomNavBar
 import com.google.firebase.example.friendlymeals.ui.theme.FriendlyMealsTheme
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -30,6 +46,7 @@ class MainActivity : ComponentActivity() {
         setSoftInputMode()
 
         setContent {
+            val scope = rememberCoroutineScope()
             val snackbarHostState = remember { SnackbarHostState() }
             val navController = rememberNavController()
 
@@ -40,18 +57,85 @@ class MainActivity : ComponentActivity() {
                 ) {
                     Scaffold(
                         modifier = Modifier.fillMaxSize(),
-                        snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
+                        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
+                        bottomBar = { BottomNavBar { navigateTo(navController, route = it) } }
                     ) { innerPadding ->
                         NavHost(
                             navController = navController,
-                            startDestination = HomeRoute,
+                            startDestination = GenerateRoute,
                             modifier = Modifier.padding(innerPadding)
                         ) {
-                            composable<HomeRoute> { HomeScreen() }
+                            composable<ScanMealRoute> {
+                                ScanMealScreen(
+                                    showError = {
+                                        val message = this@MainActivity.getString(R.string.error_message)
+                                        scope.launch { snackbarHostState.showSnackbar(message) }
+                                    }
+                                )
+                            }
+                            composable<GenerateRoute> {
+                                GenerateScreen(
+                                    openRecipeScreen = { recipeId ->
+                                        navController.navigate(RecipeRoute(recipeId)) {
+                                            launchSingleTop = true
+                                        }
+                                    },
+                                    showError = {
+                                        val message = this@MainActivity.getString(R.string.error_message)
+                                        scope.launch { snackbarHostState.showSnackbar(message) }
+                                    }
+                                )
+                            }
+                            navigation<RecipeListGraph>(startDestination = RecipeListRoute) {
+                                composable<RecipeListRoute> { backStackEntry ->
+                                    val parentEntry = remember(backStackEntry) {
+                                        navController.getBackStackEntry(RecipeListGraph)
+                                    }
+                                    val viewModel = hiltViewModel<RecipeListViewModel>(parentEntry)
+
+                                    RecipeListScreen(
+                                        viewModel = viewModel,
+                                        openRecipeScreen = { recipeId ->
+                                            navController.navigate(RecipeRoute(recipeId)) {
+                                                launchSingleTop = true
+                                            }
+                                        },
+                                        openFilterScreen = {
+                                            navController.navigate(FilterRoute) {
+                                                launchSingleTop = true
+                                            }
+                                        }
+                                    )
+                                }
+                                composable<FilterRoute> { backStackEntry ->
+                                    val parentEntry = remember(backStackEntry) {
+                                        navController.getBackStackEntry(RecipeListGraph)
+                                    }
+                                    val viewModel = hiltViewModel<RecipeListViewModel>(parentEntry)
+
+                                    FilterScreen(
+                                        viewModel = viewModel,
+                                        navigateBack = { navController.popBackStack() }
+                                    )
+                                }
+                            }
+                            composable<RecipeRoute> {
+                                RecipeScreen(
+                                    navigateBack = { navController.popBackStack() }
+                                )
+                            }
                         }
                     }
                 }
             }
+        }
+    }
+
+    private fun navigateTo(navController: NavController, route: Any) {
+        navController.navigate(route) {
+            popUpTo(navController.graph.startDestinationId) { saveState = true }
+            launchSingleTop = true
+            restoreState = true
         }
     }
 

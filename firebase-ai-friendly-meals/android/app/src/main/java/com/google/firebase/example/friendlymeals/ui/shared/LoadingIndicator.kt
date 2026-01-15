@@ -9,8 +9,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.google.firebase.example.friendlymeals.ui.theme.DarkFirebaseYellow
-import com.google.firebase.example.friendlymeals.ui.theme.LightFirebaseYellow
+import com.google.firebase.example.friendlymeals.ui.theme.LightTeal
+import com.google.firebase.example.friendlymeals.ui.theme.Teal
 
 @Composable
 fun LoadingIndicator() {
@@ -19,8 +19,8 @@ fun LoadingIndicator() {
             modifier = Modifier
                 .width(64.dp)
                 .align(Alignment.Center),
-            color = DarkFirebaseYellow,
-            trackColor = LightFirebaseYellow,
+            color = Teal,
+            trackColor = LightTeal,
         )
     }
 }

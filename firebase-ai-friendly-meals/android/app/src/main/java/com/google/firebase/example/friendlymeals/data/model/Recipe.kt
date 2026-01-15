@@ -1,11 +1,15 @@
 package com.google.firebase.example.friendlymeals.data.model
 
-import android.graphics.Bitmap
-
 data class Recipe(
     val title: String = "",
-    val description: String = "",
+    val instructions: String = "",
     val ingredients: List<String> = listOf(),
-    val steps: List<String> = listOf(),
-    val image: Bitmap? = null
+    val authorId: String = "",
+    val tags: List<String> = listOf(),
+    val averageRating: Double = 0.0,
+    val likes: Int = 0,
+    val prepTime: String = "",
+    val cookTime: String = "",
+    val servings: String = "",
+    val imageUri: String? = null
 )

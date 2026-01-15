@@ -2,15 +2,12 @@ package com.google.firebase.example.friendlymeals.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-val Purple80 = Color(0xFFD0BCFF)
-val PurpleGrey80 = Color(0xFFCCC2DC)
-val Pink80 = Color(0xFFEFB8C8)
-
-val Purple40 = Color(0xFF6650a4)
-val PurpleGrey40 = Color(0xFF625b71)
-val Pink40 = Color(0xFF7D5260)
-
-val LightFirebaseYellow = Color(0xFFFFFDF4)
-val MediumFirebaseYellow = Color(0xFFFFF3CC)
-val DarkFirebaseYellow = Color(0xFFFFC400)
-val ContainerGrey = Color(0xFF5F6368)
+val Teal = Color(0xFF1EB980)
+val LightTeal = Color(0xFFE0F2F1)
+val LightGray = Color(0xFFF3F4F6)
+val Charcoal = Color(0xFF36454F)
+val TextColor = Color(0xFF1F2937)
+val LightTextColor = Color(0xFFF8F9FA)
+val SelectedStarColor = Color(0xFFFFC107)
+val UnselectedStarColor = Color(0xFF9CA3AF)
+val BorderColor = Color(0xFFE5E7EB)
