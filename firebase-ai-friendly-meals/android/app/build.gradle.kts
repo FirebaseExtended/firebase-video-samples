@@ -66,8 +66,7 @@ dependencies {
     implementation(libs.firebase.config)
     implementation(libs.firebase.auth)
     implementation(libs.firebase.storage)
-
-    implementation("com.google.firebase:firebase-firestore:99.0.0-pipeline.preview.1")
+    implementation(libs.firebase.firestore)
 
     //Library to handle Markdown in Compose
     implementation(libs.richtext.commonmark)

@@ -21,6 +21,7 @@ import javax.inject.Inject
 import kotlin.collections.first
 import kotlin.collections.mapNotNull
 
+@Suppress("UnstableApiUsage")
 class DatabaseRemoteDataSource @Inject constructor(
     private val firestore: FirebaseFirestore
 ) {
