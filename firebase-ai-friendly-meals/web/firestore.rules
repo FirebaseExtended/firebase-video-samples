@@ -1,0 +1,50 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Recipes collection - root level
+    // Anyone authenticated can read recipes
+    // Only the author can create/update/delete their own recipes
+    match /recipes/{recipeId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null 
+                    && request.resource.data.authorId == request.auth.uid;
+      allow update, delete: if request.auth != null 
+                            && resource.data.authorId == request.auth.uid;
+      
+      // Reviews subcollection under recipes
+      // Anyone authenticated can read reviews
+      // Users can only create reviews with their own userId
+      // Users can only update/delete their own reviews
+      match /reviews/{reviewId} {
+        allow read: if request.auth != null;
+        allow create: if request.auth != null 
+                      && request.resource.data.userId == request.auth.uid;
+        allow update, delete: if request.auth != null 
+                              && resource.data.userId == request.auth.uid;
+      }
+    }
+    
+    // Users collection - root level
+    // Users can only read/write their own user document
+    match /users/{userId} {
+      allow read, write: if request.auth != null 
+                         && request.auth.uid == resource.data.authId;
+      allow create: if request.auth != null 
+                    && request.resource.data.authId == request.auth.uid;
+    }
+    
+    // Saves collection - root level (bookmarks)
+    // Anyone authenticated can read saves
+    // Users can only create saves with their own userId
+    // Users can only delete their own saves
+    match /saves/{saveId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null 
+                    && request.resource.data.userId == request.auth.uid;
+      allow delete: if request.auth != null 
+                    && resource.data.userId == request.auth.uid;
+    }
+  }
+}
