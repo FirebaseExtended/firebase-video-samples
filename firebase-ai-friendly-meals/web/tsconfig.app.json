@@ -28,11 +28,11 @@
     "baseUrl": ".",
     "paths": {
       "@/*": [
-        "./src/*"
+        "./app/*"
       ]
     }
   },
   "include": [
-    "src"
+    "app"
   ]
 }
