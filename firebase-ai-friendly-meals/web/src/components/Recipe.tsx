@@ -6,13 +6,12 @@ import {
     Clock,
     Flame,
     Users,
-    ArrowLeft,
-    Share2,
     Heart
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { Recipe } from "../firebase/data";
-import { deleteRecipe, updateRecipeRating } from "../firebase/data";
+import { deleteRecipe, addReview } from "../firebase/data";
+import { getUser } from "../firebase/auth";
 
 const InfoBox = ({ icon: Icon, label, value }: { icon: any, label: string, value: string | number }) => (
     <div className="flex flex-col items-center justify-center p-3 py-4 bg-muted/40 rounded-2xl gap-2 flex-1 min-w-[30%]">
@@ -24,21 +23,29 @@ const InfoBox = ({ icon: Icon, label, value }: { icon: any, label: string, value
     </div>
 );
 
-const RecipeDetail: React.FC = () => {
-    const recipe = useLoaderData<Recipe>();
+interface RecipeDetailProps {
+    recipeData?: Recipe;
+    readonly?: boolean;
+}
+
+const RecipeDetail: React.FC<RecipeDetailProps> = ({ recipeData, readonly = false }) => {
+    const loaderData = useLoaderData<Recipe>();
+    const recipe = recipeData || loaderData;
     const navigate = useNavigate();
     const [rating, setRating] = useState(recipe?.averageRating || 0);
 
     const handleRating = async (newRating: number) => {
+        if (readonly) return;
         setRating(newRating);
         if (recipe) {
-            await updateRecipeRating(recipe.authorId, recipe.id, newRating);
+            const user = await getUser();
+            await addReview(recipe.id, user.uid, newRating);
         }
     };
 
     const handleDelete = async () => {
         if (confirm("Are you sure you want to delete this recipe?")) {
-            await deleteRecipe(recipe!.authorId, recipe!.id);
+            await deleteRecipe(recipe!.id);
             navigate("/recipes");
         }
     };
@@ -69,14 +76,16 @@ const RecipeDetail: React.FC = () => {
                     )}
 
                     {/* FAB Heart */}
-                    <div className="absolute -bottom-6 right-6 z-20">
-                        <Button
-                            size="icon"
-                            className="rounded-full w-14 h-14 shadow-xl bg-emerald-500 hover:bg-emerald-600 text-white border-4 border-background"
-                        >
-                            <Heart className="w-7 h-7 fill-current" />
-                        </Button>
-                    </div>
+                    {!readonly && (
+                        <div className="absolute -bottom-6 right-6 z-20">
+                            <Button
+                                size="icon"
+                                className="rounded-full w-14 h-14 shadow-xl bg-emerald-500 hover:bg-emerald-600 text-white border-4 border-background"
+                            >
+                                <Heart className="w-7 h-7 fill-current" />
+                            </Button>
+                        </div>
+                    )}
                 </div>
 
                 {/* Content Container */}
@@ -90,10 +99,10 @@ const RecipeDetail: React.FC = () => {
                             {[1, 2, 3, 4, 5].map((star) => (
                                 <Star
                                     key={star}
-                                    className={`w-5 h-5 cursor-pointer transition-all ${star <= rating
+                                    className={`w-5 h-5 transition-all ${star <= rating
                                         ? "fill-amber-400 text-amber-400"
-                                        : "text-muted-foreground/20 hover:text-amber-400"
-                                        }`}
+                                        : "text-muted-foreground/20"
+                                        } ${!readonly ? "cursor-pointer hover:text-amber-400" : ""}`}
                                     onClick={() => handleRating(star)}
                                 />
                             ))}
@@ -140,13 +149,17 @@ const RecipeDetail: React.FC = () => {
 
                 </div>
 
-            </div><Button
-                variant="ghost"
-                className="text-muted-foreground hover:text-destructive hover:bg-destructive/5"
-                onClick={handleDelete}
-            >
-                Delete This Recipe
-            </Button></div>
+            </div>
+            {!readonly && (
+                <Button
+                    variant="ghost"
+                    className="text-muted-foreground hover:text-destructive hover:bg-destructive/5"
+                    onClick={handleDelete}
+                >
+                    Delete This Recipe
+                </Button>
+            )}
+        </div>
     );
 };
 

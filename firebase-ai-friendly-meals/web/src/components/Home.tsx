@@ -10,7 +10,8 @@ const Home: React.FC = () => {
         <CardContent>
             <Button asChild variant="link"><a href="/generate">Generate</a></Button>
             <Button asChild variant="link"><a href="/chat">Chat</a></Button>
-            <Button asChild variant="link"><a href="/image">View recipes</a></Button>
+            <Button asChild variant="link"><a href="/scan">Scan</a></Button>
+            <Button asChild variant="link"><a href="/recipes">View recipes</a></Button>
         </CardContent>
     </Card>
 }

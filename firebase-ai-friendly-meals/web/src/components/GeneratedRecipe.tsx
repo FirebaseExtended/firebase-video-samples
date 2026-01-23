@@ -5,16 +5,6 @@ import { saveRecipe, type Recipe } from "../firebase/data";
 import { getUser } from "../firebase/auth";
 import { useNavigate } from "react-router";
 
-interface Ingredient {
-  title: string;
-  unit: string;
-  amount: number;
-}
-
-interface Instruction {
-  description: string;
-}
-
 interface GeneratedRecipeProp {
   data: GeneratedRecipeData;
 }
@@ -85,9 +75,9 @@ const GeneratedRecipe: React.FC<GeneratedRecipeProp> = ({
             ))}
           </ul>
           <h3>Instructions</h3>
-          <ol>
+          <Markdown>
             {data.structuredRecipe.instructions}
-          </ol>
+          </Markdown>
         </div>
         <Button onClick={handleSave}>Save Recipe</Button>
       </div>

@@ -9,7 +9,7 @@ import { createBrowserRouter, RouterProvider } from "react-router";
 import Home from "./components/Home";
 import Recipes from "./components/Recipes";
 import Recipe from "./components/Recipe";
-import { getRecipes, getRecipe } from './firebase/data.ts'
+import { getRecipe, searchRecipes, getRecipesForUser } from './firebase/data.ts'
 import { getUser } from "@/firebase/auth";
 
 const router = createBrowserRouter([
@@ -51,8 +51,13 @@ const router = createBrowserRouter([
                 sortBy: (url.searchParams.get('sort') as 'rating' | 'title') || undefined,
               };
 
-              const recipes = await getRecipes(user.uid, filters);
-              return recipes;
+              // Use searchRecipes if we have tags (required for the arrayContainsAny query provided)
+              // Otherwise fall back to getting all recipes for the user
+              if (filters.tags && filters.tags.length > 0) {
+                return await searchRecipes(user.uid, filters.minRating || 0, filters.tags);
+              } else {
+                return await getRecipesForUser(user.uid);
+              }
             },
           },
           {
@@ -64,8 +69,8 @@ const router = createBrowserRouter([
                 throw new Error("No recipe ID provided");
               }
               console.log('recipe loader is running')
-              const user = await getUser();
-              const recipe = await getRecipe(user.uid, params.recipeId);
+              await getUser(); // ensure auth
+              const recipe = await getRecipe(params.recipeId);
               return recipe;
             },
           },

@@ -30,7 +30,7 @@ export async function generateStructuredJsonRecipe(
     properties: {
       title: Schema.string(),
       ingredients: Schema.array({ items: Schema.string() }),
-      instructions: Schema.string(),
+      instructions: Schema.string({ description: 'markdown-formatted recipe instructions.' }),
       tags: Schema.array({ items: Schema.enumString({ enum: AVAILABLE_TAGS }) }),
       prepTime: Schema.number(),
       cookTime: Schema.number(),
@@ -67,25 +67,38 @@ async function fileToGenerativePart(file: File) {
   };
 }
 
-export async function generateTextRecipeWithImage(
+export async function generateRecipeFromImage(
   image: File | null,
   cuisineType: string
-): Promise<string> {
-  // Create a `GenerativeModel` instance with the desired model.
-  const model = getGenerativeModel(ai, { model: "gemini-2.5-flash" });
+): Promise<Recipe> {
+  // Reuse the schema logic (duplicated for now as schema object isn't exported easily without refactor)
+  const recipeSchema = Schema.object({
+    properties: {
+      title: Schema.string(),
+      ingredients: Schema.array({ items: Schema.string() }),
+      instructions: Schema.string(),
+      tags: Schema.array({ items: Schema.enumString({ enum: AVAILABLE_TAGS }) }),
+      prepTime: Schema.number(),
+      cookTime: Schema.number(),
+      servings: Schema.number(),
+    },
+  });
+
+  const model = getGenerativeModel(ai, {
+    model: "gemini-2.5-flash",
+    // Use the schema for image generation too
+    generationConfig: {
+      responseMimeType: "application/json",
+      responseSchema: recipeSchema,
+    },
+  });
 
   if (image) {
-    // Convert image type
     const imagePart = await fileToGenerativePart(image);
-
-    // Create the prompt sent to the LLM from a template.
-    const prompt = `Using what you see in the image, create a recipe in the ${cuisineType} cuisine`;
-
-    // To generate text output, call generateContent with the text and image
+    const prompt = `Using what you see in the image, create a recipe in the ${cuisineType} cuisine.`;
     const result = await model.generateContent([prompt, imagePart as Part]);
-
-    return result.response.text();
+    return JSON.parse(result.response.text());
   }
 
-  return '';
+  throw new Error("No image provided");
 }
