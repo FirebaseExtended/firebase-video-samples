@@ -43,7 +43,7 @@ export interface Recipe {
     imageUri?: string;
 }
 
-export const db = initializeFirestore(firebaseApp, { localCache: persistentLocalCache({}) }, 'default');
+export const db = initializeFirestore(firebaseApp, {}, 'default');
 
 // Get all recipes for display (shows all recipes in database)
 export async function getAllRecipesForDisplay(): Promise<Recipe[]> {
