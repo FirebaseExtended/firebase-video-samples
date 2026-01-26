@@ -233,6 +233,7 @@ export async function getLikedRecipeIds(userId: string): Promise<string[]> {
 
 // Unified query function
 export interface RecipeFilters {
+    searchTerm?: string;
     minRating?: number;
     tags?: string[];
     authorId?: string;
@@ -240,6 +241,10 @@ export interface RecipeFilters {
 
 export async function queryRecipes(filters: RecipeFilters): Promise<Recipe[]> {
     let pipeline = db.pipeline().collection("recipes");
+
+    if (filters.searchTerm) {
+        pipeline = pipeline.where(field("title").like(`%${filters.searchTerm}%`));
+    }
 
     if (filters.minRating && filters.minRating > 0) {
         pipeline = pipeline.where(field("averageRating").greaterThanOrEqual(filters.minRating));

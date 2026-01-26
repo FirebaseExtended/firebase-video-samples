@@ -17,6 +17,7 @@ export async function clientLoader({ request }: Route.ClientLoaderArgs) {
     const myRecipes = url.searchParams.get('myRecipes') === 'true';
 
     const filters = {
+        searchTerm: url.searchParams.get('q') || undefined,
         minRating: url.searchParams.get('minRating') ? Number(url.searchParams.get('minRating')) : undefined,
         tags: url.searchParams.get('tags') ? url.searchParams.get('tags')!.split(',') : undefined,
         authorId: myRecipes ? user.uid : undefined
@@ -26,7 +27,7 @@ export async function clientLoader({ request }: Route.ClientLoaderArgs) {
 
     let recipesPromise: Promise<any[]>;
     // If we have any filters, use queryRecipes
-    if (filters.minRating || (filters.tags && filters.tags.length > 0) || filters.authorId) {
+    if (filters.searchTerm || filters.minRating || (filters.tags && filters.tags.length > 0) || filters.authorId) {
         recipesPromise = queryRecipes(filters);
     } else {
         // Fallback to basic get all if no filters active 
