@@ -1,6 +1,6 @@
 import type { Route } from "./+types/recipes";
 import Recipes from "../components/Recipes";
-import { getAllRecipesForDisplay, queryRecipes, getLikedRecipeIds } from "../firebase/data";
+import { getAllRecipesForDisplay, queryRecipes, getLikedRecipeIds, getTop5Tags } from "../firebase/data";
 import { getUser } from "../firebase/auth";
 
 export function meta({ }: Route.MetaArgs) {
@@ -24,21 +24,27 @@ export async function clientLoader({ request }: Route.ClientLoaderArgs) {
 
     const likedOnly = url.searchParams.get('likedOnly') === 'true';
 
-    let recipes: any[] = [];
+    let recipesPromise: Promise<any[]>;
     // If we have any filters, use queryRecipes
     if (filters.minRating || (filters.tags && filters.tags.length > 0) || filters.authorId) {
-        recipes = await queryRecipes(filters);
+        recipesPromise = queryRecipes(filters);
     } else {
         // Fallback to basic get all if no filters active 
-        recipes = await getAllRecipesForDisplay();
+        recipesPromise = getAllRecipesForDisplay();
     }
 
+    const [recipes, topTags] = await Promise.all([
+        recipesPromise,
+        getTop5Tags()
+    ]);
+
+    let filteredRecipes = recipes;
     if (likedOnly) {
         const likedIds = await getLikedRecipeIds(user.uid);
-        recipes = recipes.filter(r => likedIds.includes(r.id));
+        filteredRecipes = recipes.filter(r => likedIds.includes(r.id));
     }
 
-    return recipes;
+    return { recipes: filteredRecipes, topTags };
 }
 
 

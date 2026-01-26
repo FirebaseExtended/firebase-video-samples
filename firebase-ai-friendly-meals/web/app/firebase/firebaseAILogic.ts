@@ -1,7 +1,8 @@
 import { getGenerativeModel, Schema, type Part } from "firebase/ai";
 import { ai } from "./firebase";
 import type { Recipe } from "./data";
-import { AVAILABLE_TAGS } from "@/components/Recipes";
+// Tags are now dynamic and fetched from the database when needed for display
+
 
 // Calls Gemini to return text recipe based on ingredients and cuisine type
 export async function generateTextRecipe(
@@ -31,7 +32,7 @@ export async function generateStructuredJsonRecipe(
       title: Schema.string(),
       ingredients: Schema.array({ items: Schema.string() }),
       instructions: Schema.string({ description: 'markdown-formatted recipe instructions.' }),
-      tags: Schema.array({ items: Schema.enumString({ enum: AVAILABLE_TAGS }) }),
+      tags: Schema.array({ items: Schema.string() }),
       prepTime: Schema.number(),
       cookTime: Schema.number(),
       servings: Schema.number(),
@@ -77,7 +78,7 @@ export async function generateRecipeFromImage(
       title: Schema.string(),
       ingredients: Schema.array({ items: Schema.string() }),
       instructions: Schema.string(),
-      tags: Schema.array({ items: Schema.enumString({ enum: AVAILABLE_TAGS }) }),
+      tags: Schema.array({ items: Schema.string() }),
       prepTime: Schema.number(),
       cookTime: Schema.number(),
       servings: Schema.number(),

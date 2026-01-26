@@ -22,8 +22,8 @@ import {
 } from "@/components/ui/item"
 import { Star, ChevronDown, ChevronUp, Search, X } from "lucide-react";
 
-// Common tags for filtering
-export const AVAILABLE_TAGS = ["Quick & Easy", "Vegan", "Gluten-Free", "High Protein", "Low Carb", "Dessert"];
+// Tags are now fetched dynamically from the database
+
 
 const ZeroState: React.FC = () => {
     return (
@@ -53,7 +53,8 @@ const FilterPanel: React.FC<{
     onToggle: () => void;
     searchParams: URLSearchParams;
     onApply: (params: URLSearchParams) => void;
-}> = ({ isOpen, onToggle, searchParams, onApply }) => {
+    availableTags: string[];
+}> = ({ isOpen, onToggle, searchParams, onApply, availableTags }) => {
     const [name, setName] = useState(searchParams.get('q') || '');
     const [minRating, setMinRating] = useState(Number(searchParams.get('minRating')) || 0);
     const [selectedTags, setSelectedTags] = useState<string[]>(
@@ -180,7 +181,7 @@ const FilterPanel: React.FC<{
                         <Field>
                             <FieldLabel>Tags</FieldLabel>
                             <div className="flex flex-wrap gap-2">
-                                {AVAILABLE_TAGS.map((tag) => (
+                                {availableTags.map((tag) => (
                                     <button
                                         key={tag}
                                         onClick={() => handleTagToggle(tag)}
@@ -239,7 +240,7 @@ const FilterPanel: React.FC<{
 };
 
 const RecipesList: React.FC = () => {
-    const recipes = useLoaderData<Array<Recipe>>();
+    const { recipes, topTags } = useLoaderData<{ recipes: Recipe[], topTags: string[] }>();
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
     const [filterOpen, setFilterOpen] = useState(false);
@@ -259,6 +260,7 @@ const RecipesList: React.FC = () => {
                         onToggle={() => setFilterOpen(!filterOpen)}
                         searchParams={searchParams}
                         onApply={handleApplyFilters}
+                        availableTags={topTags}
                     />
                     <div className="text-center py-12">
                         <p className="text-muted-foreground">No recipes match your filters.</p>
@@ -283,6 +285,7 @@ const RecipesList: React.FC = () => {
                 onToggle={() => setFilterOpen(!filterOpen)}
                 searchParams={searchParams}
                 onApply={handleApplyFilters}
+                availableTags={topTags}
             />
             <ItemGroup className='gap-4'>
                 {recipes.map(recipe => (

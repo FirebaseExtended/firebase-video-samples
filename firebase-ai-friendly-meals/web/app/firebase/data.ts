@@ -1,5 +1,5 @@
 import { initializeFirestore, addDoc, collection, getDoc, doc, deleteDoc, updateDoc, persistentLocalCache, setDoc, getDocs, query, where } from "firebase/firestore";
-import { execute, field } from "firebase/firestore/pipelines";
+import { execute, field, countAll } from "firebase/firestore/pipelines";
 import { firebaseApp } from "./firebase";
 
 export interface Review {
@@ -89,6 +89,28 @@ export async function getTopTagsForUser(userId: string): Promise<any[]> {
 
     const { results } = await execute(pipeline);
     return results.map(result => result.data());
+}
+
+// Get top 5 most popular tags across all recipes
+export async function getTop5Tags(): Promise<string[]> {
+    const pipeline = db.pipeline()
+        .collection("recipes")
+        // Unnest each tag within the `tags` array to its own document.
+        .unnest(field("tags").as("tagName"))
+        // Count the number of instances of each tag across recipes and
+        // consolidate documents sharing a tagName into a single document
+        // per tagName.
+        .aggregate({
+            accumulators: [countAll().as("tagCount")],
+            groups: ["tagName"]
+        })
+        // Sort the resulting tags by their count.
+        .sort(field("tagCount").descending())
+        // Limit query results to just the top ten tags.
+        .limit(5);
+
+    const { results } = await execute(pipeline);
+    return results.map(result => result.data().tagName as string);
 }
 
 // Reviews for user
