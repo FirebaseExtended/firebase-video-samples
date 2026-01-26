@@ -10,8 +10,9 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { Recipe } from "../firebase/data";
-import { deleteRecipe, addReview } from "../firebase/data";
+import { deleteRecipe, addReview, likeRecipe, unlikeRecipe, isRecipeLiked } from "../firebase/data";
 import { getUser } from "../firebase/auth";
+import { useEffect } from "react";
 
 const InfoBox = ({ icon: Icon, label, value }: { icon: any, label: string, value: string | number }) => (
     <div className="flex flex-col items-center justify-center p-3 py-4 bg-muted/40 rounded-2xl gap-2 flex-1 min-w-[30%]">
@@ -33,6 +34,29 @@ const RecipeDetail: React.FC<RecipeDetailProps> = ({ recipeData, readonly = fals
     const recipe = recipeData || loaderData;
     const navigate = useNavigate();
     const [rating, setRating] = useState(recipe?.averageRating || 0);
+    const [isLiked, setIsLiked] = useState(false);
+
+    useEffect(() => {
+        async function checkLikeStatus() {
+            if (recipe) {
+                const user = await getUser();
+                const liked = await isRecipeLiked(user.uid, recipe.id);
+                setIsLiked(liked);
+            }
+        }
+        checkLikeStatus();
+    }, [recipe]);
+
+    const handleLikeToggle = async () => {
+        if (readonly || !recipe) return;
+        const user = await getUser();
+        if (isLiked) {
+            await unlikeRecipe(user.uid, recipe.id);
+        } else {
+            await likeRecipe(user.uid, recipe.id);
+        }
+        setIsLiked(!isLiked);
+    };
 
     const handleRating = async (newRating: number) => {
         if (readonly) return;
@@ -80,9 +104,11 @@ const RecipeDetail: React.FC<RecipeDetailProps> = ({ recipeData, readonly = fals
                         <div className="absolute -bottom-6 right-6 z-20">
                             <Button
                                 size="icon"
-                                className="rounded-full w-14 h-14 shadow-xl bg-emerald-500 hover:bg-emerald-600 text-white border-4 border-background"
+                                className={`rounded-full w-14 h-14 shadow-xl border-4 border-background transition-colors ${isLiked ? "bg-red-500 hover:bg-red-600" : "bg-emerald-500 hover:bg-emerald-600"
+                                    } text-white`}
+                                onClick={handleLikeToggle}
                             >
-                                <Heart className="w-7 h-7 fill-current" />
+                                <Heart className={`w-7 h-7 ${isLiked ? "fill-current" : ""}`} />
                             </Button>
                         </div>
                     )}

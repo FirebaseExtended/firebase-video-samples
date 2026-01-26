@@ -1,4 +1,4 @@
-import { initializeFirestore, addDoc, collection, getDoc, doc, deleteDoc, updateDoc, persistentLocalCache } from "firebase/firestore";
+import { initializeFirestore, addDoc, collection, getDoc, doc, deleteDoc, updateDoc, persistentLocalCache, setDoc, getDocs, query, where } from "firebase/firestore";
 import { execute, field } from "firebase/firestore/pipelines";
 import { firebaseApp } from "./firebase";
 
@@ -8,6 +8,12 @@ export interface Review {
     rating: number;
     // Keeping text/id as they are useful, but strictly following spec for fields to mention
     text?: string;
+    id?: string;
+}
+
+export interface Like {
+    recipeId: string;
+    userId: string;
     id?: string;
 }
 
@@ -39,11 +45,10 @@ export interface Recipe {
 
 export const db = initializeFirestore(firebaseApp, { localCache: persistentLocalCache({}) }, 'default');
 
-// Recipes for user
-export async function getRecipesForUser(userId: string): Promise<Recipe[]> {
+// Get all recipes for display (shows all recipes in database)
+export async function getAllRecipesForDisplay(): Promise<Recipe[]> {
     const pipeline = db.pipeline()
-        .collection("recipes")
-        .where(field("authorId").equal(userId));
+        .collection("recipes");
 
     const { results } = await execute(pipeline);
     return results.map(result => ({ ...result.data(), id: result.id }) as Recipe);
@@ -59,12 +64,11 @@ export async function getRecipesByTags(tagNames: string[]): Promise<Recipe[]> {
     return results.map(result => ({ ...result.data(), id: result.id }) as Recipe);
 }
 
-// Example recipes filter (Search)
-export async function searchRecipes(authorId: string, minRating: number, tagNames: string[]): Promise<Recipe[]> {
+// Search/filter recipes (all recipes, not user-specific)
+export async function searchRecipes(minRating: number, tagNames: string[]): Promise<Recipe[]> {
     const pipeline = db.pipeline()
         .collection("recipes")
-        .where(field("authorId").equal(authorId)) // Corrected from authorName as per instruction
-        .where(field("averageRating").greaterThan(minRating))
+        .where(field("averageRating").greaterThanOrEqual(minRating))
         .where(field("tags").arrayContainsAny(tagNames))
         .sort(field("saves").descending());
 
@@ -177,4 +181,59 @@ export async function bookmarkRecipe(userId: string, recipeId: string) {
         userId,
         recipeId
     });
+}
+
+// Like functionality
+export async function likeRecipe(userId: string, recipeId: string) {
+    const likeId = `${recipeId}_${userId}`;
+    await setDoc(doc(db, "likes", likeId), {
+        userId,
+        recipeId
+    });
+}
+
+export async function unlikeRecipe(userId: string, recipeId: string) {
+    const likeId = `${recipeId}_${userId}`;
+    await deleteDoc(doc(db, "likes", likeId));
+}
+
+export async function isRecipeLiked(userId: string, recipeId: string): Promise<boolean> {
+    const likeId = `${recipeId}_${userId}`;
+    const likeDoc = await getDoc(doc(db, "likes", likeId));
+    return likeDoc.exists();
+}
+
+export async function getLikedRecipeIds(userId: string): Promise<string[]> {
+    const q = query(collection(db, "likes"), where("userId", "==", userId));
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map(doc => doc.data().recipeId);
+}
+
+// Unified query function
+export interface RecipeFilters {
+    minRating?: number;
+    tags?: string[];
+    authorId?: string;
+}
+
+export async function queryRecipes(filters: RecipeFilters): Promise<Recipe[]> {
+    let pipeline = db.pipeline().collection("recipes");
+
+    if (filters.minRating && filters.minRating > 0) {
+        pipeline = pipeline.where(field("averageRating").greaterThanOrEqual(filters.minRating));
+    }
+
+    if (filters.tags && filters.tags.length > 0) {
+        pipeline = pipeline.where(field("tags").arrayContainsAny(filters.tags));
+    }
+
+    if (filters.authorId) {
+        pipeline = pipeline.where(field("authorId").equal(filters.authorId));
+    }
+
+    // Default sort by saves (popularity)
+    pipeline = pipeline.sort(field("saves").descending());
+
+    const { results } = await execute(pipeline);
+    return results.map(result => ({ ...result.data(), id: result.id }) as Recipe);
 }

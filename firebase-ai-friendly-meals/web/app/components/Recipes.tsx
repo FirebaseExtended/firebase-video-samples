@@ -62,6 +62,8 @@ const FilterPanel: React.FC<{
     const [sortBy, setSortBy] = useState<'rating' | 'title' | ''>(
         (searchParams.get('sort') as 'rating' | 'title') || ''
     );
+    const [myRecipes, setMyRecipes] = useState(searchParams.get('myRecipes') === 'true');
+    const [likedOnly, setLikedOnly] = useState(searchParams.get('likedOnly') === 'true');
 
     const handleTagToggle = (tag: string) => {
         setSelectedTags(prev =>
@@ -75,6 +77,8 @@ const FilterPanel: React.FC<{
         if (minRating > 0) params.set('minRating', String(minRating));
         if (selectedTags.length > 0) params.set('tags', selectedTags.join(','));
         if (sortBy) params.set('sort', sortBy);
+        if (myRecipes) params.set('myRecipes', 'true');
+        if (likedOnly) params.set('likedOnly', 'true');
         onApply(params);
     };
 
@@ -83,10 +87,12 @@ const FilterPanel: React.FC<{
         setMinRating(0);
         setSelectedTags([]);
         setSortBy('');
+        setMyRecipes(false);
+        setLikedOnly(false);
         onApply(new URLSearchParams());
     };
 
-    const hasFilters = name || minRating > 0 || selectedTags.length > 0 || sortBy;
+    const hasFilters = name || minRating > 0 || selectedTags.length > 0 || sortBy || myRecipes || likedOnly;
 
     return (
         <div className="bg-card border rounded-xl mb-6 overflow-hidden">
@@ -117,6 +123,32 @@ const FilterPanel: React.FC<{
                                 value={name}
                                 onChange={(e) => setName(e.target.value)}
                             />
+                        </Field>
+
+                        {/* My Recipes Toggle */}
+                        <Field>
+                            <label className="flex items-center gap-2 cursor-pointer p-1">
+                                <input
+                                    type="checkbox"
+                                    checked={myRecipes}
+                                    onChange={(e) => setMyRecipes(e.target.checked)}
+                                    className="w-4 h-4 accent-primary rounded border-gray-300"
+                                />
+                                <span className="font-medium">Show only my recipes</span>
+                            </label>
+                        </Field>
+
+                        {/* Liked Recipes Toggle */}
+                        <Field>
+                            <label className="flex items-center gap-2 cursor-pointer p-1">
+                                <input
+                                    type="checkbox"
+                                    checked={likedOnly}
+                                    onChange={(e) => setLikedOnly(e.target.checked)}
+                                    className="w-4 h-4 accent-primary rounded border-gray-300"
+                                />
+                                <span className="font-medium">Show only liked recipes</span>
+                            </label>
                         </Field>
 
                         {/* Rating */}

@@ -1,32 +1,44 @@
 import type { Route } from "./+types/recipes";
 import Recipes from "../components/Recipes";
-import { getRecipesForUser, searchRecipes } from "../firebase/data";
+import { getAllRecipesForDisplay, queryRecipes, getLikedRecipeIds } from "../firebase/data";
 import { getUser } from "../firebase/auth";
 
 export function meta({ }: Route.MetaArgs) {
     return [
-        { title: "My Recipes - Friendly Meals" },
-        { name: "description", content: "Browse your saved recipes" },
+        { title: "All Recipes - Friendly Meals" },
+        { name: "description", content: "Browse all recipes" },
     ];
 }
 
 export async function clientLoader({ request }: Route.ClientLoaderArgs) {
-    const user = await getUser();
+    const user = await getUser(); // Still require auth
     const url = new URL(request.url);
+
+    const myRecipes = url.searchParams.get('myRecipes') === 'true';
+
     const filters = {
-        name: url.searchParams.get('q') || undefined,
         minRating: url.searchParams.get('minRating') ? Number(url.searchParams.get('minRating')) : undefined,
         tags: url.searchParams.get('tags') ? url.searchParams.get('tags')!.split(',') : undefined,
-        sortBy: (url.searchParams.get('sort') as 'rating' | 'title') || undefined,
+        authorId: myRecipes ? user.uid : undefined
     };
 
-    // Use searchRecipes if we have tags (required for the arrayContainsAny query provided)
-    // Otherwise fall back to getting all recipes for the user
-    if (filters.tags && filters.tags.length > 0) {
-        return await searchRecipes(user.uid, filters.minRating || 0, filters.tags);
+    const likedOnly = url.searchParams.get('likedOnly') === 'true';
+
+    let recipes: any[] = [];
+    // If we have any filters, use queryRecipes
+    if (filters.minRating || (filters.tags && filters.tags.length > 0) || filters.authorId) {
+        recipes = await queryRecipes(filters);
     } else {
-        return await getRecipesForUser(user.uid);
+        // Fallback to basic get all if no filters active 
+        recipes = await getAllRecipesForDisplay();
     }
+
+    if (likedOnly) {
+        const likedIds = await getLikedRecipeIds(user.uid);
+        recipes = recipes.filter(r => likedIds.includes(r.id));
+    }
+
+    return recipes;
 }
 
 
