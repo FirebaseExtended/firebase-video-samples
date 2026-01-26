@@ -1,5 +1,6 @@
-import { getGenerativeModel, Schema, type Part } from "firebase/ai";
-import { ai } from "./firebase";
+import { getGenerativeModel, Schema, type Part, ResponseModality } from "firebase/ai";
+import { ai, storage } from "./firebase";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import type { Recipe } from "./data";
 // Tags are now dynamic and fetched from the database when needed for display
 
@@ -18,6 +19,48 @@ export async function generateTextRecipe(
   const result = await model.generateContent(prompt);
   const recipe = result.response.text();
   return recipe;
+}
+
+// Generates a header image for the recipe and saves it to Firebase Storage
+export async function generateRecipeImage(title: string): Promise<string> {
+  const model = getGenerativeModel(ai, {
+    model: "gemini-2.5-flash-image",
+    generationConfig: {
+      responseModalities: [ResponseModality.TEXT, ResponseModality.IMAGE],
+    },
+  });
+
+  const prompt = `Generate a high-quality, professional food blog style header image for a recipe titled: "${title}". The image should look delicious and well-lit.`;
+
+  const result = await model.generateContent(prompt);
+
+  try {
+    const inlineDataParts = result.response.inlineDataParts();
+    if (inlineDataParts?.[0]) {
+      const { data, mimeType } = inlineDataParts[0].inlineData;
+
+      // Convert base64 to Blob
+      const byteCharacters = atob(data);
+      const byteNumbers = new Array(byteCharacters.length);
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      }
+      const byteArray = new Uint8Array(byteNumbers);
+      const blob = new Blob([byteArray], { type: mimeType });
+
+      // Save to Firebase Storage
+      const filename = `recipe_images/${Date.now()}_${title.replace(/\s+/g, '_').toLowerCase()}.png`;
+      const storageRef = ref(storage, filename);
+      await uploadBytes(storageRef, blob, { contentType: mimeType });
+      const downloadURL = await getDownloadURL(storageRef);
+
+      return downloadURL;
+    }
+  } catch (err) {
+    console.error('Image generation or upload failed:', err);
+  }
+
+  return ""; // Fallback
 }
 
 // Calls Gemini to return JSON based on ingredients and cuisine type
@@ -53,6 +96,12 @@ export async function generateStructuredJsonRecipe(
   const result = await model.generateContent(prompt);
 
   const recipe = JSON.parse(result.response.text());
+
+  // Generate and add header image
+  if (recipe.title) {
+    recipe.imageUri = await generateRecipeImage(recipe.title);
+  }
+
   return recipe;
 }
 
@@ -98,7 +147,14 @@ export async function generateRecipeFromImage(
     const imagePart = await fileToGenerativePart(image);
     const prompt = `Using what you see in the image, create a recipe in the ${cuisineType} cuisine.`;
     const result = await model.generateContent([prompt, imagePart as Part]);
-    return JSON.parse(result.response.text());
+    const recipe = JSON.parse(result.response.text());
+
+    // Generate and add header image
+    if (recipe.title) {
+      recipe.imageUri = await generateRecipeImage(recipe.title);
+    }
+
+    return recipe;
   }
 
   throw new Error("No image provided");
