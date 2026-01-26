@@ -105,9 +105,10 @@ export async function addReview(recipeId: string, userId: string, rating: number
     const { results } = await execute(pipeline);
     const data = results[0]?.data();
 
-    const average = data && 'averageRating' in data ? data.averageRating as number : null;
+    let average = data && 'averageRating' in data ? data.averageRating as number : null;
     if (!average) {
-        return;
+        // there isn't an average yet, so set it to our new review score
+        average = rating;
     }
 
     // set the new average rating
