@@ -208,7 +208,8 @@ export async function bookmarkRecipe(userId: string, recipeId: string) {
 // Like functionality
 export async function likeRecipe(userId: string, recipeId: string) {
     const likeId = `${recipeId}_${userId}`;
-    await setDoc(doc(db, "likes", likeId), {
+    console.log(recipeId, userId);
+    await setDoc(doc(db, "saves", likeId), {
         userId,
         recipeId
     });
@@ -216,31 +217,41 @@ export async function likeRecipe(userId: string, recipeId: string) {
 
 export async function unlikeRecipe(userId: string, recipeId: string) {
     const likeId = `${recipeId}_${userId}`;
-    await deleteDoc(doc(db, "likes", likeId));
+    await deleteDoc(doc(db, "saves", likeId));
 }
 
 export async function isRecipeLiked(userId: string, recipeId: string): Promise<boolean> {
     const likeId = `${recipeId}_${userId}`;
-    const likeDoc = await getDoc(doc(db, "likes", likeId));
+    const likeDoc = await getDoc(doc(db, "saves", likeId));
     return likeDoc.exists();
 }
 
+export async function getLike(recipeId: string): Promise<boolean> {
+    const allLikes = await getLikedRecipeIds(recipeId);
+    return allLikes.includes(recipeId);
+}
+
 export async function getLikedRecipeIds(userId: string): Promise<string[]> {
-    const q = query(collection(db, "likes"), where("userId", "==", userId));
+    const q = query(collection(db, "saves"), where("userId", "==", userId));
     const querySnapshot = await getDocs(q);
     return querySnapshot.docs.map(doc => doc.data().recipeId);
 }
 
-// Unified query function
 export interface RecipeFilters {
     searchTerm?: string;
     minRating?: number;
     tags?: string[];
     authorId?: string;
+    savedOnly?: true;
+    sort?: string;
 }
 
 export async function queryRecipes(filters: RecipeFilters): Promise<Recipe[]> {
     let pipeline = db.pipeline().collection("recipes");
+
+    if (filters.authorId) {
+        pipeline = pipeline.where(field("authorId").equal(filters.authorId));
+    }
 
     if (filters.searchTerm) {
         pipeline = pipeline.where(field("title").like(`%${filters.searchTerm}%`));
@@ -254,12 +265,17 @@ export async function queryRecipes(filters: RecipeFilters): Promise<Recipe[]> {
         pipeline = pipeline.where(field("tags").arrayContainsAny(filters.tags));
     }
 
-    if (filters.authorId) {
-        pipeline = pipeline.where(field("authorId").equal(filters.authorId));
+    switch (filters.sort) {
+        case 'title':
+            pipeline = pipeline.sort(field('title').descending());
+            break;
+        case 'rating':
+            pipeline = pipeline.sort(field('averageRating').descending());
+            break;
+        case 'saves':
+            pipeline = pipeline.sort(field('saves').descending());
+            break;
     }
-
-    // Default sort by saves (popularity)
-    pipeline = pipeline.sort(field("saves").descending());
 
     const { results } = await execute(pipeline);
     return results.map(result => ({ ...result.data(), id: result.id }) as Recipe);

@@ -30,7 +30,7 @@ export async function generateRecipeImage(title: string): Promise<string> {
     },
   });
 
-  const prompt = `Generate a high-quality, professional food blog style header image for a recipe titled: "${title}". The image should look delicious and well-lit.`;
+  const prompt = `Generate a high-quality, professional image for a "${title}" recipe. The image should be well-lit and make the food look delicious.`;
 
   const result = await model.generateContent(prompt);
 

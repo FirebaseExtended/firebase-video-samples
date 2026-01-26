@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useLoaderData, useNavigate } from "react-router";
+import { useNavigate } from "react-router";
 import Markdown from "react-markdown";
 import {
     Star,
@@ -12,7 +12,6 @@ import { Button } from "@/components/ui/button";
 import type { Recipe } from "../firebase/data";
 import { deleteRecipe, addReview, likeRecipe, unlikeRecipe, isRecipeLiked } from "../firebase/data";
 import { getUser } from "../firebase/auth";
-import { useEffect } from "react";
 
 const InfoBox = ({ icon: Icon, label, value }: { icon: any, label: string, value: string | number }) => (
     <div className="flex flex-col items-center justify-center p-3 py-4 bg-muted/40 rounded-2xl gap-2 flex-1 min-w-[30%]">
@@ -25,30 +24,17 @@ const InfoBox = ({ icon: Icon, label, value }: { icon: any, label: string, value
 );
 
 interface RecipeDetailProps {
-    recipeData?: Recipe;
+    recipe: Recipe;
     readonly?: boolean;
+    liked?: boolean;
 }
 
-const RecipeDetail: React.FC<RecipeDetailProps> = ({ recipeData, readonly = false }) => {
-    const loaderData = useLoaderData<Recipe>();
-    const recipe = recipeData || loaderData;
+const RecipeDetail: React.FC<RecipeDetailProps> = ({ recipe, readonly = false, liked = false }) => {
     const navigate = useNavigate();
-    const [rating, setRating] = useState(recipe?.averageRating || 0);
+    const [rating, setRating] = useState(recipe.averageRating);
     const [isLiked, setIsLiked] = useState(false);
 
-    useEffect(() => {
-        async function checkLikeStatus() {
-            if (recipe) {
-                const user = await getUser();
-                const liked = await isRecipeLiked(user.uid, recipe.id);
-                setIsLiked(liked);
-            }
-        }
-        checkLikeStatus();
-    }, [recipe]);
-
     const handleLikeToggle = async () => {
-        if (readonly || !recipe) return;
         const user = await getUser();
         if (isLiked) {
             await unlikeRecipe(user.uid, recipe.id);
@@ -59,12 +45,11 @@ const RecipeDetail: React.FC<RecipeDetailProps> = ({ recipeData, readonly = fals
     };
 
     const handleRating = async (newRating: number) => {
-        if (readonly) return;
-        setRating(newRating);
         if (recipe) {
             const user = await getUser();
             await addReview(recipe.id, user.uid, newRating);
         }
+        setRating(newRating);
     };
 
     const handleDelete = async () => {
