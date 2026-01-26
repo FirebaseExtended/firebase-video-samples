@@ -15,9 +15,9 @@ export async function clientLoader({ params }: Route.ClientLoaderArgs) {
     if (!params.recipeId) {
         throw new Error("No recipe ID provided");
     }
-    await getUser(); // ensure auth
+    const user = await getUser(); // ensure auth
     const recipe = await getRecipe(params.recipeId);
-    const isLiked = await isRecipeLikedByUser(params.recipeId);
+    const isLiked = await isRecipeLikedByUser(user.uid, params.recipeId);
     return { recipe, isLiked };
 }
 
