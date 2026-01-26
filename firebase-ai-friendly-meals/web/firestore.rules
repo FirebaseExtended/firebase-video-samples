@@ -21,7 +21,9 @@ service cloud.firestore {
         allow read: if request.auth != null;
         allow create: if request.auth != null 
                       && request.resource.data.userId == request.auth.uid;
-        allow update, delete: if request.auth != null 
+        allow update: if request.auth != null 
+                      && request.resource.data.diff(resource.data).affectedKeys().hasOnly(["saves", "averageRating"]);
+        allow delete: if request.auth != null 
                               && resource.data.userId == request.auth.uid;
       }
     }
