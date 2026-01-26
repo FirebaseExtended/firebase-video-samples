@@ -23,10 +23,10 @@ const Layout: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="flex items-center justify-between p-4 border-b">
-        <h1 className="text-xl font-bold">Friendly Meals</h1>
+      <header className="flex flex-col sm:flex-row items-center justify-between p-4 border-b">
+        <h1 className="text-xl font-bold mb-2 sm:mb-0">Friendly Meals</h1>
         <NavigationMenu>
-          <NavigationMenuList>
+          <NavigationMenuList className="flex flex-wrap">
             <NavigationMenuItem>
               <MenuLink href="/generate" label="Generate" />
             </NavigationMenuItem>
@@ -42,7 +42,7 @@ const Layout: React.FC = () => {
           </NavigationMenuList>
         </NavigationMenu>
       </header>
-      <main className="container mx-auto p-4">
+      <main className="container mx-auto p-1">
         <Outlet />
       </main>
     </div>
