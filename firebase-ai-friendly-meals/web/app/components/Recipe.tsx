@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { Recipe } from "../firebase/data";
-import { deleteRecipe, addReview, likeRecipe, unlikeRecipe, isRecipeLiked } from "../firebase/data";
+import { deleteRecipe, addReview, likeRecipe, unlikeRecipe, isRecipeLikedByUser } from "../firebase/data";
 import { getUser } from "../firebase/auth";
 
 const InfoBox = ({ icon: Icon, label, value }: { icon: any, label: string, value: string | number }) => (

@@ -6,7 +6,7 @@ import { Select } from "@/components/ui/select";
 import { Field, FieldLabel } from "@/components/ui/field";
 import { Spinner } from "@/components/ui/spinner";
 import type { Recipe } from "../firebase/data";
-import { saveRecipe } from "../firebase/data";
+import { publishRecipe } from "../firebase/data";
 import RecipeDetail from "./Recipe";
 import { ChevronDown, ChevronUp, Sparkles } from "lucide-react";
 import { getUser } from "../firebase/auth";
@@ -48,7 +48,7 @@ const Layout: React.FC = () => {
         saves: 0,
         tags: generatedRecipe.tags || []
       };
-      const savedRecipeId = await saveRecipe(user.uid, recipeToSave);
+      const savedRecipeId = await publishRecipe(user.uid, recipeToSave);
       navigate(`/recipes/${savedRecipeId}`);
     }
   };

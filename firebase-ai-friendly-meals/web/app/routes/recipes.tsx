@@ -1,5 +1,5 @@
 import type { Route } from "./+types/recipes";
-import { getAllRecipesForDisplay, queryRecipes, getLikedRecipeIds, getTop5Tags } from "@/firebase/data";
+import { queryRecipes, getTop5Tags } from "@/firebase/data";
 import { getUser } from "@/firebase/auth";
 
 import React, { useState, useEffect, useRef } from "react";
@@ -14,7 +14,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Field, FieldLabel, FieldGroup } from "@/components/ui/field";
-import { useLoaderData, Link, useSearchParams, useNavigate, Form } from "react-router";
+import { Link, useSearchParams, useNavigate, Form } from "react-router";
 import type { Recipe } from "../firebase/data";
 import {
     Item,
@@ -89,7 +89,6 @@ const FilterPanel: React.FC<{
     const name = searchParams.get('q') || '';
     const sortBy = (searchParams.get('sort') as 'rating' | 'title' | 'saves') || '';
     const myRecipes = searchParams.get('myRecipes') === 'on';
-    const likedOnly = searchParams.get('likedOnly') === 'on';
     const searchParamsSelectedTags: string[] = searchParams.get('tags')?.split(',').filter(Boolean) || [];
     const searchParamsMinRating = Number(searchParams.get('minRating')) || 0;
 
@@ -132,7 +131,7 @@ const FilterPanel: React.FC<{
         setSearchParams(new URLSearchParams());
     };
 
-    const hasFilters = name || searchParamsMinRating > 0 || searchParamsSelectedTags.length > 0 || sortBy || myRecipes || likedOnly;
+    const hasFilters = Array.from(searchParams.keys()).length > 0;
 
     return (
         <div className="bg-card border rounded-xl mb-6 overflow-hidden">
@@ -173,19 +172,6 @@ const FilterPanel: React.FC<{
                                     className="w-4 h-4 accent-primary rounded border-gray-300"
                                 />
                                 <span className="font-medium">Show only my recipes</span>
-                            </label>
-                        </Field>
-
-                        {/* Liked Recipes Toggle */}
-                        <Field>
-                            <label className="flex items-center gap-2 cursor-pointer p-1">
-                                <input
-                                    type="checkbox"
-                                    name='likedOnly'
-                                    defaultChecked={likedOnly}
-                                    className="w-4 h-4 accent-primary rounded border-gray-300"
-                                />
-                                <span className="font-medium">Show only liked recipes</span>
                             </label>
                         </Field>
 
@@ -322,12 +308,13 @@ export default function RecipesPage({ loaderData }: Route.loaderData) {
     }
 
     return (
-        <div className="p-4">
+        <div>
             <FilterPanel
                 isOpen={filterOpen}
                 onToggle={() => setFilterOpen(!filterOpen)}
                 availableTags={topTags}
             />
+            <h3 className="mb-4">{recipes.length} recipes</h3>
             <ItemGroup className='gap-4'>
                 {recipes.map((recipe: Recipe) => (
                     <Item key={recipe.id} variant="outline">

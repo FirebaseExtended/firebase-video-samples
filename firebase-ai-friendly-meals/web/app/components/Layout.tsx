@@ -42,7 +42,7 @@ const Layout: React.FC = () => {
           </NavigationMenuList>
         </NavigationMenu>
       </header>
-      <main className="container mx-auto p-1">
+      <main className="container mx-auto p-1 sm:p-4">
         <Outlet />
       </main>
     </div>

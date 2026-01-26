@@ -4,7 +4,7 @@ import { useState } from "react";
 import { IngredientInput } from "@/components/IngredientInput";
 import { generateStructuredJsonRecipe } from "@/firebase/firebaseAILogic";
 import type { Recipe } from "@/firebase/data";
-import { saveRecipe } from "@/firebase/data";
+import { publishRecipe } from "@/firebase/data";
 import RecipeDetail from "@/components/Recipe";
 import { Button } from "@/components/ui/button";
 import { ChevronDown, ChevronUp, Sparkles } from "lucide-react";
@@ -53,7 +53,7 @@ export default function GeneratePage() {
                 saves: 0,
                 tags: generatedRecipe.tags || []
             };
-            const savedRecipeId = await saveRecipe(user.uid, recipeToSave);
+            const savedRecipeId = await publishRecipe(user.uid, recipeToSave);
             navigate(`/recipes/${savedRecipeId}`);
         }
     };
