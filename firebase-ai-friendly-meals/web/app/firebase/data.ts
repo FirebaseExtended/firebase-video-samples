@@ -120,7 +120,6 @@ export async function addReview(recipeId: string, userId: string, rating: number
 
 export async function likeRecipe(userId: string, recipeId: string) {
     const likeId = `${recipeId}_${userId}`;
-    console.log(recipeId, userId);
     await setDoc(doc(db, "saves", likeId), {
         userId,
         recipeId
@@ -129,7 +128,7 @@ export async function likeRecipe(userId: string, recipeId: string) {
 
     // increment the total likes on the recipe itself
     const recipeRef = doc(db, `recipes/${recipeId}`);
-    await updateDoc(recipeRef, { likes: increment(1) });
+    await updateDoc(recipeRef, { saves: increment(1) });
 }
 
 export async function unlikeRecipe(userId: string, recipeId: string) {
@@ -138,17 +137,17 @@ export async function unlikeRecipe(userId: string, recipeId: string) {
 
     // decrement the total likes on the recipe itself
     const recipeRef = doc(db, `recipes/${recipeId}`);
-    await updateDoc(recipeRef, { likes: increment(-1) });
+    await updateDoc(recipeRef, { saves: increment(-1) });
 }
 
 export async function isRecipeLikedByUser(userId: string, recipeId: string): Promise<boolean> {
     const pipeline = db.pipeline()
-        .collectionGroup("saves")
+        .collection("saves")
         .where(field("userId").equal(userId))
-        .where(field("recipeId").equal(recipeId));
+        .where(field("recipeId").equal(recipeId))
+        .limit(1);
 
     const { results } = await execute(pipeline);
-    console.log(results);
     return results.length > 0;
 }
 
