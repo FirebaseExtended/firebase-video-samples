@@ -180,7 +180,7 @@ export async function queryRecipes(filters: {
 
     switch (filters.sort) {
         case 'title':
-            pipeline = pipeline.sort(field('title').descending());
+            pipeline = pipeline.sort(field('title').ascending());
             break;
         case 'rating':
             pipeline = pipeline.sort(field('averageRating').descending());
