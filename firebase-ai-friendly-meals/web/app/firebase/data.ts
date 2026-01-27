@@ -66,7 +66,6 @@ export async function publishRecipe(userId: string, recipe: Omit<Recipe, "id">):
         ...recipe,
         authorId: userId
     });
-    console.log('saved recipe', recipeRef.id);
     return recipeRef.id;
 }
 
@@ -170,7 +169,6 @@ export async function queryRecipes(filters: {
     }
 
     if (filters.minRating && filters.minRating > 0) {
-        console.log(filters.minRating, typeof filters.minRating);
         pipeline = pipeline.where(field("averageRating").greaterThanOrEqual(filters.minRating));
     }
 

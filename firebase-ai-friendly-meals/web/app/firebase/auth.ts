@@ -7,7 +7,6 @@ export async function getUser() {
     await auth.authStateReady();
 
     if (auth.currentUser) {
-        console.log("User is already signed in");
         return auth.currentUser;
     }
 
