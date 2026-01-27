@@ -108,7 +108,9 @@ const FilterPanel: React.FC<{
         // copy form state to search params
         const formData = new FormData(e.target as HTMLFormElement);
         for (const [key, value] of formData.entries()) {
-            newSearchParams.set(key, value as string);
+            if (value) {
+                newSearchParams.set(key, value as string);
+            }
         }
 
         // handle interactive components that manage their values through state
