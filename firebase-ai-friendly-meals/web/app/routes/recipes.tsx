@@ -320,6 +320,23 @@ export default function RecipesPage({ loaderData }: Route.loaderData) {
                     <Item key={recipe.id} variant="outline">
                         <ItemContent>
                             <ItemTitle>{recipe.title}</ItemTitle>
+                            <div className="flex items-center gap-2 mb-2">
+                                <div className="flex" aria-label={`Rating: ${recipe.averageRating || 0} out of 5`}>
+                                    {[1, 2, 3, 4, 5].map((star) => (
+                                        <Star
+                                            key={star}
+                                            className={`w-4 h-4 ${star <= (recipe.averageRating || 0)
+                                                ? "fill-amber-400 text-amber-400"
+                                                : "text-muted-foreground/30"
+                                                }`}
+                                        />
+                                    ))}
+                                </div>
+                                <div className="text-xs text-muted-foreground flex items-center gap-1">
+                                    <span>•</span>
+                                    <span>{recipe.saves || 0} saves</span>
+                                </div>
+                            </div>
                             <ItemDescription>
                                 {recipe.tags?.join(", ") || "No tags"}
                             </ItemDescription>
