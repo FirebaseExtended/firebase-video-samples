@@ -75,25 +75,9 @@ export default function HomePage() {
                         <div className="w-14 h-14 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center mb-3 group-hover:bg-purple-200 dark:group-hover:bg-purple-900/50 transition-colors">
                             <BookOpen className="w-7 h-7 text-purple-600 dark:text-purple-400" />
                         </div>
-                        <span className="font-semibold text-foreground">My Recipes</span>
-                        <span className="text-sm text-muted-foreground text-center mt-1">Browse your saved collection</span>
+                        <span className="font-semibold text-foreground">All Recipes</span>
+                        <span className="text-sm text-muted-foreground text-center mt-1">Browse recipes published by other chefs</span>
                     </a>
-                </div>
-            </div>
-
-            {/* Footer Badge */}
-            <div className="fixed bottom-0 left-0 right-0 flex justify-center pb-6">
-                <div className="flex items-center gap-3 px-5 py-3 rounded-full bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border border-border/50 shadow-lg">
-                    <div className="flex items-center gap-1.5">
-                        <Sparkles className="w-4 h-4 text-amber-500" />
-                        <span className="text-sm font-medium text-foreground">Firebase AI Logic</span>
-                    </div>
-                    <span className="text-muted-foreground">+</span>
-                    <div className="flex items-center gap-1.5">
-                        <Database className="w-4 h-4 text-emerald-500" />
-                        <span className="text-sm font-medium text-foreground">Firestore Pipelines</span>
-                    </div>
-                    <span className="text-xs text-muted-foreground ml-1">Sample App</span>
                 </div>
             </div>
         </div>
