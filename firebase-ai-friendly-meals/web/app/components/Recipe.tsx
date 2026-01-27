@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { Recipe } from "../firebase/data";
-import { deleteRecipe, addReview, likeRecipe, unlikeRecipe, isRecipeLikedByUser } from "../firebase/data";
+import { deleteRecipe, addReview, likeRecipe, unlikeRecipe } from "../firebase/data";
 import { getUser } from "../firebase/auth";
 
 const InfoBox = ({ icon: Icon, label, value }: { icon: any, label: string, value: string | number }) => (
@@ -32,16 +32,16 @@ interface RecipeDetailProps {
 const RecipeDetail: React.FC<RecipeDetailProps> = ({ recipe, readonly = false, liked = false }) => {
     const navigate = useNavigate();
     const [rating, setRating] = useState(recipe.averageRating);
-    const [isLiked, setIsLiked] = useState(false);
+    const [isLiked, setIsLiked] = useState(liked);
 
     const handleLikeToggle = async () => {
+        setIsLiked(!isLiked);
         const user = await getUser();
         if (isLiked) {
             await unlikeRecipe(user.uid, recipe.id);
         } else {
             await likeRecipe(user.uid, recipe.id);
         }
-        setIsLiked(!isLiked);
     };
 
     const handleRating = async (newRating: number) => {
