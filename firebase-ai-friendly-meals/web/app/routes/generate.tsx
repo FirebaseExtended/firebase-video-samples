@@ -2,7 +2,7 @@ import type { Route } from "./+types/generate";
 
 import { useState } from "react";
 import { IngredientInput } from "@/components/IngredientInput";
-import { generateStructuredJsonRecipe } from "@/firebase/firebaseAILogic";
+import { generateRecipeImage, generateStructuredJsonRecipe } from "@/firebase/firebaseAILogic";
 import type { Recipe } from "@/firebase/data";
 import { publishRecipe } from "@/firebase/data";
 import RecipeDetail from "@/components/Recipe";
@@ -19,7 +19,7 @@ export function meta({ }: Route.MetaArgs) {
 }
 
 export default function GeneratePage() {
-    const [isLoading, setIsLoading] = useState(false);
+    const [loadingMessage, setLoadingMessage] = useState<'Generating recipe' | 'Generating image' | null>(null);
     const [generatedRecipe, setGeneratedRecipe] = useState<Recipe | null>(null);
     const [isInputExpanded, setIsInputExpanded] = useState(true);
     const navigate = useNavigate();
@@ -29,16 +29,19 @@ export default function GeneratePage() {
         cuisineType: string
     ) => {
         try {
-            setIsLoading(true);
+            setLoadingMessage("Generating recipe");
             const recipe: Recipe = await generateStructuredJsonRecipe(
                 ingredients,
                 cuisineType
             );
             setGeneratedRecipe(recipe);
+            setLoadingMessage("Generating image");
+            const imageUri = await generateRecipeImage(recipe.title);
+            setGeneratedRecipe({ ...recipe, imageUri });
         } catch (error) {
             console.error("Error generating text recipe:", error);
         } finally {
-            setIsLoading(false);
+            setLoadingMessage(null);
         }
     };
 
@@ -75,7 +78,7 @@ export default function GeneratePage() {
                 {isInputExpanded && (
                     <div className="p-4 border-t bg-muted/10">
                         <IngredientInput
-                            isLoading={isLoading}
+                            isLoading={loadingMessage || false}
                             handleSubmit={generateTextRecipeHandler}
                         />
                     </div>
@@ -84,7 +87,6 @@ export default function GeneratePage() {
 
             {generatedRecipe && (
                 <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                    <p>Here is your generated recipe. Click the Publish button at the bottom to share with others.</p>
                     <RecipeDetail recipe={generatedRecipe} readonly={true} />
                     <div className="flex justify-center mt-8 pb-12">
                         <Button onClick={handleSave} size="lg" className="shadow-lg bg-emerald-600 hover:bg-emerald-700 min-w-[200px] cursor-pointer">

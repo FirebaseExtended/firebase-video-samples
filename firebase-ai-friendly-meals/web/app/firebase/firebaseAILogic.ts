@@ -97,11 +97,6 @@ export async function generateStructuredJsonRecipe(
 
   const recipe = JSON.parse(result.response.text());
 
-  // Generate and add header image
-  if (recipe.title) {
-    recipe.imageUri = await generateRecipeImage(recipe.title);
-  }
-
   return recipe;
 }
 

@@ -7,7 +7,7 @@ import { Spinner } from "@/components/ui/spinner";
 
 interface IngredientInputProps {
   handleSubmit: (ingredients: string, cuisineType: string) => Promise<void>;
-  isLoading: boolean;
+  isLoading: boolean | string;
 }
 
 export const IngredientInput: React.FC<IngredientInputProps> = ({ handleSubmit, isLoading }) => {
@@ -22,7 +22,7 @@ export const IngredientInput: React.FC<IngredientInputProps> = ({ handleSubmit, 
       <Field>
         <FieldLabel>Ingredients</FieldLabel>
         <Textarea
-          disabled={isLoading}
+          disabled={!!isLoading}
           placeholder="Enter your list of ingredients"
           onChange={(e) => setIngredients(e.target.value)}
           rows={5}
@@ -31,7 +31,7 @@ export const IngredientInput: React.FC<IngredientInputProps> = ({ handleSubmit, 
       <Field>
         <FieldLabel>Cuisine</FieldLabel>
         <Select
-          disabled={isLoading}
+          disabled={!!isLoading}
           value={cuisineType}
           onChange={(e) => setCuisineType(e.target.value)}
         >
@@ -44,10 +44,10 @@ export const IngredientInput: React.FC<IngredientInputProps> = ({ handleSubmit, 
       </Field>
       <Button
         className="w-full"
-        disabled={isLoading}
+        disabled={!!isLoading}
         type="submit">
         {isLoading && <Spinner className="mr-2 h-4 w-4" />}
-        {isLoading ? 'Loading...' : 'Generate'}
+        {isLoading ? (typeof isLoading === 'string' ? isLoading : 'Loading...') : 'Generate'}
       </Button>
     </form>
   );
