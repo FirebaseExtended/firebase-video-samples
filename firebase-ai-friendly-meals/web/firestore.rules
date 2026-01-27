@@ -10,7 +10,11 @@ service cloud.firestore {
       allow read: if request.auth != null;
       allow create: if request.auth != null 
                     && request.resource.data.authorId == request.auth.uid;
-      allow update, delete: if request.auth != null 
+      allow update: if request.auth != null 
+                    && (
+                        request.resource.data.diff(resource.data).affectedKeys().hasOnly(["saves"])
+                        || request.resource.data.diff(resource.data).affectedKeys().hasOnly(["averageRating"]));
+      allow delete: if request.auth != null 
                             && resource.data.authorId == request.auth.uid;
       
       // Reviews subcollection under recipes
@@ -26,15 +30,6 @@ service cloud.firestore {
         allow delete: if request.auth != null 
                               && resource.data.userId == request.auth.uid;
       }
-    }
-    
-    // Users collection - root level
-    // Users can only read/write their own user document
-    match /users/{userId} {
-      allow read, write: if request.auth != null 
-                         && request.auth.uid == resource.data.authId;
-      allow create: if request.auth != null 
-                    && request.resource.data.authId == request.auth.uid;
     }
     
     // Saves collection - root level (bookmarks)
