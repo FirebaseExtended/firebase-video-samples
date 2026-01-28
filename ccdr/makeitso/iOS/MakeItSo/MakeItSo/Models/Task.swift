@@ -2,13 +2,13 @@ import FirebaseFirestore
 import Foundation
 
 struct Task: Codable, Identifiable {
-  @DocumentID var id: String?
+  @DocumentID var id: String? = nil
   var title: String
   var isCompleted: Bool
   var priority: TaskPriority
-  var dueDate: Date?  // Optional, as tasks might not have a deadline
-  @ServerTimestamp var createdAt: Date?
-  var userId: String?
+  var dueDate: Date? = nil
+  @ServerTimestamp var createdAt: Date? = nil
+  var userId: String? = nil
 }
 
 enum TaskPriority: String, Codable, CaseIterable, Hashable {
