@@ -20,16 +20,14 @@ class TaskRepository {
   
   func subscribe() {
     if listenerRegistration == nil {
-      // Assuming we filter by userId. For anonymous auth, we might need to wait for auth state.
-      // For MVP, we'll just listen to the collection and trust security rules or client-side filtering once auth is active.
-      // Ideally, we'd wait for Auth to be ready.
+      guard let userId = Auth.auth().currentUser?.uid else {
+        return
+      }
       
       let query = db.collection("tasks")
+        .whereField("userId", isEqualTo: userId)
         .order(by: "isCompleted")
         .order(by: "dueDate")
-      
-      // Note: Real filtering by userId requires the user to be logged in. 
-      // We often need a "userId" field in the query if rules require it.
       
       listenerRegistration = query
         .addSnapshotListener { [weak self] querySnapshot, error in
