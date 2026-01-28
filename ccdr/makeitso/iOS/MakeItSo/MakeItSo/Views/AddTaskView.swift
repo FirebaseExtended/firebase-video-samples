@@ -6,6 +6,7 @@ struct AddTaskView: View {
   
   @State private var title = ""
   @State private var priority: TaskPriority = .medium
+  @State private var dueDate = Date()
   
   var body: some View {
     NavigationStack {
@@ -20,6 +21,8 @@ struct AddTaskView: View {
             Text(priority.rawValue).tag(priority)
           }
         }
+        
+        DatePicker("Due Date", selection: $dueDate)
       }
       .navigationTitle("New Task")
       .toolbar {
@@ -39,7 +42,7 @@ struct AddTaskView: View {
   }
   
   private func submit() {
-    let task = Task(title: title, isCompleted: false, priority: priority)
+    let task = Task(title: title, isCompleted: false, priority: priority, dueDate: dueDate)
     onAdd(task)
     dismiss()
   }
