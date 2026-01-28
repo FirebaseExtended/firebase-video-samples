@@ -7,6 +7,8 @@ import Observation
 class TaskRepository {
   var tasks = [Task]()
 
+  var user: User? = nil
+
   private var db = Firestore.firestore()
   private var listenerRegistration: ListenerRegistration?
   private var authStateListenerHandle: AuthStateDidChangeListenerHandle?
@@ -14,6 +16,7 @@ class TaskRepository {
   init() {
     authStateListenerHandle = Auth.auth().addStateDidChangeListener { [weak self] auth, user in
       guard let self = self else { return }
+      self.user = user
       guard let user = user else {
         print("User is signed out")
         self.tasks = []
@@ -70,7 +73,7 @@ class TaskRepository {
     do {
       var newTask = task
       // Assign current user ID if available
-      if let userId = Auth.auth().currentUser?.uid {
+      if let userId = self.user?.uid {
         newTask.userId = userId
         print("Adding task with userId: \(userId)")
       } else {
