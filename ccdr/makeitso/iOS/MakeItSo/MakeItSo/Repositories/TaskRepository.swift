@@ -25,8 +25,8 @@ class TaskRepository {
       // Ideally, we'd wait for Auth to be ready.
       
       let query = db.collection("tasks")
-        .order(by: "isCompleted") // pending first
-        .order(by: "priority")    // then by priority
+        .order(by: "isCompleted")
+        .order(by: "dueDate")
       
       // Note: Real filtering by userId requires the user to be logged in. 
       // We often need a "userId" field in the query if rules require it.
