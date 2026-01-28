@@ -39,7 +39,12 @@ class TaskRepository {
           }
           
           self?.tasks = documents.compactMap { queryDocumentSnapshot in
-            try? queryDocumentSnapshot.data(as: Task.self)
+            do {
+              return try queryDocumentSnapshot.data(as: Task.self)
+            } catch {
+              print("Error decoding task: \(error.localizedDescription)")
+              return nil
+            }
           }
         }
     }
