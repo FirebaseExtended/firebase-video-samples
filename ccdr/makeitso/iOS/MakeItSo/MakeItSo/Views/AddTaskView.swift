@@ -3,11 +3,11 @@ import SwiftUI
 struct AddTaskView: View {
   @Environment(\.dismiss) var dismiss
   var onAdd: (Task) -> Void
-  
+
   @State private var title = ""
   @State private var priority: TaskPriority = .medium
   @State private var dueDate = Date()
-  
+
   var body: some View {
     NavigationStack {
       Form {
@@ -15,14 +15,14 @@ struct AddTaskView: View {
           .onSubmit {
             submit()
           }
-        
+
         Picker("Priority", selection: $priority) {
           ForEach(TaskPriority.allCases, id: \.self) { priority in
             Text(priority.rawValue).tag(priority)
           }
         }
-        
-        DatePicker("Due Date", selection: $dueDate)
+
+        NativeDatePicker(selection: $dueDate, minuteInterval: 30)
       }
       .navigationTitle("New Task")
       .toolbar {
@@ -40,7 +40,7 @@ struct AddTaskView: View {
       }
     }
   }
-  
+
   private func submit() {
     let task = Task(title: title, isCompleted: false, priority: priority, dueDate: dueDate)
     onAdd(task)
