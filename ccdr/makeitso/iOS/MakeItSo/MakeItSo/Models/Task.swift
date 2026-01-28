@@ -1,7 +1,7 @@
 import FirebaseFirestore
 import Foundation
 
-struct Task: Codable, Identifiable {
+struct TaskItem: Codable, Identifiable {
   @DocumentID var id: String? = nil
   var title: String
   var isCompleted: Bool

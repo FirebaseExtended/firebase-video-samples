@@ -5,7 +5,7 @@ import Observation
 
 @Observable
 class TaskRepository {
-  var tasks = [Task]()
+  var tasks = [TaskItem]()
 
   var user: User? = nil
 
@@ -15,16 +15,18 @@ class TaskRepository {
 
   init() {
     authStateListenerHandle = Auth.auth().addStateDidChangeListener { [weak self] auth, user in
-      guard let self = self else { return }
-      self.user = user
-      guard let user = user else {
-        print("User is signed out")
-        self.tasks = []
-        self.unsubscribe()
-        return
+      Task { @MainActor in
+        guard let self = self else { return }
+        self.user = user
+        guard let user = user else {
+          print("User is signed out")
+          self.tasks = []
+          self.unsubscribe()
+          return
+        }
+        print("User is signed in: \(user.uid)")
+        self.subscribe(userId: user.uid)
       }
-      print("User is signed in: \(user.uid)")
-      self.subscribe(userId: user.uid)
     }
   }
 
@@ -52,13 +54,17 @@ class TaskRepository {
           }
           print("Received \(documents.count) tasks")
 
-          self?.tasks = documents.compactMap { queryDocumentSnapshot in
+          let tasks = documents.compactMap { queryDocumentSnapshot -> TaskItem? in
             do {
-              return try queryDocumentSnapshot.data(as: Task.self)
+              return try queryDocumentSnapshot.data(as: TaskItem.self)
             } catch {
               print("Error decoding task: \(error.localizedDescription)")
               return nil
             }
+          }
+
+          Task { @MainActor [weak self] in
+            self?.tasks = tasks
           }
         }
     }
@@ -69,7 +75,7 @@ class TaskRepository {
     listenerRegistration = nil
   }
 
-  func addTask(_ task: Task) {
+  func addTask(_ task: TaskItem) {
     do {
       var newTask = task
       // Assign current user ID if available
@@ -85,7 +91,7 @@ class TaskRepository {
     }
   }
 
-  func updateTask(_ task: Task) {
+  func updateTask(_ task: TaskItem) {
     if let taskID = task.id {
       do {
         try db.collection("tasks").document(taskID).setData(from: task)
@@ -95,7 +101,7 @@ class TaskRepository {
     }
   }
 
-  func deleteTask(_ task: Task) {
+  func deleteTask(_ task: TaskItem) {
     if let taskID = task.id {
       db.collection("tasks").document(taskID).delete { error in
         if let error = error {

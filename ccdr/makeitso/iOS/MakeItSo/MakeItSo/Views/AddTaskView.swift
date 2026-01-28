@@ -2,7 +2,7 @@ import SwiftUI
 
 struct AddTaskView: View {
   @Environment(\.dismiss) var dismiss
-  var onAdd: (Task) -> Void
+  var onAdd: (TaskItem) -> Void
 
   @State private var title = ""
   @State private var priority: TaskPriority = .medium
@@ -42,7 +42,7 @@ struct AddTaskView: View {
   }
 
   private func submit() {
-    let task = Task(title: title, isCompleted: false, priority: priority, dueDate: dueDate)
+    let task = TaskItem(title: title, isCompleted: false, priority: priority, dueDate: dueDate)
     onAdd(task)
     dismiss()
   }

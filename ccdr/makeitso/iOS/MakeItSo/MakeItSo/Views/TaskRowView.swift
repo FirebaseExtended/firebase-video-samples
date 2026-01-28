@@ -1,9 +1,9 @@
 import SwiftUI
 
 struct TaskRowView: View {
-  let task: Task
-  var onToggleCompleted: (Task) -> Void
-  
+  let task: TaskItem
+  var onToggleCompleted: (TaskItem) -> Void
+
   var body: some View {
     HStack {
       Image(systemName: task.isCompleted ? "checkmark.circle.fill" : "circle")
@@ -12,7 +12,7 @@ struct TaskRowView: View {
         .onTapGesture {
           onToggleCompleted(task)
         }
-      
+
       VStack(alignment: .leading) {
         Text(task.title)
           .strikethrough(task.isCompleted)
@@ -22,7 +22,7 @@ struct TaskRowView: View {
             .foregroundStyle(.secondary)
         }
       }
-      
+
       Spacer()
     }
   }
