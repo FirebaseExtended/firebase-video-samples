@@ -5,3 +5,4 @@ buildServer.json
 
 # Local build artifacts
 .build/
+GoogleService-Info.plist
