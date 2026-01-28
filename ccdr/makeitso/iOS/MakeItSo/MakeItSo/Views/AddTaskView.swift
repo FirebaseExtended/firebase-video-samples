@@ -22,7 +22,7 @@ struct AddTaskView: View {
           }
         }
 
-        NativeDatePicker(selection: $dueDate, minuteInterval: 30)
+        DatePicker("Due Date", selection: $dueDate)
       }
       .navigationTitle("New Task")
       .toolbar {

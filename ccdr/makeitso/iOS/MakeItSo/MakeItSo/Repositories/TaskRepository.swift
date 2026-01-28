@@ -15,10 +15,12 @@ class TaskRepository {
     authStateListenerHandle = Auth.auth().addStateDidChangeListener { [weak self] auth, user in
       guard let self = self else { return }
       guard let user = user else {
+        print("User is signed out")
         self.tasks = []
         self.unsubscribe()
         return
       }
+      print("User is signed in: \(user.uid)")
       self.subscribe(userId: user.uid)
     }
   }
@@ -32,6 +34,7 @@ class TaskRepository {
 
   func subscribe(userId: String) {
     if listenerRegistration == nil {
+      print("Subscribing to tasks for user: \(userId)")
       let query = db.collection("tasks")
         .whereField("userId", isEqualTo: userId)
         .order(by: "isCompleted")
@@ -41,9 +44,10 @@ class TaskRepository {
         query
         .addSnapshotListener { [weak self] querySnapshot, error in
           guard let documents = querySnapshot?.documents else {
-            print("No documents")
+            print("No documents received or error: \(String(describing: error))")
             return
           }
+          print("Received \(documents.count) tasks")
 
           self?.tasks = documents.compactMap { queryDocumentSnapshot in
             do {
@@ -68,6 +72,9 @@ class TaskRepository {
       // Assign current user ID if available
       if let userId = Auth.auth().currentUser?.uid {
         newTask.userId = userId
+        print("Adding task with userId: \(userId)")
+      } else {
+        print("Warning: No logged in user, saving task without userId")
       }
       let _ = try db.collection("tasks").addDocument(from: newTask)
     } catch {
