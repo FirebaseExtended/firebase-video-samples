@@ -33,7 +33,13 @@ struct TaskListView: View {
     }
     .sheet(isPresented: $isPresentingAddTask) {
       AddTaskView { task in
-        repository.addTask(task)
+        Task {
+          do {
+            try await repository.addTask(task)
+          } catch {
+            print("Error adding task: \(error.localizedDescription)")
+          }
+        }
       }
     }
   }
@@ -41,13 +47,25 @@ struct TaskListView: View {
   private func toggleTask(_ task: TaskItem) {
     var updatedTask = task
     updatedTask.isCompleted.toggle()
-    repository.updateTask(updatedTask)
+    Task {
+      do {
+        try await repository.updateTask(updatedTask)
+      } catch {
+        print("Error updating task: \(error.localizedDescription)")
+      }
+    }
   }
 
   private func delete(at indexSet: IndexSet) {
     indexSet.forEach { index in
       let task = repository.tasks[index]
-      repository.deleteTask(task)
+      Task {
+        do {
+          try await repository.deleteTask(task)
+        } catch {
+          print("Error deleting task: \(error.localizedDescription)")
+        }
+      }
     }
   }
 }

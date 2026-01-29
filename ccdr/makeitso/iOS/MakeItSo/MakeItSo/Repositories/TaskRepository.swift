@@ -88,39 +88,25 @@ class TaskRepository {
     listenerRegistration = nil
   }
 
-  @MainActor func addTask(_ task: TaskItem) {
-    do {
-      var newTask = task
-      // Assign current user ID if available
-      if let userId = self.user?.uid {
-        newTask.userId = userId
-        print("Adding task with userId: \(userId)")
-      } else {
-        print("Warning: No logged in user, saving task without userId")
-      }
-      let _ = try db.collection("tasks").addDocument(from: newTask)
-    } catch {
-      print("Unable to add task: \(error.localizedDescription)")
+  @MainActor func addTask(_ task: TaskItem) async throws {
+    var newTask = task
+    if let user = user {
+      newTask.userId = user.uid
+    } else {
+      print("Warning: No logged in user, saving task without userId")
+    }
+    let _ = try await db.collection("tasks").addDocument(from: newTask)
+  }
+
+  @MainActor func updateTask(_ task: TaskItem) async throws {
+    if let taskID = task.id {
+      try await db.collection("tasks").document(taskID).setData(from: task)
     }
   }
 
-  @MainActor func updateTask(_ task: TaskItem) {
+  @MainActor func deleteTask(_ task: TaskItem) async throws {
     if let taskID = task.id {
-      do {
-        try db.collection("tasks").document(taskID).setData(from: task)
-      } catch {
-        print("Unable to update task: \(error.localizedDescription)")
-      }
-    }
-  }
-
-  @MainActor func deleteTask(_ task: TaskItem) {
-    if let taskID = task.id {
-      db.collection("tasks").document(taskID).delete { error in
-        if let error = error {
-          print("Unable to remove document: \(error.localizedDescription)")
-        }
-      }
+      try await db.collection("tasks").document(taskID).delete()
     }
   }
 }
