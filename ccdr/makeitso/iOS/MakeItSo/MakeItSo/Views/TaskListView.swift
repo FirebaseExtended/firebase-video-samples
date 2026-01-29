@@ -3,6 +3,8 @@ import SwiftUI
 struct TaskListView: View {
   @State private var repository = TaskRepository()
   @State private var isPresentingAddTask = false
+  @State private var errorMessage: String?
+  @State private var isShowingError = false
 
   var body: some View {
     NavigationStack {
@@ -11,8 +13,8 @@ struct TaskListView: View {
       } else {
         List {
           ForEach(repository.tasks) { task in
-            TaskRowView(task: task) { task in
-              toggleTask(task)
+            TaskRowView(task: task) { taskToToggle in
+              toggleTask(taskToToggle)
             }
           }
           .onDelete { indexSet in
@@ -37,11 +39,21 @@ struct TaskListView: View {
           do {
             try await repository.addTask(task)
           } catch {
-            print("Error adding task: \(error.localizedDescription)")
+            showError(error)
           }
         }
       }
     }
+    .alert("Error", isPresented: $isShowingError, presenting: errorMessage) { _ in
+      Button("OK", role: .cancel) {}
+    } message: { message in
+      Text(message)
+    }
+  }
+
+  private func showError(_ error: Error) {
+    errorMessage = error.localizedDescription
+    isShowingError = true
   }
 
   private func toggleTask(_ task: TaskItem) {
@@ -51,7 +63,7 @@ struct TaskListView: View {
       do {
         try await repository.updateTask(updatedTask)
       } catch {
-        print("Error updating task: \(error.localizedDescription)")
+        showError(error)
       }
     }
   }
@@ -63,7 +75,7 @@ struct TaskListView: View {
         do {
           try await repository.deleteTask(task)
         } catch {
-          print("Error deleting task: \(error.localizedDescription)")
+          showError(error)
         }
       }
     }
