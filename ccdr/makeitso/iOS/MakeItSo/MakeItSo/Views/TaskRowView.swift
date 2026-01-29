@@ -6,12 +6,15 @@ struct TaskRowView: View {
 
   var body: some View {
     HStack {
-      Image(systemName: task.isCompleted ? "checkmark.circle.fill" : "circle")
-        .resizable()
-        .frame(width: 20, height: 20)
-        .onTapGesture {
-          onToggleCompleted(task)
-        }
+      Button {
+        onToggleCompleted(task)
+      } label: {
+        Image(systemName: task.isCompleted ? "checkmark.circle.fill" : "circle")
+          .resizable()
+          .frame(width: 20, height: 20)
+      }
+      .buttonStyle(.plain)
+      .accessibilityLabel(task.isCompleted ? "Mark as incomplete" : "Mark as complete")
 
       VStack(alignment: .leading) {
         Text(task.title)

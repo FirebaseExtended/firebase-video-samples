@@ -3,11 +3,24 @@ import FirebaseFirestore
 import Foundation
 import Observation
 
+/// A repository responsible for managing tasks and their synchronization with Firestore.
+///
+/// **Thread Safety & Isolation Strategy**:
+/// This class uses "surgical" `@MainActor` isolation instead of class-level isolation.
+///
+/// - **UI properties** (`tasks`, `user`) are isolated to `@MainActor` to ensure safe updates
+///   that trigger SwiftUI view refreshes.
+/// - **Lifecycle methods** (add, update, delete) are also isolated to `@MainActor` as they
+///   operate on or or are called from the UI layer.
+/// - **The class itself** remains non-isolated at the top level. This is intentional to allow
+///   the `deinit` method to safely access and modify internal state (like `listenerRegistration`)
+///   without being blocked by actor isolation requirements, which would otherwise cause
+///   build errors since `deinit` is inherently non-isolated.
 @Observable
 class TaskRepository {
-  var tasks = [TaskItem]()
+  @MainActor var tasks = [TaskItem]()
 
-  var user: User? = nil
+  @MainActor var user: User? = nil
 
   private var db = Firestore.firestore()
   private var listenerRegistration: ListenerRegistration?
@@ -37,7 +50,7 @@ class TaskRepository {
     }
   }
 
-  func subscribe(userId: String) {
+  @MainActor func subscribe(userId: String) {
     if listenerRegistration == nil {
       print("Subscribing to tasks for user: \(userId)")
       let query = db.collection("tasks")
@@ -75,7 +88,7 @@ class TaskRepository {
     listenerRegistration = nil
   }
 
-  func addTask(_ task: TaskItem) {
+  @MainActor func addTask(_ task: TaskItem) {
     do {
       var newTask = task
       // Assign current user ID if available
@@ -91,7 +104,7 @@ class TaskRepository {
     }
   }
 
-  func updateTask(_ task: TaskItem) {
+  @MainActor func updateTask(_ task: TaskItem) {
     if let taskID = task.id {
       do {
         try db.collection("tasks").document(taskID).setData(from: task)
@@ -101,7 +114,7 @@ class TaskRepository {
     }
   }
 
-  func deleteTask(_ task: TaskItem) {
+  @MainActor func deleteTask(_ task: TaskItem) {
     if let taskID = task.id {
       db.collection("tasks").document(taskID).delete { error in
         if let error = error {

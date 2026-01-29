@@ -12,16 +12,11 @@ struct TaskListView: View {
         List {
           ForEach(repository.tasks) { task in
             TaskRowView(task: task) { task in
-              var updatedTask = task
-              updatedTask.isCompleted.toggle()
-              repository.updateTask(updatedTask)
+              toggleTask(task)
             }
           }
           .onDelete { indexSet in
-            indexSet.forEach { index in
-              let task = repository.tasks[index]
-              repository.deleteTask(task)
-            }
+            delete(at: indexSet)
           }
         }
         .navigationTitle("Tasks")
@@ -30,7 +25,7 @@ struct TaskListView: View {
             Button {
               isPresentingAddTask = true
             } label: {
-              Image(systemName: "plus")
+              Label("Add Task", systemImage: "plus")
             }
           }
         }
@@ -40,6 +35,19 @@ struct TaskListView: View {
       AddTaskView { task in
         repository.addTask(task)
       }
+    }
+  }
+
+  private func toggleTask(_ task: TaskItem) {
+    var updatedTask = task
+    updatedTask.isCompleted.toggle()
+    repository.updateTask(updatedTask)
+  }
+
+  private func delete(at indexSet: IndexSet) {
+    indexSet.forEach { index in
+      let task = repository.tasks[index]
+      repository.deleteTask(task)
     }
   }
 }
