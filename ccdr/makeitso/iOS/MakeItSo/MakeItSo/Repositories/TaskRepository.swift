@@ -31,14 +31,14 @@ class TaskRepository {
       Task { @MainActor in
         guard let self = self else { return }
         self.user = user
-        guard let user = user else {
+        if let user = user {
+          print("User is signed in: \(user.uid)")
+          self.subscribe(userId: user.uid)
+        } else {
           print("User is signed out")
           self.tasks = []
           self.unsubscribe()
-          return
         }
-        print("User is signed in: \(user.uid)")
-        self.subscribe(userId: user.uid)
       }
     }
   }

@@ -19,7 +19,7 @@ struct TaskListView: View {
             delete(at: indexSet)
           }
         }
-        .navigationTitle("Tasks")
+        .navigationTitle("Make It So")
         .toolbar {
           ToolbarItem(placement: .primaryAction) {
             Button {

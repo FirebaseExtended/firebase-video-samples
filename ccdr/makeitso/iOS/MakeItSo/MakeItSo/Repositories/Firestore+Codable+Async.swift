@@ -9,7 +9,7 @@ extension CollectionReference {
   func addDocument<T: Encodable>(from value: T, encoder: Firestore.Encoder = Firestore.Encoder())
     async throws -> DocumentReference
   {
-    return try await withCheckedThrowingContinuation { continuation in
+    try await withCheckedThrowingContinuation { continuation in
       do {
         var ref: DocumentReference?
         ref = try self.addDocument(from: value, encoder: encoder) { error in
