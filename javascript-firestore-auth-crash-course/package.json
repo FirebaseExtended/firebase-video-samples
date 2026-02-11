@@ -16,7 +16,7 @@
   "devDependencies": {
     "@preact/preset-vite": "^2.10.2",
     "concurrently": "^7.1.0",
-    "firebase-tools": "^10.5.0",
+    "firebase-tools": "^14.27.0",
     "vite": "^7.2.6"
   }
 }
