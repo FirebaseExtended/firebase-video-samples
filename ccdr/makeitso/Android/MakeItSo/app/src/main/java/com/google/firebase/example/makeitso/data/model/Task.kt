@@ -13,8 +13,9 @@ enum class TaskPriority(val value: String) {
 }
 
 data class Task(
-    @DocumentId val id: String? = null,
+    @DocumentId val id: String = "",
     val title: String = "",
+    val description: String = "",
     val isCompleted: Boolean = false,
     val priority: TaskPriority = TaskPriority.LOW,
     val dueDate: Date? = null,
