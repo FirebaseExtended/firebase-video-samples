@@ -50,7 +50,7 @@ fun NewTaskScreenContent(
 ) {
     var title by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
-    var selectedPriority by remember { mutableStateOf(TaskPriority.MEDIUM) }
+    var selectedPriority by remember { mutableStateOf(TaskPriority.Medium) }
 
     Scaffold(
         containerColor = Color(0xFF0F141C),
@@ -154,24 +154,24 @@ fun NewTaskScreenContent(
 
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 PriorityOption(
-                    priority = TaskPriority.LOW,
-                    selected = selectedPriority == TaskPriority.LOW,
+                    priority = TaskPriority.Low,
+                    selected = selectedPriority == TaskPriority.Low,
                     color = Color(0xFF10B981),
-                    onSelect = { selectedPriority = TaskPriority.LOW },
+                    onSelect = { selectedPriority = TaskPriority.Low },
                     modifier = Modifier.weight(1f)
                 )
                 PriorityOption(
-                    priority = TaskPriority.MEDIUM,
-                    selected = selectedPriority == TaskPriority.MEDIUM,
+                    priority = TaskPriority.Medium,
+                    selected = selectedPriority == TaskPriority.Medium,
                     color = Color(0xFFF59E0B),
-                    onSelect = { selectedPriority = TaskPriority.MEDIUM },
+                    onSelect = { selectedPriority = TaskPriority.Medium },
                     modifier = Modifier.weight(1f)
                 )
                 PriorityOption(
-                    priority = TaskPriority.HIGH,
-                    selected = selectedPriority == TaskPriority.HIGH,
+                    priority = TaskPriority.High,
+                    selected = selectedPriority == TaskPriority.High,
                     color = Color(0xFFEF4444),
-                    onSelect = { selectedPriority = TaskPriority.HIGH },
+                    onSelect = { selectedPriority = TaskPriority.High },
                     modifier = Modifier.weight(1f)
                 )
             }
@@ -203,7 +203,7 @@ fun NewTaskScreenContent(
                         title = title,
                         description = description,
                         priority = selectedPriority,
-                        dueDate = java.util.Date() //TODO: fix date picker
+                        dueDate = java.util.Date()
                     )
                     onSave(task, navigateBack)
                 },
@@ -252,7 +252,7 @@ fun PriorityOption(
             Spacer(modifier = Modifier.width(8.dp))
 
             Text(
-                text = priority.value,
+                text = priority.name,
                 style = MaterialTheme.typography.bodyMedium.copy(color = Color.White)
             )
         }

@@ -252,9 +252,9 @@ fun TaskItemCard(
 @Composable
 fun PriorityBadge(priority: TaskPriority) {
     val (color, text) = when (priority) {
-        TaskPriority.HIGH -> Color(0xFFEF4444) to "HIGH"
-        TaskPriority.MEDIUM -> Color(0xFFF59E0B) to "MEDIUM"
-        TaskPriority.LOW -> Color(0xFF3B82F6) to "LOW"
+        TaskPriority.High -> Color(0xFFEF4444) to "HIGH"
+        TaskPriority.Medium -> Color(0xFFF59E0B) to "MEDIUM"
+        TaskPriority.Low -> Color(0xFF3B82F6) to "LOW"
     }
 
     Surface(

@@ -18,7 +18,7 @@ class DatabaseRemoteDataSource @Inject constructor(
     }
 
     suspend fun updateTask(task: Task) {
-        task.id?.let { id ->
+        task.id.let { id ->
             tasksCollection.document(id).set(task).await()
         }
     }

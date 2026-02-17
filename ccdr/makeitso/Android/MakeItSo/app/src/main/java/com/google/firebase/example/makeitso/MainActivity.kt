@@ -1,7 +1,6 @@
 package com.google.firebase.example.makeitso
 
 import android.os.Bundle
-import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -18,6 +17,7 @@ import com.google.firebase.example.makeitso.ui.newTask.NewTaskRoute
 import com.google.firebase.example.makeitso.ui.newTask.NewTaskScreen
 import com.google.firebase.example.makeitso.ui.taskList.TaskListRoute
 import com.google.firebase.example.makeitso.ui.taskList.TaskListScreen
+import com.google.firebase.example.makeitso.ui.theme.DeepDark
 import com.google.firebase.example.makeitso.ui.theme.MakeItSoTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -26,7 +26,6 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        setSoftInputMode()
 
         setContent {
             val navController = rememberNavController()
@@ -34,7 +33,7 @@ class MainActivity : ComponentActivity() {
             MakeItSoTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background,
+                    color = DeepDark
                 ) {
                     Scaffold(
                         modifier = Modifier.fillMaxSize()
@@ -63,9 +62,5 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
-    }
-
-    private fun setSoftInputMode() {
-        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING)
     }
 }
