@@ -3,6 +3,7 @@ package com.google.firebase.example.makeitso.ui.taskList
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -13,8 +14,6 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -31,6 +30,10 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.google.firebase.example.makeitso.data.model.Task
 import com.google.firebase.example.makeitso.data.model.TaskPriority
+import com.google.firebase.example.makeitso.ui.theme.BrightBlue
+import com.google.firebase.example.makeitso.ui.theme.DeepDark
+import com.google.firebase.example.makeitso.ui.theme.HighlightBlue
+import com.google.firebase.example.makeitso.ui.theme.LightBlue
 import com.google.firebase.example.makeitso.ui.theme.MakeItSoTheme
 import kotlinx.serialization.Serializable
 import java.text.SimpleDateFormat
@@ -67,29 +70,26 @@ fun TaskListScreenContent(
     val completedTasks = tasks.filter { it.isCompleted }
 
     Scaffold(
-        containerColor = Color(0xFF0F141C),
+        containerColor = if (isSystemInDarkTheme()) DeepDark else Color.White,
         topBar = {
             TopAppBar(
                 title = { 
                     Text(
                         "Tasks", 
                         style = MaterialTheme.typography.headlineMedium.copy(
-                            fontWeight = FontWeight.Bold, 
-                            color = Color.White
+                            fontWeight = FontWeight.Bold
                         )
                     ) 
                 },
-                actions = {
-                    IconButton(onClick = {}) { Icon(Icons.Default.Search, contentDescription = "Search", tint = Color.Gray) }
-                    IconButton(onClick = {}) { Icon(Icons.Default.MoreVert, contentDescription = "More", tint = Color.Gray) }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFF0F141C))
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = if (isSystemInDarkTheme()) DeepDark else Color.White
+                )
             )
         },
         floatingActionButton = {
             FloatingActionButton(
                 onClick = openNewTaskScreen,
-                containerColor = Color(0xFF3B82F6),
+                containerColor = HighlightBlue,
                 contentColor = Color.White
             ) {
                 Icon(Icons.Default.Add, contentDescription = "Add Task")
@@ -151,12 +151,12 @@ fun SectionHeader(title: String, count: Int) {
             )
         )
         Surface(
-            color = Color(0xFF1E3A8A).copy(alpha = 0.3f),
+            color = if (isSystemInDarkTheme()) LightBlue.copy(alpha = 0.3f) else DeepDark,
             shape = RoundedCornerShape(50),
         ) {
             Text(
                 text = "$count Items",
-                style = MaterialTheme.typography.labelSmall.copy(color = Color(0xFF60A5FA)),
+                style = MaterialTheme.typography.labelSmall.copy(color = BrightBlue),
                 modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
             )
         }
@@ -284,6 +284,6 @@ fun formatTaskDate(date: Date?): String {
 @Composable
 fun TaskListScreenPreview() {
     MakeItSoTheme { 
-        TaskListScreenContent(listOf())
+        TaskListScreenContent(listOf(Task(title = "Task 1", dueDate = Date())))
     }
 }

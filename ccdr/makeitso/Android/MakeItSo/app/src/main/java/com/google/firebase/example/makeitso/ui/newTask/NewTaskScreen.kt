@@ -1,6 +1,7 @@
 package com.google.firebase.example.makeitso.ui.newTask
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -25,6 +26,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.google.firebase.example.makeitso.data.model.Task
 import com.google.firebase.example.makeitso.data.model.TaskPriority
+import com.google.firebase.example.makeitso.ui.theme.DeepDark
+import com.google.firebase.example.makeitso.ui.theme.HighlightBlue
 import com.google.firebase.example.makeitso.ui.theme.MakeItSoTheme
 import kotlinx.serialization.Serializable
 
@@ -53,7 +56,7 @@ fun NewTaskScreenContent(
     var selectedPriority by remember { mutableStateOf(TaskPriority.Medium) }
 
     Scaffold(
-        containerColor = Color(0xFF0F141C),
+        containerColor = if (isSystemInDarkTheme()) DeepDark else Color.White,
         topBar = {
             TopAppBar(
                 title = { 
@@ -61,7 +64,7 @@ fun NewTaskScreenContent(
                         "Add New Task", 
                         style = MaterialTheme.typography.titleLarge.copy(
                             fontWeight = FontWeight.Bold, 
-                            color = Color.White
+                            color = if (isSystemInDarkTheme()) Color.White else DeepDark
                         )
                     ) 
                 },
@@ -73,7 +76,9 @@ fun NewTaskScreenContent(
                         )
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFF0F141C))
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = if (isSystemInDarkTheme()) DeepDark else Color.White
+                )
             )
         }
     ) { paddingValues ->
@@ -88,7 +93,7 @@ fun NewTaskScreenContent(
 
             Text(
                 "TASK TITLE",
-                style = MaterialTheme.typography.labelMedium.copy(color = Color(0xFF3B82F6), fontWeight = FontWeight.Bold)
+                style = MaterialTheme.typography.labelMedium.copy(color = HighlightBlue, fontWeight = FontWeight.Bold)
             )
             Spacer(modifier = Modifier.height(8.dp))
             TextField(
@@ -100,13 +105,15 @@ fun NewTaskScreenContent(
                         style = MaterialTheme.typography.headlineMedium.copy(color = Color.Gray)
                     ) 
                 },
-                textStyle = MaterialTheme.typography.headlineMedium.copy(color = Color.White),
+                textStyle = MaterialTheme.typography.headlineMedium.copy(
+                    color = if (isSystemInDarkTheme()) Color.White else DeepDark
+                ),
                 colors = TextFieldDefaults.colors(
                     focusedContainerColor = Color.Transparent,
                     unfocusedContainerColor = Color.Transparent,
                     focusedIndicatorColor = Color(0xFF2B374A),
                     unfocusedIndicatorColor = Color(0xFF2B374A),
-                    cursorColor = Color(0xFF3B82F6)
+                    cursorColor = HighlightBlue
                 ),
                 modifier = Modifier.fillMaxWidth()
             )
@@ -130,6 +137,7 @@ fun NewTaskScreenContent(
                 value = description,
                 onValueChange = { description = it },
                 placeholder = { Text("Add detailed description here...", color = Color.Gray) },
+                textStyle = LocalTextStyle.current.copy(color = Color.White),
                 colors = TextFieldDefaults.colors(
                     focusedContainerColor = Color(0xFF161F2C),
                     unfocusedContainerColor = Color(0xFF161F2C),
@@ -211,13 +219,21 @@ fun NewTaskScreenContent(
                     .fillMaxWidth()
                     .height(56.dp),
                 shape = RoundedCornerShape(16.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2563EB))
+                colors = ButtonDefaults.buttonColors(containerColor = HighlightBlue)
             ) {
-                Icon(Icons.Default.Check, contentDescription = null)
+                Icon(
+                    imageVector = Icons.Default.Check,
+                    tint = Color.White,
+                    contentDescription = null
+                )
 
                 Spacer(modifier = Modifier.width(8.dp))
 
-                Text("Save Task", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold))
+                Text(
+                    text = "Save Task",
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                    color = Color.White
+                )
             }
             
             Spacer(modifier = Modifier.height(32.dp))
