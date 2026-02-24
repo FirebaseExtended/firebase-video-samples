@@ -11,7 +11,7 @@ open class MainViewModel : ViewModel() {
     fun launchCatching(block: suspend CoroutineScope.() -> Unit) =
         viewModelScope.launch(
             CoroutineExceptionHandler { _, throwable ->
-                Log.e("MainViewModel", throwable.message ?: "Unknown error")
+                Log.e("MainViewModel", "Error: ", throwable)
             },
             block = block
         )

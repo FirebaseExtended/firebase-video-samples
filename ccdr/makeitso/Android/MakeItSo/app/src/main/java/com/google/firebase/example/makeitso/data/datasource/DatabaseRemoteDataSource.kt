@@ -18,8 +18,10 @@ class DatabaseRemoteDataSource @Inject constructor(
     }
 
     suspend fun updateTask(task: Task) {
-        task.id.let { id ->
-            tasksCollection.document(id).set(task).await()
+        if (task.id.isNotEmpty()) {
+            tasksCollection.document(task.id).set(task).await()
+        } else {
+            throw IllegalArgumentException("Task ID cannot be empty for update operation.")
         }
     }
 

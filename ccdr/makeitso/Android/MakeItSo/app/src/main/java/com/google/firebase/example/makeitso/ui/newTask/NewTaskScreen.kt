@@ -355,7 +355,7 @@ fun SelectorButton(
 
 private fun Date?.toFormattedString(): String {
     val formatter = SimpleDateFormat("MMM dd, h:mm a", Locale.getDefault())
-    return if (this != null) formatter.format(this) else "Tomorrow"
+    return if (this != null) formatter.format(this) else "No due date"
 }
 
 @Preview

@@ -228,7 +228,7 @@ fun TaskItemCard(
                         modifier = Modifier.size(14.dp)
                     )
                     Spacer(modifier = Modifier.width(4.dp))
-                    val dateText = if (task.isCompleted) "Completed Yesterday" else formatTaskDate(task.dueDate)
+                    val dateText = if (task.isCompleted) "Completed" else formatTaskDate(task.dueDate)
                     Text(
                         text = dateText,
                         style = MaterialTheme.typography.bodySmall.copy(color = dateColor)

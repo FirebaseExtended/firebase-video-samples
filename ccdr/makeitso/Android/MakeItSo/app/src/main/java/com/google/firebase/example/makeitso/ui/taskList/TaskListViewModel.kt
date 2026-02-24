@@ -33,7 +33,7 @@ class TaskListViewModel @Inject constructor(
 
     fun onDeleteTask(task: Task) {
         launchCatching {
-            task.id?.let {
+            task.id.let {
                 databaseRepository.deleteTask(it)
             }
         }
