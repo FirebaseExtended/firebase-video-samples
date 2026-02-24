@@ -30,6 +30,8 @@ import com.google.firebase.example.makeitso.ui.theme.DeepDark
 import com.google.firebase.example.makeitso.ui.theme.HighlightBlue
 import com.google.firebase.example.makeitso.ui.theme.MakeItSoTheme
 import kotlinx.serialization.Serializable
+import java.text.SimpleDateFormat
+import java.util.*
 
 @Serializable
 object NewTaskRoute
@@ -54,6 +56,56 @@ fun NewTaskScreenContent(
     var title by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
     var selectedPriority by remember { mutableStateOf(TaskPriority.Medium) }
+    var dueDate by remember { mutableStateOf<Date?>(null) }
+    
+    var showDatePicker by remember { mutableStateOf(false) }
+    var showTimePicker by remember { mutableStateOf(false) }
+
+    val datePickerState = rememberDatePickerState()
+    val timePickerState = rememberTimePickerState()
+
+    if (showDatePicker) {
+        DatePickerDialog(
+            onDismissRequest = { showDatePicker = false },
+            confirmButton = {
+                TextButton(onClick = {
+                    showDatePicker = false
+                    showTimePicker = true
+                }) { Text("OK") }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDatePicker = false }) { Text("Cancel") }
+            }
+        ) {
+            DatePicker(state = datePickerState)
+        }
+    }
+
+    if (showTimePicker) {
+        AlertDialog(
+            onDismissRequest = { showTimePicker = false },
+            confirmButton = {
+                TextButton(onClick = {
+                    val calendar = Calendar.getInstance()
+                    datePickerState.selectedDateMillis?.let {
+                        calendar.timeInMillis = it
+                    }
+                    calendar.set(Calendar.HOUR_OF_DAY, timePickerState.hour)
+                    calendar.set(Calendar.MINUTE, timePickerState.minute)
+                    dueDate = calendar.time
+                    showTimePicker = false
+                }) { Text("OK") }
+            },
+            dismissButton = {
+                TextButton(onClick = { showTimePicker = false }) { Text("Cancel") }
+            },
+            text = {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    TimePicker(state = timePickerState)
+                }
+            }
+        )
+    }
 
     Scaffold(
         containerColor = if (isSystemInDarkTheme()) DeepDark else Color.White,
@@ -196,9 +248,10 @@ fun NewTaskScreenContent(
                     Spacer(modifier = Modifier.height(12.dp))
 
                     SelectorButton(
-                        text = "Tomorrow",
+                        text = dueDate.toFormattedString(),
                         icon = Icons.Default.DateRange,
-                        color = Color(0xFF3B82F6)
+                        color = HighlightBlue,
+                        onClick = { showDatePicker = true }
                     )
                 }
             }
@@ -211,7 +264,7 @@ fun NewTaskScreenContent(
                         title = title,
                         description = description,
                         priority = selectedPriority,
-                        dueDate = java.util.Date()
+                        dueDate = dueDate
                     )
                     onSave(task, navigateBack)
                 },
@@ -279,9 +332,11 @@ fun PriorityOption(
 fun SelectorButton(
     text: String,
     icon: ImageVector,
-    color: Color
+    color: Color,
+    onClick: () -> Unit
 ) {
     Surface(
+        onClick = onClick,
         color = Color(0xFF161F2C),
         shape = RoundedCornerShape(12.dp),
         modifier = Modifier.fillMaxWidth().height(48.dp)
@@ -296,6 +351,11 @@ fun SelectorButton(
             Icon(Icons.Default.KeyboardArrowDown, contentDescription = null, tint = Color.Gray)
         }
     }
+}
+
+private fun Date?.toFormattedString(): String {
+    val formatter = SimpleDateFormat("MMM dd, h:mm a", Locale.getDefault())
+    return if (this != null) formatter.format(this) else "Tomorrow"
 }
 
 @Preview
