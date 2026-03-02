@@ -13,7 +13,7 @@ class DatabaseRepository @Inject constructor(
     suspend fun deleteTask(taskId: String) = databaseRemoteDataSource.deleteTask(taskId)
 
     fun getLists(userId: String) = databaseRemoteDataSource.getLists(userId)
-    suspend fun saveList(list: com.google.firebase.example.makeitso.data.model.TaskList) = databaseRemoteDataSource.saveList(list)
-    suspend fun updateList(list: com.google.firebase.example.makeitso.data.model.TaskList) = databaseRemoteDataSource.updateList(list)
+    suspend fun saveList(list: TaskList) = databaseRemoteDataSource.saveList(list)
+    suspend fun updateList(list: TaskList) = databaseRemoteDataSource.updateList(list)
     suspend fun deleteList(listId: String) = databaseRemoteDataSource.deleteList(listId)
 }
