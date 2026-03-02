@@ -77,13 +77,3 @@ struct ListsHomeView: View {
     }
   }
 }
-
-extension TaskList: Hashable {
-  static func == (lhs: TaskList, rhs: TaskList) -> Bool {
-    lhs.id == rhs.id
-  }
-
-  func hash(into hasher: inout Hasher) {
-    hasher.combine(id)
-  }
-}

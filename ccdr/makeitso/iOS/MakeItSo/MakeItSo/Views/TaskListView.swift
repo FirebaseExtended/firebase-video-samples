@@ -9,7 +9,7 @@ struct TaskListView: View {
   @State private var isShowingError = false
 
   var body: some View {
-    NavigationStack {
+    Group {
       if repository.user == nil {
         ProgressView("Signing in...")
       } else {
