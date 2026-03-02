@@ -35,14 +35,12 @@ struct TaskListView: View {
         }
       }
     }
-    .onAppear {
+    .task(id: repository.user) {
       if let user = repository.user {
+        print("TaskListView: Subscribing for user \(user.uid) and list \(taskList?.id ?? "nil")")
         repository.subscribe(userId: user.uid, listId: taskList?.id)
-      }
-    }
-    .onChange(of: repository.user) { oldUser, newUser in
-      if let user = newUser {
-        repository.subscribe(userId: user.uid, listId: taskList?.id)
+      } else {
+        print("TaskListView: No user yet")
       }
     }
     .sheet(isPresented: $isPresentingAddTask) {

@@ -41,6 +41,11 @@ class TaskListRepository {
         .order(by: "title")
 
       listenerRegistration = query.addSnapshotListener { [weak self] querySnapshot, error in
+        if let error = error {
+          print("Error subscribing to lists: \(error.localizedDescription)")
+          return
+        }
+
         guard let documents = querySnapshot?.documents else { return }
         let groups = documents.compactMap { try? $0.data(as: TaskList.self) }
 
