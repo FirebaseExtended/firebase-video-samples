@@ -19,6 +19,14 @@ struct TaskRowView: View {
       VStack(alignment: .leading) {
         Text(task.title)
           .strikethrough(task.isCompleted)
+
+        if let description = task.description, !description.isEmpty {
+          Text(description)
+            .font(.caption)
+            .foregroundStyle(.secondary)
+            .lineLimit(2)
+        }
+
         if task.priority != .medium {
           Text(task.priority.rawValue)
             .font(.caption)

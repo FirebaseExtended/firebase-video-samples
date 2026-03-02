@@ -17,5 +17,6 @@ data class Task(
     val priority: TaskPriority = TaskPriority.Low,
     val dueDate: Date? = null,
     @ServerTimestamp val createdAt: Date? = null,
-    val userId: String? = null
+    val userId: String? = null,
+    val listId: String? = null
 )

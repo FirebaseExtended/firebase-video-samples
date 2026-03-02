@@ -12,6 +12,7 @@ class DatabaseRemoteDataSource @Inject constructor(
     private val firestore: FirebaseFirestore
 ) {
     private val tasksCollection get() = firestore.collection(TASKS_COLLECTION)
+    private val listsCollection get() = firestore.collection(LISTS_COLLECTION)
 
     suspend fun saveTask(task: Task) {
         tasksCollection.add(task).await()
@@ -29,9 +30,15 @@ class DatabaseRemoteDataSource @Inject constructor(
         tasksCollection.document(taskId).delete().await()
     }
 
-    fun getTasks(userId: String): Flow<List<Task>> = callbackFlow {
-        val listener = tasksCollection
+    fun getTasks(userId: String, listId: String? = null): Flow<List<Task>> = callbackFlow {
+        var query = tasksCollection
             .whereEqualTo(USER_ID_FIELD, userId)
+
+        if (listId != null) {
+            query = query.whereEqualTo(LIST_ID_FIELD, listId)
+        }
+
+        val listener = query
             .addSnapshotListener { snapshot, error ->
                 if (error != null) {
                     close(error)
@@ -45,8 +52,40 @@ class DatabaseRemoteDataSource @Inject constructor(
         awaitClose { listener.remove() }
     }
 
+    suspend fun saveList(list: com.google.firebase.example.makeitso.data.model.TaskList) {
+        listsCollection.add(list).await()
+    }
+
+    suspend fun updateList(list: com.google.firebase.example.makeitso.data.model.TaskList) {
+        if (list.id.isNotEmpty()) {
+            listsCollection.document(list.id).set(list).await()
+        }
+    }
+
+    suspend fun deleteList(listId: String) {
+        listsCollection.document(listId).delete().await()
+    }
+
+    fun getLists(userId: String): Flow<List<com.google.firebase.example.makeitso.data.model.TaskList>> = callbackFlow {
+        val listener = listsCollection
+            .whereEqualTo(USER_ID_FIELD, userId)
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    close(error)
+                    return@addSnapshotListener
+                }
+                if (snapshot != null) {
+                    val lists = snapshot.toObjects(com.google.firebase.example.makeitso.data.model.TaskList::class.java)
+                    trySend(lists)
+                }
+            }
+        awaitClose { listener.remove() }
+    }
+
     companion object {
         private const val USER_ID_FIELD = "userId"
+        private const val LIST_ID_FIELD = "listId"
         private const val TASKS_COLLECTION = "tasks"
+        private const val LISTS_COLLECTION = "lists"
     }
 }

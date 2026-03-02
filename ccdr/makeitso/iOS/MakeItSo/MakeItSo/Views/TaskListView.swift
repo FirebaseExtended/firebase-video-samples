@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct TaskListView: View {
+  var taskList: TaskList? = nil
   @State private var repository = TaskRepository()
   @State private var isPresentingAddTask = false
   @State private var errorMessage: String?
@@ -21,7 +22,7 @@ struct TaskListView: View {
             delete(at: indexSet)
           }
         }
-        .navigationTitle("Make It So")
+        .navigationTitle(taskList?.title ?? "Tasks")
         .toolbar {
           ToolbarItem(placement: .primaryAction) {
             Button {
@@ -33,11 +34,23 @@ struct TaskListView: View {
         }
       }
     }
+    .onAppear {
+      if let user = repository.user {
+        repository.subscribe(userId: user.uid, listId: taskList?.id)
+      }
+    }
+    .onChange(of: repository.user) { oldUser, newUser in
+      if let user = newUser {
+        repository.subscribe(userId: user.uid, listId: taskList?.id)
+      }
+    }
     .sheet(isPresented: $isPresentingAddTask) {
       AddTaskView { task in
+        var newTask = task
+        newTask.listId = taskList?.id
         Task {
           do {
-            try await repository.addTask(task)
+            try await repository.addTask(newTask)
           } catch {
             showError(error)
           }

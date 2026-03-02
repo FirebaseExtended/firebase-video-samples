@@ -26,6 +26,9 @@ class TaskRepository {
   private var listenerRegistration: ListenerRegistration?
   private var authStateListenerHandle: AuthStateDidChangeListenerHandle?
 
+  private var currentUserId: String?
+  private var currentListId: String?
+
   init() {
     authStateListenerHandle = Auth.auth().addStateDidChangeListener { [weak self] auth, user in
       Task { @MainActor in
@@ -33,7 +36,7 @@ class TaskRepository {
         self.user = user
         if let user = user {
           print("User is signed in: \(user.uid)")
-          self.subscribe(userId: user.uid)
+          // We don't subscribe here anymore, we let the view decide what to subscribe to
         } else {
           print("User is signed out")
           self.tasks = []
@@ -50,36 +53,42 @@ class TaskRepository {
     }
   }
 
-  @MainActor func subscribe(userId: String) {
-    if listenerRegistration == nil {
-      print("Subscribing to tasks for user: \(userId)")
-      let query = db.collection("tasks")
-        .whereField("userId", isEqualTo: userId)
-        .order(by: "isCompleted")
-        .order(by: "dueDate")
+  @MainActor func subscribe(userId: String, listId: String? = nil) {
+    if userId == currentUserId && listId == currentListId && listenerRegistration != nil {
+      return
+    }
 
-      listenerRegistration =
-        query
-        .addSnapshotListener { [weak self] querySnapshot, error in
-          guard let documents = querySnapshot?.documents else {
-            print("No documents received or error: \(String(describing: error))")
-            return
-          }
-          print("Received \(documents.count) tasks")
+    unsubscribe()
 
-          let tasks = documents.compactMap { queryDocumentSnapshot -> TaskItem? in
-            do {
-              return try queryDocumentSnapshot.data(as: TaskItem.self)
-            } catch {
-              print("Error decoding task: \(error.localizedDescription)")
-              return nil
-            }
-          }
+    currentUserId = userId
+    currentListId = listId
 
-          Task { @MainActor [weak self] in
-            self?.tasks = tasks
-          }
-        }
+    print("Subscribing to tasks for user: \(userId)\(listId != nil ? " in list: \(listId!)" : "")")
+
+    var query = db.collection("tasks")
+      .whereField("userId", isEqualTo: userId)
+
+    if let listId = listId {
+      query = query.whereField("listId", isEqualTo: listId)
+    }
+
+    query =
+      query
+      .order(by: "isCompleted")
+      .order(by: "dueDate")
+
+    listenerRegistration = query.addSnapshotListener { [weak self] querySnapshot, error in
+      guard let documents = querySnapshot?.documents else {
+        print("No documents received or error: \(String(describing: error))")
+        return
+      }
+      print("Received \(documents.count) tasks")
+
+      let tasks = documents.compactMap { try? $0.data(as: TaskItem.self) }
+
+      Task { @MainActor in
+        self?.tasks = tasks
+      }
     }
   }
 
@@ -95,6 +104,8 @@ class TaskRepository {
     } else {
       print("Warning: No logged in user, saving task without userId")
     }
+
+    // listId is already on the taskItem if we're adding it from a specific list
     let _ = try await db.collection("tasks").addDocument(from: newTask)
   }
 
