@@ -34,7 +34,7 @@ struct ListsHomeView: View {
             Button {
               isPresentingAddList = true
             } label: {
-              Image(systemImage: "plus")
+              Image(systemName: "plus")
             }
           }
         }

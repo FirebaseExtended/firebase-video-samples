@@ -1,3 +1,4 @@
+import FirebaseAuth
 import SwiftUI
 
 struct TaskListView: View {
