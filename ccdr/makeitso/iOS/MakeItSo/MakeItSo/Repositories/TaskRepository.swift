@@ -63,7 +63,7 @@ class TaskRepository {
     currentUserId = userId
     currentListId = listId
 
-    print("Subscribing to tasks for user: \(userId)\(listId != nil ? " in list: \(listId!)" : "")")
+    print("Subscribing to tasks for user: \(userId)\(listId.map { " in list: \($0)" } ?? "")")
 
     var query = db.collection("tasks")
       .whereField("userId", isEqualTo: userId)
