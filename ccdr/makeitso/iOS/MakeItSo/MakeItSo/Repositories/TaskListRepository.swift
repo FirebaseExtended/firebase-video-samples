@@ -62,10 +62,13 @@ class TaskListRepository {
   }
 
   @MainActor func addList(_ list: TaskList) async throws {
-    var newList = list
-    if let user = user {
-      newList.userId = user.uid
+    guard let user = user else {
+      throw NSError(
+        domain: "TaskListRepository", code: -1,
+        userInfo: [NSLocalizedDescriptionKey: "User not authenticated"])
     }
+    var newList = list
+    newList.userId = user.uid
     let _ = try await db.collection("lists").addDocument(from: newList)
   }
 

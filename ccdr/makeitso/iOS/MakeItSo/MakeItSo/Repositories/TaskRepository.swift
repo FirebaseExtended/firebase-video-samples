@@ -84,7 +84,14 @@ class TaskRepository {
       }
       print("Received \(documents.count) tasks")
 
-      let tasks = documents.compactMap { try? $0.data(as: TaskItem.self) }
+      let tasks = documents.compactMap { document -> TaskItem? in
+        do {
+          return try document.data(as: TaskItem.self)
+        } catch {
+          print("Error decoding task: \(error.localizedDescription)")
+          return nil
+        }
+      }
 
       Task { @MainActor in
         self?.tasks = tasks

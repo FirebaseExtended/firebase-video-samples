@@ -10,9 +10,7 @@ plugins {
 
 android {
     namespace = "com.google.firebase.example.makeitso"
-    compileSdk {
-        version = release(36)
-    }
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.google.firebase.example.makeitso"

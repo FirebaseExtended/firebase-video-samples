@@ -17,7 +17,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.google.firebase.example.makeitso.data.model.TaskList
-import com.google.firebase.example.makeitso.ui.theme.DeepDark
+import com.google.firebase.example.makeitso.ui.theme.CardBackground
 import com.google.firebase.example.makeitso.ui.theme.HighlightBlue
 import kotlinx.serialization.Serializable
 
@@ -34,7 +34,7 @@ fun ListsScreen(
     var newListTitle by remember { mutableStateOf("") }
 
     Scaffold(
-        containerColor = if (isSystemInDarkTheme()) DeepDark else Color.White,
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             TopAppBar(
                 title = { 
@@ -46,7 +46,7 @@ fun ListsScreen(
                     ) 
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = if (isSystemInDarkTheme()) DeepDark else Color.White
+                    containerColor = MaterialTheme.colorScheme.background
                 )
             )
         },
@@ -116,7 +116,7 @@ fun ListCard(title: String, onClick: () -> Unit) {
     Card(
         onClick = onClick,
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFF161F2C)),
+        colors = CardDefaults.cardColors(containerColor = CardBackground),
         modifier = Modifier.fillMaxWidth()
     ) {
         Row(

@@ -1,6 +1,7 @@
 package com.google.firebase.example.makeitso.data.datasource
 
 import com.google.firebase.example.makeitso.data.model.Task
+import com.google.firebase.example.makeitso.data.model.TaskList
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -52,13 +53,15 @@ class DatabaseRemoteDataSource @Inject constructor(
         awaitClose { listener.remove() }
     }
 
-    suspend fun saveList(list: com.google.firebase.example.makeitso.data.model.TaskList) {
+    suspend fun saveList(list: TaskList) {
         listsCollection.add(list).await()
     }
 
-    suspend fun updateList(list: com.google.firebase.example.makeitso.data.model.TaskList) {
+    suspend fun updateList(list: TaskList) {
         if (list.id.isNotEmpty()) {
             listsCollection.document(list.id).set(list).await()
+        } else {
+            throw IllegalArgumentException("TaskList ID cannot be empty for update operation.")
         }
     }
 
@@ -66,7 +69,7 @@ class DatabaseRemoteDataSource @Inject constructor(
         listsCollection.document(listId).delete().await()
     }
 
-    fun getLists(userId: String): Flow<List<com.google.firebase.example.makeitso.data.model.TaskList>> = callbackFlow {
+    fun getLists(userId: String): Flow<List<TaskList>> = callbackFlow {
         val listener = listsCollection
             .whereEqualTo(USER_ID_FIELD, userId)
             .addSnapshotListener { snapshot, error ->
@@ -75,7 +78,7 @@ class DatabaseRemoteDataSource @Inject constructor(
                     return@addSnapshotListener
                 }
                 if (snapshot != null) {
-                    val lists = snapshot.toObjects(com.google.firebase.example.makeitso.data.model.TaskList::class.java)
+                    val lists = snapshot.toObjects(TaskList::class.java)
                     trySend(lists)
                 }
             }

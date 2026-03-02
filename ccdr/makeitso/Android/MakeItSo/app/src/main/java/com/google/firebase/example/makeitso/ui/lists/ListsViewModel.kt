@@ -19,9 +19,10 @@ class ListsViewModel @Inject constructor(
 
     fun onAddList(title: String) {
         launchCatching {
+            val userId = authRepository.currentUser?.uid ?: return@launchCatching
             val list = TaskList(
                 title = title,
-                userId = authRepository.currentUser?.uid ?: ""
+                userId = userId
             )
             databaseRepository.saveList(list)
         }
