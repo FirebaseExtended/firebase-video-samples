@@ -5,24 +5,28 @@ struct AddTaskView: View {
   var onAdd: (TaskItem) -> Void
 
   @State private var title = ""
+  @State private var description = ""
   @State private var priority: TaskPriority = .medium
   @State private var dueDate = Date()
 
   var body: some View {
     NavigationStack {
       Form {
-        TextField("Task Title", text: $title)
-          .onSubmit {
-            submit()
-          }
-
-        Picker("Priority", selection: $priority) {
-          ForEach(TaskPriority.allCases, id: \.self) { priority in
-            Text(priority.rawValue).tag(priority)
-          }
+        Section {
+          TextField("Task Title", text: $title)
+          TextField("Description", text: $description, axis: .vertical)
+            .lineLimit(3...10)
         }
 
-        DatePicker("Due Date", selection: $dueDate)
+        Section("Details") {
+          Picker("Priority", selection: $priority) {
+            ForEach(TaskPriority.allCases, id: \.self) { priority in
+              Text(priority.rawValue).tag(priority)
+            }
+          }
+
+          DatePicker("Due Date", selection: $dueDate)
+        }
       }
       .navigationTitle("New Task")
       .toolbar {
@@ -42,7 +46,9 @@ struct AddTaskView: View {
   }
 
   private func submit() {
-    let task = TaskItem(title: title, isCompleted: false, priority: priority, dueDate: dueDate)
+    let task = TaskItem(
+      title: title, description: description.isEmpty ? nil : description, isCompleted: false,
+      priority: priority, dueDate: dueDate)
     onAdd(task)
     dismiss()
   }

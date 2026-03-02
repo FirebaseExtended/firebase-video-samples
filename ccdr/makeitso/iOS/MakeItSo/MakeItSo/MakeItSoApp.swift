@@ -24,7 +24,7 @@ struct MakeItSoApp: App {
 
   var body: some Scene {
     WindowGroup {
-      TaskListView()
+      ListsHomeView()
     }
   }
 }

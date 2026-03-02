@@ -14,10 +14,13 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.google.firebase.example.makeitso.ui.lists.ListsRoute
+import com.google.firebase.example.makeitso.ui.lists.ListsScreen
 import com.google.firebase.example.makeitso.ui.newTask.NewTaskRoute
 import com.google.firebase.example.makeitso.ui.newTask.NewTaskScreen
 import com.google.firebase.example.makeitso.ui.taskList.TaskListRoute
 import com.google.firebase.example.makeitso.ui.taskList.TaskListScreen
+import androidx.navigation.toRoute
 import com.google.firebase.example.makeitso.ui.theme.DeepDark
 import com.google.firebase.example.makeitso.ui.theme.MakeItSoTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -45,13 +48,21 @@ class MainActivity : ComponentActivity() {
                     ) { innerPadding ->
                         NavHost(
                             navController = navController,
-                            startDestination = TaskListRoute,
+                            startDestination = ListsRoute,
                             modifier = Modifier.padding(innerPadding)
                         ) {
-                            composable<TaskListRoute> {
+                            composable<ListsRoute> {
+                                ListsScreen(
+                                    openList = { listId ->
+                                        navController.navigate(TaskListRoute(listId = listId))
+                                    }
+                                )
+                            }
+                            composable<TaskListRoute> { backStackEntry ->
+                                val route = backStackEntry.toRoute<TaskListRoute>()
                                 TaskListScreen(
                                     openNewTaskScreen = {
-                                        navController.navigate(NewTaskRoute) {
+                                        navController.navigate(NewTaskRoute(listId = route.listId)) {
                                             launchSingleTop = true
                                         }
                                     }

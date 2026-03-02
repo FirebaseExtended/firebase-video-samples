@@ -41,7 +41,7 @@ import java.util.Date
 import java.util.Locale
 
 @Serializable
-object TaskListRoute
+data class TaskListRoute(val listId: String? = null)
 
 @Composable
 fun TaskListScreen(
