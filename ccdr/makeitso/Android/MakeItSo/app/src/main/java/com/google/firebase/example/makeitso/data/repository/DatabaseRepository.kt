@@ -2,6 +2,7 @@ package com.google.firebase.example.makeitso.data.repository
 
 import com.google.firebase.example.makeitso.data.datasource.DatabaseRemoteDataSource
 import com.google.firebase.example.makeitso.data.model.Task
+import com.google.firebase.example.makeitso.data.model.TaskList
 import javax.inject.Inject
 
 class DatabaseRepository @Inject constructor(

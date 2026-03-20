@@ -24,6 +24,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 object ListsRoute
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ListsScreen(
     openList: (String?) -> Unit,

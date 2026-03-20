@@ -19,7 +19,9 @@ class ListsViewModel @Inject constructor(
 
     fun onAddList(title: String) {
         launchCatching {
-            val userId = authRepository.currentUser?.uid ?: return@launchCatching
+            val userId = authRepository.currentUser?.uid
+            if (userId.isNullOrBlank()) return@launchCatching
+
             val list = TaskList(
                 title = title,
                 userId = userId
