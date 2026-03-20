@@ -34,7 +34,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 @Serializable
-object NewTaskRoute
+data class NewTaskRoute(val listId: String? = null)
 
 @Composable
 fun NewTaskScreen(

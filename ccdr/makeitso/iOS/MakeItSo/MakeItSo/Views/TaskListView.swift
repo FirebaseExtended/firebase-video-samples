@@ -1,13 +1,15 @@
+import FirebaseAuth
 import SwiftUI
 
 struct TaskListView: View {
+  var taskList: TaskList? = nil
   @State private var repository = TaskRepository()
   @State private var isPresentingAddTask = false
   @State private var errorMessage: String?
   @State private var isShowingError = false
 
   var body: some View {
-    NavigationStack {
+    Group {
       if repository.user == nil {
         ProgressView("Signing in...")
       } else {
@@ -21,7 +23,7 @@ struct TaskListView: View {
             delete(at: indexSet)
           }
         }
-        .navigationTitle("Make It So")
+        .navigationTitle(taskList?.title ?? "Tasks")
         .toolbar {
           ToolbarItem(placement: .primaryAction) {
             Button {
@@ -33,11 +35,21 @@ struct TaskListView: View {
         }
       }
     }
+    .task(id: repository.user) {
+      if let user = repository.user {
+        print("TaskListView: Subscribing for user \(user.uid) and list \(taskList?.id ?? "nil")")
+        repository.subscribe(userId: user.uid, listId: taskList?.id)
+      } else {
+        print("TaskListView: No user yet")
+      }
+    }
     .sheet(isPresented: $isPresentingAddTask) {
       AddTaskView { task in
+        var newTask = task
+        newTask.listId = taskList?.id
         Task {
           do {
-            try await repository.addTask(task)
+            try await repository.addTask(newTask)
           } catch {
             showError(error)
           }

@@ -4,11 +4,13 @@ import Foundation
 struct TaskItem: Codable, Identifiable {
   @DocumentID var id: String? = nil
   var title: String
+  var description: String? = nil
   var isCompleted: Bool
   var priority: TaskPriority
   var dueDate: Date? = nil
   @ServerTimestamp var createdAt: Date? = nil
   var userId: String? = nil
+  var listId: String? = nil
 }
 
 enum TaskPriority: String, Codable, CaseIterable, Hashable {
