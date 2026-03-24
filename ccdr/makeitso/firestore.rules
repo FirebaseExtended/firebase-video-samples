@@ -2,17 +2,28 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
+    function isListOwnerOrEditor(listId) {
+      // get() function fetches document, then check array or owner
+      let list = get(/databases/$(database)/documents/lists/$(listId)).data;
+      return list != null && (list.userId == request.auth.uid || request.auth.uid in list.sharedWith);
+    }
+
     match /tasks/{taskId} {
-      allow read: if request.auth != null && request.auth.uid == resource.data.userId;
-      allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
-      allow update: if request.auth != null && request.auth.uid == resource.data.userId && request.auth.uid == request.resource.data.userId;
-      allow delete: if request.auth != null && request.auth.uid == resource.data.userId;
+      allow read, update, delete: if request.auth != null && (
+        request.auth.uid == resource.data.userId || 
+        (resource.data.listId != null && isListOwnerOrEditor(resource.data.listId))
+      );
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.userId && (
+        request.resource.data.listId == null || isListOwnerOrEditor(request.resource.data.listId)
+      );
     }
     
     match /lists/{listId} {
-      allow read: if request.auth != null && request.auth.uid == resource.data.userId;
+      allow read, update: if request.auth != null && (
+        request.auth.uid == resource.data.userId || 
+        (resource.data.sharedWith != null && request.auth.uid in resource.data.sharedWith)
+      );
       allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
-      allow update: if request.auth != null && request.auth.uid == resource.data.userId && request.auth.uid == request.resource.data.userId;
       allow delete: if request.auth != null && request.auth.uid == resource.data.userId;
     }
   }

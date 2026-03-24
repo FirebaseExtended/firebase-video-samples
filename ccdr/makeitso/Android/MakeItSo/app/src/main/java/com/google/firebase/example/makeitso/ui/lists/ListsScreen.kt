@@ -20,6 +20,8 @@ import com.google.firebase.example.makeitso.data.model.TaskList
 import com.google.firebase.example.makeitso.ui.theme.CardBackground
 import com.google.firebase.example.makeitso.ui.theme.HighlightBlue
 import kotlinx.serialization.Serializable
+import android.content.Intent
+import androidx.compose.ui.platform.LocalContext
 
 @Serializable
 object ListsRoute
@@ -33,6 +35,7 @@ fun ListsScreen(
     val lists by viewModel.lists.collectAsState(initial = emptyList())
     var showAddDialog by remember { mutableStateOf(false) }
     var newListTitle by remember { mutableStateOf("") }
+    val context = LocalContext.current
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
@@ -78,7 +81,17 @@ fun ListsScreen(
             items(lists) { list ->
                 ListCard(
                     title = list.title,
-                    onClick = { openList(list.id) }
+                    onClick = { openList(list.id) },
+                    onShare = {
+                        val token = list.shareToken ?: ""
+                        val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                            type = "text/plain"
+                            putExtra(Intent.EXTRA_SUBJECT, "Join my list")
+                            val url = "https://makeitso-share.web.app/join/${list.id}?token=$token"
+                            putExtra(Intent.EXTRA_TEXT, "Join my list: ${list.title}\n$url")
+                        }
+                        context.startActivity(Intent.createChooser(shareIntent, "Share List"))
+                    }
                 )
             }
         }
@@ -113,7 +126,7 @@ fun ListsScreen(
 }
 
 @Composable
-fun ListCard(title: String, onClick: () -> Unit) {
+fun ListCard(title: String, onClick: () -> Unit, onShare: () -> Unit = {}) {
     Card(
         onClick = onClick,
         shape = RoundedCornerShape(12.dp),
@@ -131,8 +144,12 @@ fun ListCard(title: String, onClick: () -> Unit) {
                 style = MaterialTheme.typography.bodyLarge.copy(
                     color = Color.White,
                     fontWeight = FontWeight.Medium
-                )
+                ),
+                modifier = Modifier.weight(1f)
             )
+            IconButton(onClick = onShare) {
+                Icon(androidx.compose.material.icons.filled.Share, contentDescription = "Share", tint = Color.Gray)
+            }
         }
     }
 }

@@ -24,7 +24,8 @@ class ListsViewModel @Inject constructor(
 
             val list = TaskList(
                 title = title,
-                userId = userId
+                userId = userId,
+                shareToken = java.util.UUID.randomUUID().toString()
             )
             databaseRepository.saveList(list)
         }

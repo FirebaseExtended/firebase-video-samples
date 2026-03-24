@@ -37,8 +37,10 @@ class TaskListRepository {
   @MainActor func subscribe(userId: String) {
     if listenerRegistration == nil {
       let query = db.collection("lists")
-        .whereField("userId", isEqualTo: userId)
-        .order(by: "title")
+        .whereFilter(Filter.orFilter([
+          Filter.whereField("userId", isEqualTo: userId),
+          Filter.whereField("sharedWith", arrayContains: userId)
+        ]))
 
       listenerRegistration = query.addSnapshotListener { [weak self] querySnapshot, error in
         if let error = error {
@@ -48,6 +50,7 @@ class TaskListRepository {
 
         guard let documents = querySnapshot?.documents else { return }
         let groups = documents.compactMap { try? $0.data(as: TaskList.self) }
+          .sorted { $0.title < $1.title }
 
         Task { @MainActor in
           self?.groups = groups

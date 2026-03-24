@@ -65,15 +65,15 @@ class TaskRepository {
 
     print("Subscribing to tasks for user: \(userId)\(listId.map { " in list: \($0)" } ?? "")")
 
-    var query = db.collection("tasks")
-      .whereField("userId", isEqualTo: userId)
+    var query: Query = db.collection("tasks")
 
     if let listId = listId {
       query = query.whereField("listId", isEqualTo: listId)
+    } else {
+      query = query.whereField("userId", isEqualTo: userId)
     }
 
-    query =
-      query
+    query = query
       .order(by: "isCompleted")
       .order(by: "dueDate")
 

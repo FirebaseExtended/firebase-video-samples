@@ -65,7 +65,9 @@ struct ListsHomeView: View {
   }
 
   private func addList() {
-    let list = TaskList(title: newListTitle, userId: "")  // userId is filled by repository
+    let token = UUID().uuidString
+    var list = TaskList(title: newListTitle, userId: "")  // userId is filled by repository
+    list.shareToken = token
     Task {
       do {
         try await listRepository.addList(list)

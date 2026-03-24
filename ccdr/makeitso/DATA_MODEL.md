@@ -21,6 +21,8 @@ classDiagram
         +String id
         +String title
         +String userId
+        +List~String~ sharedWith
+        +String shareToken
     }
     class TaskPriority {
         <<enumeration>>
@@ -50,4 +52,6 @@ The data model consists of `Task` and `TaskList` entities, along with a `TaskPri
   - `id`: The Firestore document ID.
   - `title`: The title of the list.
   - `userId`: The ID of the user who owns the list.
+  - `sharedWith`: Array of User IDs (editors) the list is shared with.
+  - `shareToken`: A unique token string for the share link.
 - **TaskPriority**: An enumeration used to categorize tasks by priority.

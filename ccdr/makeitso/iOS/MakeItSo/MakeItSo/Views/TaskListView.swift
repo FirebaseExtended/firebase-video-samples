@@ -25,6 +25,11 @@ struct TaskListView: View {
         }
         .navigationTitle(taskList?.title ?? "Tasks")
         .toolbar {
+          if let list = taskList, let listId = list.id, let token = list.shareToken, let url = URL(string: "https://makeitso-share.web.app/join/\(listId)?token=\(token)") {
+            ToolbarItem(placement: .primaryAction) {
+              ShareLink(item: url, message: Text("Join my list: \(list.title)"))
+            }
+          }
           ToolbarItem(placement: .primaryAction) {
             Button {
               isPresentingAddTask = true

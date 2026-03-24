@@ -32,11 +32,11 @@ class DatabaseRemoteDataSource @Inject constructor(
     }
 
     fun getTasks(userId: String, listId: String? = null): Flow<List<Task>> = callbackFlow {
-        var query = tasksCollection
-            .whereEqualTo(USER_ID_FIELD, userId)
-
+        var query: com.google.firebase.firestore.Query = tasksCollection
         if (listId != null) {
             query = query.whereEqualTo(LIST_ID_FIELD, listId)
+        } else {
+            query = query.whereEqualTo(USER_ID_FIELD, userId)
         }
 
         val listener = query
@@ -71,7 +71,10 @@ class DatabaseRemoteDataSource @Inject constructor(
 
     fun getLists(userId: String): Flow<List<TaskList>> = callbackFlow {
         val listener = listsCollection
-            .whereEqualTo(USER_ID_FIELD, userId)
+            .whereFilter(com.google.firebase.firestore.Filter.or(
+                com.google.firebase.firestore.Filter.equalTo(USER_ID_FIELD, userId),
+                com.google.firebase.firestore.Filter.arrayContains("sharedWith", userId)
+            ))
             .addSnapshotListener { snapshot, error ->
                 if (error != null) {
                     close(error)

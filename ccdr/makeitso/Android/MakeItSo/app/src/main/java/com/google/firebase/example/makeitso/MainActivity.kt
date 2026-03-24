@@ -24,11 +24,24 @@ import androidx.navigation.toRoute
 import com.google.firebase.example.makeitso.ui.theme.DeepDark
 import com.google.firebase.example.makeitso.ui.theme.MakeItSoTheme
 import dagger.hilt.android.AndroidEntryPoint
+import android.content.Intent
+import android.net.Uri
+import androidx.lifecycle.lifecycleScope
+import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
+import org.json.JSONObject
+import java.net.HttpURLConnection
+import java.net.URL
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        handleIntent(intent)
+
 
         enableEdgeToEdge(
             statusBarStyle = SystemBarStyle.dark(TRANSPARENT),
@@ -76,6 +89,64 @@ class MainActivity : ComponentActivity() {
                         }
                     }
                 }
+            }
+        }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        handleIntent(intent)
+    }
+
+    private fun handleIntent(intent: Intent) {
+        if (intent.action == Intent.ACTION_VIEW) {
+            val data: Uri? = intent.data
+            if (data != null && data.host == "makeitso-share.web.app" && data.pathSegments.contains("join")) {
+                val listId = data.pathSegments.lastOrNull()
+                val token = data.getQueryParameter("token")
+                if (listId != null && token != null) {
+                    joinList(listId, token)
+                }
+            }
+        }
+    }
+
+    private fun joinList(listId: String, token: String) {
+        lifecycleScope.launch {
+            try {
+                val user = FirebaseAuth.getInstance().currentUser ?: return@launch
+                val idTokenResult = user.getIdToken(false).await()
+                val idToken = idTokenResult.token ?: return@launch
+                
+                withContext(Dispatchers.IO) {
+                    val url = URL("https://us-central1-make-it-so-live-ccdr-01.cloudfunctions.net/joinList")
+                    val connection = url.openConnection() as HttpURLConnection
+                    connection.requestMethod = "POST"
+                    connection.setRequestProperty("Content-Type", "application/json")
+                    connection.setRequestProperty("Authorization", "Bearer $idToken")
+                    connection.doOutput = true
+
+                    val jsonParam = JSONObject()
+                    val dataObj = JSONObject()
+                    dataObj.put("listId", listId)
+                    dataObj.put("shareToken", token)
+                    jsonParam.put("data", dataObj)
+
+                    connection.outputStream.use { os ->
+                        val input = jsonParam.toString().toByteArray(Charsets.UTF_8)
+                        os.write(input, 0, input.size)
+                    }
+
+                    val code = connection.responseCode
+                    if (code != 200) {
+                        println("Join list failed code: $code")
+                    } else {
+                        println("Successfully joined list!")
+                    }
+                    connection.disconnect()
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
         }
     }
