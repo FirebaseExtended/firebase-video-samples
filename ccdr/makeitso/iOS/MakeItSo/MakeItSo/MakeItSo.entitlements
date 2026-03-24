@@ -4,7 +4,7 @@
 <dict>
 	<key>com.apple.developer.associated-domains</key>
 	<array>
-		<string>applinks:makeitso-share.web.app</string>
+		<string>applinks:make-it-so-live-ccdr-01.web.app?mode=developer</string>
 	</array>
 </dict>
 </plist>
