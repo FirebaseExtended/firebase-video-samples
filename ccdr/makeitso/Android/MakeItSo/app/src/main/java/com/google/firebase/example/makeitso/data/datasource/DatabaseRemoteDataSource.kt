@@ -3,6 +3,8 @@ package com.google.firebase.example.makeitso.data.datasource
 import com.google.firebase.example.makeitso.data.model.Task
 import com.google.firebase.example.makeitso.data.model.TaskList
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Filter
+import com.google.firebase.firestore.Query
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -32,7 +34,7 @@ class DatabaseRemoteDataSource @Inject constructor(
     }
 
     fun getTasks(userId: String, listId: String? = null): Flow<List<Task>> = callbackFlow {
-        var query: com.google.firebase.firestore.Query = tasksCollection
+        var query: Query = tasksCollection
         if (listId != null) {
             query = query.whereEqualTo(LIST_ID_FIELD, listId)
         } else {
@@ -71,9 +73,9 @@ class DatabaseRemoteDataSource @Inject constructor(
 
     fun getLists(userId: String): Flow<List<TaskList>> = callbackFlow {
         val listener = listsCollection
-            .whereFilter(com.google.firebase.firestore.Filter.or(
-                com.google.firebase.firestore.Filter.equalTo(USER_ID_FIELD, userId),
-                com.google.firebase.firestore.Filter.arrayContains("sharedWith", userId)
+            .where(Filter.or(
+                Filter.equalTo(USER_ID_FIELD, userId),
+                Filter.arrayContains("sharedWith", userId)
             ))
             .addSnapshotListener { snapshot, error ->
                 if (error != null) {

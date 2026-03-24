@@ -8,6 +8,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.List
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -148,7 +149,7 @@ fun ListCard(title: String, onClick: () -> Unit, onShare: () -> Unit = {}) {
                 modifier = Modifier.weight(1f)
             )
             IconButton(onClick = onShare) {
-                Icon(androidx.compose.material.icons.filled.Share, contentDescription = "Share", tint = Color.Gray)
+                Icon(Icons.Default.Share, contentDescription = "Share", tint = Color.Gray)
             }
         }
     }
