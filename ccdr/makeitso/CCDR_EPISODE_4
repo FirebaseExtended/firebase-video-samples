@@ -1,0 +1,30 @@
+# Session Summary: Cross-Platform List Sharing
+
+In this session, we designed and implemented a feature to allow users to securely share their task lists across both the iOS and Android platforms using Firebase. 
+
+## Key Implementations:
+
+### 1. Firestore Data Model & Security
+- Updated the `TaskList` database model by adding `sharedWith` (an array of user IDs) and `shareToken` fields.
+- Rewrote `firestore.rules` to transition from strict "owner-only" access to a "shared editor" model. This ensures any authenticated user whose UID exists in a list's `sharedWith` array can securely read/write tasks within that list.
+
+### 2. Backend (Firebase Cloud Functions & Hosting)
+- Set up a Firebase Cloud Functions environment (`functions/` directory) and updated the `package.json` to utilize Node.js 20.
+- Implemented a secure HTTP Callable function named `joinList` that validates a `shareToken` against a Firestore document before adding a user to the `sharedWith` array.
+- Configured Firebase Hosting via `firebase.json` constraints to intercept deep links (e.g., `makeitso-share.web.app/join/...`).
+
+### 3. iOS Integration
+- Added the `sharedWith` and `shareToken` properties to the Swift `TaskList` model.
+- Updated the `TaskListRepository` and `TaskRepository` to listen for shared lists effectively using Firestore's `Filter.orFilter`.
+- Integrated SwiftUI's native `ShareLink` to generate a dynamic sharing URL when users tap the "Share" button.
+- Handled incoming iOS Universal Links via `.onOpenURL` inside `MakeItSoApp.swift`, invoking the deployed Cloud Function via an authenticated REST `URLSession` request.
+
+### 4. Android Integration
+- Added corresponding fields to the Kotlin `TaskList` data class.
+- Updated the `DatabaseRemoteDataSource` to use `Filter.or()` for fetching shared lists where the user is an editor.
+- Configured sharing via native Android Intents on the `ListCard` UI component.
+- Implemented Deep Link ingestion via XML `intent-filter` blocks inside `AndroidManifest.xml` and correctly deserialized the custom URL path inside `MainActivity.kt` to trigger the Cloud Function.
+
+### 5. Deployment
+- Re-authenticated and successfully executed a `firebase deploy` operation, releasing the new rules, hosting configuration, and serverless logic to the active Live/Blaze project. 
+- Explored and gracefully handled Spark/Blaze billing plan issues and GCP service account IAM permissions during the initial deployment attempt.
