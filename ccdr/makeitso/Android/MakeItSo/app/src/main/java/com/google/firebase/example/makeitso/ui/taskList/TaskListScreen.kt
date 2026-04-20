@@ -9,6 +9,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.CheckCircle
@@ -46,6 +47,7 @@ data class TaskListRoute(val listId: String? = null)
 @Composable
 fun TaskListScreen(
     openNewTaskScreen: () -> Unit,
+    navigateBack: () -> Unit,
     viewModel: TaskListViewModel = hiltViewModel()
 ) {
     val tasks by viewModel.tasks.collectAsState(initial = emptyList())
@@ -53,6 +55,7 @@ fun TaskListScreen(
     TaskListScreenContent(
         tasks = tasks,
         openNewTaskScreen = openNewTaskScreen,
+        navigateBack = navigateBack,
         onTaskCheckChange = viewModel::onTaskCheckChange,
         onDeleteTask = viewModel::onDeleteTask
     )
@@ -63,6 +66,7 @@ fun TaskListScreen(
 fun TaskListScreenContent(
     tasks: List<Task>,
     openNewTaskScreen: () -> Unit = {},
+    navigateBack: () -> Unit = {},
     onTaskCheckChange: (Task) -> Unit = {},
     onDeleteTask: (Task) -> Unit = {}
 ) {
@@ -80,6 +84,15 @@ fun TaskListScreenContent(
                             fontWeight = FontWeight.Bold
                         )
                     ) 
+                },
+                navigationIcon = {
+                    IconButton(onClick = navigateBack) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back",
+                            tint = Color.White
+                        )
+                    }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = if (isSystemInDarkTheme()) DeepDark else Color.White

@@ -1,13 +1,13 @@
 import SwiftUI
 
 struct TaskRowView: View {
-  let task: TaskItem
-  var onToggleCompleted: (TaskItem) -> Void
+  @Binding var task: TaskItem
+  var onToggleCompleted: () -> Void
 
   var body: some View {
     HStack {
       Button {
-        onToggleCompleted(task)
+        onToggleCompleted()
       } label: {
         Image(systemName: task.isCompleted ? "checkmark.circle.fill" : "circle")
           .resizable()

@@ -5,17 +5,43 @@ import com.google.firebase.example.makeitso.data.model.TaskList
 import com.google.firebase.example.makeitso.data.repository.AuthRepository
 import com.google.firebase.example.makeitso.data.repository.DatabaseRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.emptyFlow
+import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.callbackFlow
 import javax.inject.Inject
 
 @HiltViewModel
 class ListsViewModel @Inject constructor(
     private val authRepository: AuthRepository,
-    private val databaseRepository: DatabaseRepository
+    private val databaseRepository: DatabaseRepository,
+    private val auth: FirebaseAuth
 ) : MainViewModel() {
-    val lists = authRepository.currentUser?.let { user ->
-        databaseRepository.getLists(user.uid)
-    } ?: emptyFlow()
+    val currentUser = callbackFlow {
+        val listener = FirebaseAuth.IdTokenListener { 
+            trySend(it.currentUser)
+        }
+        auth.addIdTokenListener(listener)
+        trySend(auth.currentUser)
+        awaitClose { auth.removeIdTokenListener(listener) }
+    }
+
+    val lists = currentUser.flatMapLatest { user ->
+        if (user != null) {
+            databaseRepository.getLists(user.uid)
+        } else {
+            emptyFlow()
+        }
+    }
+
+    init {
+        launchCatching {
+            if (authRepository.currentUser == null) {
+                authRepository.createAnonymousAccount()
+            }
+        }
+    }
 
     fun onAddList(title: String) {
         launchCatching {

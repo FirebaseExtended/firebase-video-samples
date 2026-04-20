@@ -1,4 +1,5 @@
 import FirebaseCore
+import FirebaseAuth
 import SwiftUI
 
 class AppDelegate: NSObject, UIApplicationDelegate {
@@ -7,6 +8,9 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
   ) -> Bool {
     FirebaseApp.configure()
+    Auth.auth().addStateDidChangeListener { _, user in
+      NotificationCenter.default.post(name: NSNotification.Name("AuthStateDidChange"), object: nil)
+    }
     Task {
       do {
         try await AuthenticationService.shared.signIn()

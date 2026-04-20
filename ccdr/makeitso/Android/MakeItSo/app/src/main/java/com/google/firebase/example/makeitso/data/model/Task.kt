@@ -13,7 +13,7 @@ data class Task(
     @DocumentId val id: String = "",
     val title: String = "",
     val description: String = "",
-    @get:PropertyName("isCompleted") val isCompleted: Boolean = false,
+    @get:PropertyName("isCompleted") @set:PropertyName("isCompleted") var isCompleted: Boolean = false,
     val priority: TaskPriority = TaskPriority.Low,
     val dueDate: Date? = null,
     @ServerTimestamp val createdAt: Date? = null,

@@ -16,6 +16,10 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.google.firebase.example.makeitso.ui.lists.ListsRoute
 import com.google.firebase.example.makeitso.ui.lists.ListsScreen
+import com.google.firebase.example.makeitso.ui.auth.AuthRoute
+import com.google.firebase.example.makeitso.ui.auth.AuthScreen
+import com.google.firebase.example.makeitso.ui.profile.ProfileRoute
+import com.google.firebase.example.makeitso.ui.profile.ProfileScreen
 import com.google.firebase.example.makeitso.ui.newTask.NewTaskRoute
 import com.google.firebase.example.makeitso.ui.newTask.NewTaskScreen
 import com.google.firebase.example.makeitso.ui.taskList.TaskListRoute
@@ -26,14 +30,17 @@ import com.google.firebase.example.makeitso.ui.theme.MakeItSoTheme
 import dagger.hilt.android.AndroidEntryPoint
 import android.content.Intent
 import android.net.Uri
+import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FieldValue
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.functions.FirebaseFunctions
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
-import org.json.JSONObject
-import java.net.HttpURLConnection
 import java.net.URL
 
 @AndroidEntryPoint
@@ -68,7 +75,21 @@ class MainActivity : ComponentActivity() {
                                 ListsScreen(
                                     openList = { listId ->
                                         navController.navigate(TaskListRoute(listId = listId))
+                                    },
+                                    openProfile = {
+                                        navController.navigate(ProfileRoute)
                                     }
+                                )
+                            }
+                            composable<ProfileRoute> {
+                                ProfileScreen(
+                                    openAuth = { navController.navigate(AuthRoute) },
+                                    onBack = { navController.popBackStack() }
+                                )
+                            }
+                            composable<AuthRoute> {
+                                AuthScreen(
+                                    onComplete = { navController.popBackStack(ListsRoute, false) }
                                 )
                             }
                             composable<TaskListRoute> { backStackEntry ->
@@ -78,7 +99,8 @@ class MainActivity : ComponentActivity() {
                                         navController.navigate(NewTaskRoute(listId = route.listId)) {
                                             launchSingleTop = true
                                         }
-                                    }
+                                    },
+                                    navigateBack = { navController.popBackStack() }
                                 )
                             }
                             composable<NewTaskRoute> {
@@ -99,11 +121,13 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun handleIntent(intent: Intent) {
+        android.util.Log.d("MainActivity", "handleIntent: action=${intent.action} data=${intent.data}")
         if (intent.action == Intent.ACTION_VIEW) {
             val data: Uri? = intent.data
             if (data != null && data.host == "makeitso-share.web.app" && data.pathSegments.contains("join")) {
                 val listId = data.pathSegments.lastOrNull()
                 val token = data.getQueryParameter("token")
+                android.util.Log.d("MainActivity", "handleIntent: listId=$listId token=$token")
                 if (listId != null && token != null) {
                     joinList(listId, token)
                 }
@@ -114,39 +138,43 @@ class MainActivity : ComponentActivity() {
     private fun joinList(listId: String, token: String) {
         lifecycleScope.launch {
             try {
-                val user = FirebaseAuth.getInstance().currentUser ?: return@launch
-                val idTokenResult = user.getIdToken(false).await()
-                val idToken = idTokenResult.token ?: return@launch
-                
-                withContext(Dispatchers.IO) {
-                    val url = URL("https://us-central1-make-it-so-live-ccdr-01.cloudfunctions.net/joinList")
-                    val connection = url.openConnection() as HttpURLConnection
-                    connection.requestMethod = "POST"
-                    connection.setRequestProperty("Content-Type", "application/json")
-                    connection.setRequestProperty("Authorization", "Bearer $idToken")
-                    connection.doOutput = true
+                // Wait for up to 5 seconds for a user to be signed in
+                var user = FirebaseAuth.getInstance().currentUser
+                var attempts = 0
+                while (user == null && attempts < 10) {
+                    delay(500)
+                    user = FirebaseAuth.getInstance().currentUser
+                    attempts++
+                }
 
-                    val jsonParam = JSONObject()
-                    val dataObj = JSONObject()
-                    dataObj.put("listId", listId)
-                    dataObj.put("shareToken", token)
-                    jsonParam.put("data", dataObj)
-
-                    connection.outputStream.use { os ->
-                        val input = jsonParam.toString().toByteArray(Charsets.UTF_8)
-                        os.write(input, 0, input.size)
+                if (user == null) {
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(this@MainActivity, "Failed to join: Not signed in", Toast.LENGTH_LONG).show()
                     }
+                    return@launch
+                }
 
-                    val code = connection.responseCode
-                    if (code != 200) {
-                        println("Join list failed code: $code")
-                    } else {
-                        println("Successfully joined list!")
-                    }
-                    connection.disconnect()
+                android.util.Log.d("MainActivity", "User is signed in: uid=${user.uid}")
+
+                // Direct Firestore update using the 'joinToken' handshake required by security rules
+                FirebaseFirestore.getInstance()
+                    .collection("lists")
+                    .document(listId)
+                    .update(
+                        "sharedWith", FieldValue.arrayUnion(user.uid),
+                        "joinToken", token
+                    )
+                    .await()
+
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(this@MainActivity, "Successfully joined list!", Toast.LENGTH_SHORT).show()
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
+                android.util.Log.e("MainActivity", "Join list error", e)
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(this@MainActivity, "Error: ${e.message}", Toast.LENGTH_LONG).show()
+                }
             }
         }
     }

@@ -3,6 +3,7 @@ import SwiftUI
 struct ListsHomeView: View {
   @State private var listRepository = TaskListRepository()
   @State private var isPresentingAddList = false
+  @State private var isPresentingProfile = false
   @State private var newListTitle = ""
 
   var body: some View {
@@ -30,6 +31,13 @@ struct ListsHomeView: View {
           TaskListView(taskList: list)
         }
         .toolbar {
+          ToolbarItem(placement: .navigationBarLeading) {
+            Button {
+              isPresentingProfile = true
+            } label: {
+              Image(systemName: "person.circle")
+            }
+          }
           ToolbarItem(placement: .primaryAction) {
             Button {
               isPresentingAddList = true
@@ -37,6 +45,9 @@ struct ListsHomeView: View {
               Image(systemName: "plus")
             }
           }
+        }
+        .sheet(isPresented: $isPresentingProfile) {
+          UserProfileView()
         }
         .sheet(isPresented: $isPresentingAddList) {
           NavigationStack {

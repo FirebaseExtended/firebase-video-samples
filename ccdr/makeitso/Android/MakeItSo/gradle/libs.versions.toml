@@ -42,6 +42,7 @@ hilt-android-compiler = { module = "com.google.dagger:hilt-android-compiler", ve
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
 firebase-auth = { module = "com.google.firebase:firebase-auth" }
 firebase-firestore = { module = "com.google.firebase:firebase-firestore" }
+firebase-functions = { module = "com.google.firebase:firebase-functions" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
