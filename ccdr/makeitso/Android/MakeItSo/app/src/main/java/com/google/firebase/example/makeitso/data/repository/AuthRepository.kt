@@ -9,6 +9,10 @@ class AuthRepository @Inject constructor(
 ) {
     val currentUser: FirebaseUser? get() = authRemoteDataSource.currentUser
 
+    suspend fun getOrCreateUser(): String {
+        return currentUser?.uid ?: createAnonymousAccount()
+    }
+
     suspend fun createAnonymousAccount(): String {
         return authRemoteDataSource.createAnonymousAccount()
     }

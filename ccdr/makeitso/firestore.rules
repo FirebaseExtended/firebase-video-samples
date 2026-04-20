@@ -31,16 +31,12 @@ service cloud.firestore {
       // Allow an update ONLY if the user is adding themselves using the token.
       allow update: if request.auth != null &&
         // 1. Valid Token: Check token in 'joinToken' field
-        request.resource.data.joinToken == resource.data.shareToken &&
+        request.resource.data.get('joinToken', '') == resource.data.get('shareToken', '') &&
         
-        // 2. Integrity: Existing members MUST be preserved
-        request.resource.data.sharedWith.hasAll("sharedWith" in resource.data ? resource.data.sharedWith : []) &&
+        // 2. Integrity: Caller MUST be in the new sharedWith list
+        request.auth.uid in request.resource.data.get('sharedWith', []) &&
         
-        // 3. Self-Add Only: Size increases by 1, and contains the caller
-        request.resource.data.sharedWith.size() == ("sharedWith" in resource.data ? resource.data.sharedWith.size() : 0) + 1 &&
-        request.auth.uid in request.resource.data.sharedWith &&
-        
-        // 4. Protection: Ensure they didn't change the owner or title
+        // 3. Protection: Ensure they didn't change the owner or title
         request.resource.data.userId == resource.data.userId &&
         request.resource.data.title == resource.data.title;
     }

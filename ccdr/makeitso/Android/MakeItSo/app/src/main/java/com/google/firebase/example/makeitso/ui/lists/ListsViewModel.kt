@@ -37,9 +37,7 @@ class ListsViewModel @Inject constructor(
 
     init {
         launchCatching {
-            if (authRepository.currentUser == null) {
-                authRepository.createAnonymousAccount()
-            }
+            authRepository.getOrCreateUser()
         }
     }
 
@@ -51,7 +49,7 @@ class ListsViewModel @Inject constructor(
             val list = TaskList(
                 title = title,
                 userId = userId,
-                shareToken = java.util.UUID.randomUUID().toString()
+                shareToken = java.util.UUID.randomUUID().toString().uppercase()
             )
             databaseRepository.saveList(list)
         }

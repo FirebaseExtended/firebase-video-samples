@@ -35,6 +35,7 @@ import androidx.lifecycle.lifecycleScope
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.functions.FirebaseFunctions
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -42,9 +43,18 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import java.net.URL
+import com.google.firebase.example.makeitso.data.repository.AuthRepository
+import com.google.firebase.example.makeitso.data.repository.DatabaseRepository
+import javax.inject.Inject
+import androidx.navigation.NavHostController
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+    @Inject lateinit var authRepository: AuthRepository
+    @Inject lateinit var databaseRepository: DatabaseRepository
+
+    private var navController: NavHostController? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         handleIntent(intent)
@@ -56,7 +66,8 @@ class MainActivity : ComponentActivity() {
         )
 
         setContent {
-            val navController = rememberNavController()
+            val controller = rememberNavController()
+            navController = controller
 
             MakeItSoTheme {
                 Surface(
@@ -67,45 +78,45 @@ class MainActivity : ComponentActivity() {
                         modifier = Modifier.fillMaxSize()
                     ) { innerPadding ->
                         NavHost(
-                            navController = navController,
+                            navController = controller,
                             startDestination = ListsRoute,
                             modifier = Modifier.padding(innerPadding)
                         ) {
                             composable<ListsRoute> {
                                 ListsScreen(
                                     openList = { listId ->
-                                        navController.navigate(TaskListRoute(listId = listId))
+                                        controller.navigate(TaskListRoute(listId = listId))
                                     },
                                     openProfile = {
-                                        navController.navigate(ProfileRoute)
+                                        controller.navigate(ProfileRoute)
                                     }
                                 )
                             }
                             composable<ProfileRoute> {
                                 ProfileScreen(
-                                    openAuth = { navController.navigate(AuthRoute) },
-                                    onBack = { navController.popBackStack() }
+                                    openAuth = { controller.navigate(AuthRoute) },
+                                    onBack = { controller.popBackStack() }
                                 )
                             }
                             composable<AuthRoute> {
                                 AuthScreen(
-                                    onComplete = { navController.popBackStack(ListsRoute, false) }
+                                    onComplete = { controller.popBackStack(ListsRoute, false) }
                                 )
                             }
                             composable<TaskListRoute> { backStackEntry ->
                                 val route = backStackEntry.toRoute<TaskListRoute>()
                                 TaskListScreen(
                                     openNewTaskScreen = {
-                                        navController.navigate(NewTaskRoute(listId = route.listId)) {
+                                        controller.navigate(NewTaskRoute(listId = route.listId)) {
                                             launchSingleTop = true
                                         }
                                     },
-                                    navigateBack = { navController.popBackStack() }
+                                    navigateBack = { controller.popBackStack() }
                                 )
                             }
                             composable<NewTaskRoute> {
                                 NewTaskScreen(
-                                    navigateBack = { navController.popBackStack() }
+                                    navigateBack = { controller.popBackStack() }
                                 )
                             }
                         }
@@ -138,42 +149,27 @@ class MainActivity : ComponentActivity() {
     private fun joinList(listId: String, token: String) {
         lifecycleScope.launch {
             try {
-                // Wait for up to 5 seconds for a user to be signed in
-                var user = FirebaseAuth.getInstance().currentUser
-                var attempts = 0
-                while (user == null && attempts < 10) {
-                    delay(500)
-                    user = FirebaseAuth.getInstance().currentUser
-                    attempts++
-                }
+                val userId = authRepository.getOrCreateUser()
+                android.util.Log.d("MainActivity", "User is signed in: uid=$userId")
 
-                if (user == null) {
-                    withContext(Dispatchers.Main) {
-                        Toast.makeText(this@MainActivity, "Failed to join: Not signed in", Toast.LENGTH_LONG).show()
-                    }
-                    return@launch
-                }
-
-                android.util.Log.d("MainActivity", "User is signed in: uid=${user.uid}")
-
-                // Direct Firestore update using the 'joinToken' handshake required by security rules
-                FirebaseFirestore.getInstance()
-                    .collection("lists")
-                    .document(listId)
-                    .update(
-                        "sharedWith", FieldValue.arrayUnion(user.uid),
-                        "joinToken", token
-                    )
-                    .await()
+                databaseRepository.joinList(listId, token, userId)
 
                 withContext(Dispatchers.Main) {
                     Toast.makeText(this@MainActivity, "Successfully joined list!", Toast.LENGTH_SHORT).show()
+                    navController?.navigate(TaskListRoute(listId = listId))
                 }
             } catch (e: Exception) {
-                e.printStackTrace()
-                android.util.Log.e("MainActivity", "Join list error", e)
-                withContext(Dispatchers.Main) {
-                    Toast.makeText(this@MainActivity, "Error: ${e.message}", Toast.LENGTH_LONG).show()
+                if (e is FirebaseFirestoreException && e.code == FirebaseFirestoreException.Code.PERMISSION_DENIED) {
+                    android.util.Log.d("MainActivity", "Permission denied, assuming already joined.")
+                    withContext(Dispatchers.Main) {
+                        navController?.navigate(TaskListRoute(listId = listId))
+                    }
+                } else {
+                    e.printStackTrace()
+                    android.util.Log.e("MainActivity", "Join list error", e)
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(this@MainActivity, "Error: ${e.message}", Toast.LENGTH_LONG).show()
+                    }
                 }
             }
         }
