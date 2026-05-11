@@ -19,6 +19,7 @@ class NewTaskViewModel @Inject constructor(
 
     fun saveTask(task: Task, navigateBack: () -> Unit) {
         launchCatching {
+            android.util.Log.d("NewTaskViewModel", "Saving task with listId: ${route.listId}")
             val taskWithUserId = task.copy(
                 userId = authRepository.currentUser?.uid,
                 listId = route.listId

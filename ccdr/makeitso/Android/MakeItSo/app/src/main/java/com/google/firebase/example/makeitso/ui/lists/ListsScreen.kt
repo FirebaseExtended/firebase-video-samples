@@ -6,6 +6,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Share
@@ -31,9 +32,11 @@ object ListsRoute
 @Composable
 fun ListsScreen(
     openList: (String?) -> Unit,
+    openProfile: () -> Unit,
     viewModel: ListsViewModel = hiltViewModel()
 ) {
     val lists by viewModel.lists.collectAsState(initial = emptyList())
+    val currentUser by viewModel.currentUser.collectAsState(initial = null)
     var showAddDialog by remember { mutableStateOf(false) }
     var newListTitle by remember { mutableStateOf("") }
     val context = LocalContext.current
@@ -49,6 +52,15 @@ fun ListsScreen(
                             fontWeight = FontWeight.Bold
                         )
                     ) 
+                },
+                actions = {
+                    IconButton(onClick = openProfile) {
+                        Icon(
+                            imageVector = Icons.Default.AccountCircle,
+                            contentDescription = "Profile",
+                            tint = HighlightBlue
+                        )
+                    }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.background
@@ -83,16 +95,16 @@ fun ListsScreen(
                 ListCard(
                     title = list.title,
                     onClick = { openList(list.id) },
-                    onShare = {
-                        val token = list.shareToken ?: ""
-                        val shareIntent = Intent(Intent.ACTION_SEND).apply {
-                            type = "text/plain"
-                            putExtra(Intent.EXTRA_SUBJECT, "Join my list")
-                            val url = "https://makeitso-share.web.app/join/${list.id}?token=$token"
-                            putExtra(Intent.EXTRA_TEXT, "Join my list: ${list.title}\n$url")
+                        onShare = {
+                            val token = list.shareToken ?: ""
+                            val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                                type = "text/plain"
+                                putExtra(Intent.EXTRA_SUBJECT, "Join my list")
+                                val url = "https://makeitso-share.web.app/join/${list.id}?token=$token"
+                                putExtra(Intent.EXTRA_TEXT, "Join my list: ${list.title}\n$url")
+                            }
+                            context.startActivity(Intent.createChooser(shareIntent, "Share List"))
                         }
-                        context.startActivity(Intent.createChooser(shareIntent, "Share List"))
-                    }
                 )
             }
         }

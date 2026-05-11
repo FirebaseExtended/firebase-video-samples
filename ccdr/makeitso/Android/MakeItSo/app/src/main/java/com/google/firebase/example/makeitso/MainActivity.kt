@@ -16,6 +16,10 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.google.firebase.example.makeitso.ui.lists.ListsRoute
 import com.google.firebase.example.makeitso.ui.lists.ListsScreen
+import com.google.firebase.example.makeitso.ui.auth.AuthRoute
+import com.google.firebase.example.makeitso.ui.auth.AuthScreen
+import com.google.firebase.example.makeitso.ui.profile.ProfileRoute
+import com.google.firebase.example.makeitso.ui.profile.ProfileScreen
 import com.google.firebase.example.makeitso.ui.newTask.NewTaskRoute
 import com.google.firebase.example.makeitso.ui.newTask.NewTaskScreen
 import com.google.firebase.example.makeitso.ui.taskList.TaskListRoute
@@ -26,18 +30,31 @@ import com.google.firebase.example.makeitso.ui.theme.MakeItSoTheme
 import dagger.hilt.android.AndroidEntryPoint
 import android.content.Intent
 import android.net.Uri
+import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FieldValue
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.FirebaseFirestoreException
+import com.google.firebase.functions.FirebaseFunctions
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
-import org.json.JSONObject
-import java.net.HttpURLConnection
 import java.net.URL
+import com.google.firebase.example.makeitso.data.repository.AuthRepository
+import com.google.firebase.example.makeitso.data.repository.DatabaseRepository
+import javax.inject.Inject
+import androidx.navigation.NavHostController
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+    @Inject lateinit var authRepository: AuthRepository
+    @Inject lateinit var databaseRepository: DatabaseRepository
+
+    private var navController: NavHostController? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         handleIntent(intent)
@@ -49,7 +66,8 @@ class MainActivity : ComponentActivity() {
         )
 
         setContent {
-            val navController = rememberNavController()
+            val controller = rememberNavController()
+            navController = controller
 
             MakeItSoTheme {
                 Surface(
@@ -60,30 +78,45 @@ class MainActivity : ComponentActivity() {
                         modifier = Modifier.fillMaxSize()
                     ) { innerPadding ->
                         NavHost(
-                            navController = navController,
+                            navController = controller,
                             startDestination = ListsRoute,
                             modifier = Modifier.padding(innerPadding)
                         ) {
                             composable<ListsRoute> {
                                 ListsScreen(
                                     openList = { listId ->
-                                        navController.navigate(TaskListRoute(listId = listId))
+                                        controller.navigate(TaskListRoute(listId = listId))
+                                    },
+                                    openProfile = {
+                                        controller.navigate(ProfileRoute)
                                     }
+                                )
+                            }
+                            composable<ProfileRoute> {
+                                ProfileScreen(
+                                    openAuth = { controller.navigate(AuthRoute) },
+                                    onBack = { controller.popBackStack() }
+                                )
+                            }
+                            composable<AuthRoute> {
+                                AuthScreen(
+                                    onComplete = { controller.popBackStack(ListsRoute, false) }
                                 )
                             }
                             composable<TaskListRoute> { backStackEntry ->
                                 val route = backStackEntry.toRoute<TaskListRoute>()
                                 TaskListScreen(
                                     openNewTaskScreen = {
-                                        navController.navigate(NewTaskRoute(listId = route.listId)) {
+                                        controller.navigate(NewTaskRoute(listId = route.listId)) {
                                             launchSingleTop = true
                                         }
-                                    }
+                                    },
+                                    navigateBack = { controller.popBackStack() }
                                 )
                             }
                             composable<NewTaskRoute> {
                                 NewTaskScreen(
-                                    navigateBack = { navController.popBackStack() }
+                                    navigateBack = { controller.popBackStack() }
                                 )
                             }
                         }
@@ -99,11 +132,13 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun handleIntent(intent: Intent) {
+        android.util.Log.d("MainActivity", "handleIntent: action=${intent.action} data=${intent.data}")
         if (intent.action == Intent.ACTION_VIEW) {
             val data: Uri? = intent.data
             if (data != null && data.host == "makeitso-share.web.app" && data.pathSegments.contains("join")) {
                 val listId = data.pathSegments.lastOrNull()
                 val token = data.getQueryParameter("token")
+                android.util.Log.d("MainActivity", "handleIntent: listId=$listId token=$token")
                 if (listId != null && token != null) {
                     joinList(listId, token)
                 }
@@ -114,39 +149,28 @@ class MainActivity : ComponentActivity() {
     private fun joinList(listId: String, token: String) {
         lifecycleScope.launch {
             try {
-                val user = FirebaseAuth.getInstance().currentUser ?: return@launch
-                val idTokenResult = user.getIdToken(false).await()
-                val idToken = idTokenResult.token ?: return@launch
-                
-                withContext(Dispatchers.IO) {
-                    val url = URL("https://us-central1-make-it-so-live-ccdr-01.cloudfunctions.net/joinList")
-                    val connection = url.openConnection() as HttpURLConnection
-                    connection.requestMethod = "POST"
-                    connection.setRequestProperty("Content-Type", "application/json")
-                    connection.setRequestProperty("Authorization", "Bearer $idToken")
-                    connection.doOutput = true
+                val userId = authRepository.getOrCreateUser()
+                android.util.Log.d("MainActivity", "User is signed in: uid=$userId")
 
-                    val jsonParam = JSONObject()
-                    val dataObj = JSONObject()
-                    dataObj.put("listId", listId)
-                    dataObj.put("shareToken", token)
-                    jsonParam.put("data", dataObj)
+                databaseRepository.joinList(listId, token, userId)
 
-                    connection.outputStream.use { os ->
-                        val input = jsonParam.toString().toByteArray(Charsets.UTF_8)
-                        os.write(input, 0, input.size)
-                    }
-
-                    val code = connection.responseCode
-                    if (code != 200) {
-                        println("Join list failed code: $code")
-                    } else {
-                        println("Successfully joined list!")
-                    }
-                    connection.disconnect()
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(this@MainActivity, "Successfully joined list!", Toast.LENGTH_SHORT).show()
+                    navController?.navigate(TaskListRoute(listId = listId))
                 }
             } catch (e: Exception) {
-                e.printStackTrace()
+                if (e is FirebaseFirestoreException && e.code == FirebaseFirestoreException.Code.PERMISSION_DENIED) {
+                    android.util.Log.d("MainActivity", "Permission denied, assuming already joined.")
+                    withContext(Dispatchers.Main) {
+                        navController?.navigate(TaskListRoute(listId = listId))
+                    }
+                } else {
+                    e.printStackTrace()
+                    android.util.Log.e("MainActivity", "Join list error", e)
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(this@MainActivity, "Error: ${e.message}", Toast.LENGTH_LONG).show()
+                    }
+                }
             }
         }
     }

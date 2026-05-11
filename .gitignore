@@ -1,3 +1,6 @@
+Build/**/*
+*.log
+
 ### macOS ###
 # General
 .DS_Store

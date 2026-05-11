@@ -7,9 +7,29 @@ import javax.inject.Inject
 class AuthRepository @Inject constructor(
     private val authRemoteDataSource: AuthRemoteDataSource
 ) {
-    val currentUser: FirebaseUser? = authRemoteDataSource.currentUser
+    val currentUser: FirebaseUser? get() = authRemoteDataSource.currentUser
+
+    suspend fun getOrCreateUser(): String {
+        return currentUser?.uid ?: createAnonymousAccount()
+    }
 
     suspend fun createAnonymousAccount(): String {
         return authRemoteDataSource.createAnonymousAccount()
     }
-}
+
+    suspend fun signUp(email: String, password: String) {
+        authRemoteDataSource.signUp(email, password)
+    }
+
+    suspend fun signIn(email: String, password: String) {
+        authRemoteDataSource.signIn(email, password)
+    }
+
+    suspend fun linkAccount(email: String, password: String) {
+        authRemoteDataSource.linkAccount(email, password)
+    }
+
+    fun signOut() {
+        authRemoteDataSource.signOut()
+    }
+    }

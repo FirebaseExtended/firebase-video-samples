@@ -2,10 +2,10 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
+    // Check if the caller is the owner or an existing editor
     function isListOwnerOrEditor(listId) {
-      // get() function fetches document, then check array or owner
       let list = get(/databases/$(database)/documents/lists/$(listId)).data;
-      return list != null && (list.userId == request.auth.uid || request.auth.uid in list.sharedWith);
+      return list != null && (list.userId == request.auth.uid || ("sharedWith" in list && request.auth.uid in list.sharedWith));
     }
 
     match /tasks/{taskId} {
@@ -19,12 +19,26 @@ service cloud.firestore {
     }
     
     match /lists/{listId} {
+      // Normal access for existing members
       allow read, update: if request.auth != null && (
         request.auth.uid == resource.data.userId || 
         (resource.data.sharedWith != null && request.auth.uid in resource.data.sharedWith)
       );
       allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
       allow delete: if request.auth != null && request.auth.uid == resource.data.userId;
+
+      // THE JOIN HANDSHAKE:
+      // Allow an update ONLY if the user is adding themselves using the token.
+      allow update: if request.auth != null &&
+        // 1. Valid Token: Check token in 'joinToken' field
+        request.resource.data.get('joinToken', '') == resource.data.get('shareToken', '') &&
+        
+        // 2. Integrity: Caller MUST be in the new sharedWith list
+        request.auth.uid in request.resource.data.get('sharedWith', []) &&
+        
+        // 3. Protection: Ensure they didn't change the owner or title
+        request.resource.data.userId == resource.data.userId &&
+        request.resource.data.title == resource.data.title;
     }
   }
 }

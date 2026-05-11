@@ -18,7 +18,9 @@ class DatabaseRemoteDataSource @Inject constructor(
     private val listsCollection get() = firestore.collection(LISTS_COLLECTION)
 
     suspend fun saveTask(task: Task) {
+        android.util.Log.d("DatabaseRemoteDataSource", "Saving task: $task")
         tasksCollection.add(task).await()
+        android.util.Log.d("DatabaseRemoteDataSource", "Task saved successfully")
     }
 
     suspend fun updateTask(task: Task) {
@@ -34,6 +36,7 @@ class DatabaseRemoteDataSource @Inject constructor(
     }
 
     fun getTasks(userId: String, listId: String? = null): Flow<List<Task>> = callbackFlow {
+        android.util.Log.d("DatabaseRemoteDataSource", "getTasks for userId: $userId, listId: $listId")
         var query: Query = tasksCollection
         if (listId != null) {
             query = query.whereEqualTo(LIST_ID_FIELD, listId)
@@ -44,11 +47,16 @@ class DatabaseRemoteDataSource @Inject constructor(
         val listener = query
             .addSnapshotListener { snapshot, error ->
                 if (error != null) {
+                    android.util.Log.e("DatabaseRemoteDataSource", "getTasks error", error)
                     close(error)
                     return@addSnapshotListener
                 }
                 if (snapshot != null) {
                     val tasks = snapshot.toObjects(Task::class.java)
+                    android.util.Log.d("DatabaseRemoteDataSource", "getTasks success: ${tasks.size} tasks")
+                    tasks.forEach { task ->
+                        android.util.Log.d("DatabaseRemoteDataSource", "  Task: title='${task.title}', isCompleted=${task.isCompleted}, id='${task.id}'")
+                    }
                     trySend(tasks)
                 }
             }
@@ -69,6 +77,15 @@ class DatabaseRemoteDataSource @Inject constructor(
 
     suspend fun deleteList(listId: String) {
         listsCollection.document(listId).delete().await()
+    }
+
+    suspend fun joinList(listId: String, token: String, userId: String) {
+        android.util.Log.d("DatabaseRemoteDataSource", "Joining list: $listId for user: $userId with token: $token")
+        listsCollection.document(listId).update(
+            "sharedWith", com.google.firebase.firestore.FieldValue.arrayUnion(userId),
+            "joinToken", token
+        ).await()
+        android.util.Log.d("DatabaseRemoteDataSource", "Firestore update successful")
     }
 
     fun getLists(userId: String): Flow<List<TaskList>> = callbackFlow {

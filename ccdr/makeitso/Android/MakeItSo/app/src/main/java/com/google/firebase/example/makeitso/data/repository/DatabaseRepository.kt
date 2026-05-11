@@ -17,4 +17,6 @@ class DatabaseRepository @Inject constructor(
     suspend fun saveList(list: TaskList) = databaseRemoteDataSource.saveList(list)
     suspend fun updateList(list: TaskList) = databaseRemoteDataSource.updateList(list)
     suspend fun deleteList(listId: String) = databaseRemoteDataSource.deleteList(listId)
+    suspend fun joinList(listId: String, token: String, userId: String) = 
+        databaseRemoteDataSource.joinList(listId, token, userId)
 }

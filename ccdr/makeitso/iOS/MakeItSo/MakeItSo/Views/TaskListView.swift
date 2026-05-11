@@ -1,5 +1,8 @@
 import FirebaseAuth
 import SwiftUI
+import OSLog
+
+private let logger = Logger(subsystem: "com.google.firebase.example.MakeItSo", category: "Sharing")
 
 struct TaskListView: View {
   var taskList: TaskList? = nil
@@ -9,14 +12,15 @@ struct TaskListView: View {
   @State private var isShowingError = false
 
   var body: some View {
+    @Bindable var repository = repository
     Group {
       if repository.user == nil {
         ProgressView("Signing in...")
       } else {
         List {
-          ForEach(repository.tasks) { task in
-            TaskRowView(task: task) { taskToToggle in
-              toggleTask(taskToToggle)
+          ForEach($repository.tasks) { $task in
+            TaskRowView(task: $task) {
+              toggleTask($task)
             }
           }
           .onDelete { indexSet in
@@ -28,6 +32,9 @@ struct TaskListView: View {
           if let list = taskList, let listId = list.id, let token = list.shareToken, let url = URL(string: "https://makeitso-share.web.app/join/\(listId)?token=\(token)") {
             ToolbarItem(placement: .primaryAction) {
               ShareLink(item: url, message: Text("Join my list: \(list.title)"))
+                .simultaneousGesture(TapGesture().onEnded {
+                  logger.log("SHARE_LINK_URL: \(url.absoluteString, privacy: .public)")
+                })
             }
           }
           ToolbarItem(placement: .primaryAction) {
@@ -52,10 +59,16 @@ struct TaskListView: View {
       AddTaskView { task in
         var newTask = task
         newTask.listId = taskList?.id
+        // Optimistic update: Add locally first
+        repository.tasks.append(newTask)
         Task {
           do {
             try await repository.addTask(newTask)
           } catch {
+            // Rollback if the add fails
+            if let index = repository.tasks.firstIndex(where: { $0.title == newTask.title && $0.userId == nil }) {
+              repository.tasks.remove(at: index)
+            }
             showError(error)
           }
         }
@@ -66,6 +79,12 @@ struct TaskListView: View {
     } message: { message in
       Text(message)
     }
+    .onAppear {
+      if let list = taskList, let listId = list.id, let token = list.shareToken {
+        let url = "https://makeitso-share.web.app/join/\(listId)?token=\(token)"
+        logger.log("SHARE_LINK_URL: \(url, privacy: .public)")
+      }
+    }
   }
 
   private func showError(_ error: Error) {
@@ -73,13 +92,14 @@ struct TaskListView: View {
     isShowingError = true
   }
 
-  private func toggleTask(_ task: TaskItem) {
-    var updatedTask = task
-    updatedTask.isCompleted.toggle()
+  private func toggleTask(_ task: Binding<TaskItem>) {
+    task.wrappedValue.isCompleted.toggle()
+    let updatedTask = task.wrappedValue
     Task {
       do {
         try await repository.updateTask(updatedTask)
       } catch {
+        task.wrappedValue.isCompleted.toggle()
         showError(error)
       }
     }

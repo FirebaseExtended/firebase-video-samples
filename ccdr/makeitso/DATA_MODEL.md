@@ -53,5 +53,6 @@ The data model consists of `Task` and `TaskList` entities, along with a `TaskPri
   - `title`: The title of the list.
   - `userId`: The ID of the user who owns the list.
   - `sharedWith`: Array of User IDs (editors) the list is shared with.
-  - `shareToken`: A unique token string for the share link.
+  - `shareToken`: A unique token string for the share link (stored secret).
+  - `joinToken`: A transient field used in update requests to satisfy security rules (client-provided).
 - **TaskPriority**: An enumeration used to categorize tasks by priority.

@@ -2,22 +2,11 @@ import FirebaseAuth
 import FirebaseFirestore
 import Foundation
 import Observation
+import os
 
-/// A repository responsible for managing tasks and their synchronization with Firestore.
-///
-/// **Thread Safety & Isolation Strategy**:
-/// This class uses "surgical" `@MainActor` isolation instead of class-level isolation.
-///
-/// - **UI properties** (`tasks`, `user`) are isolated to `@MainActor` to ensure safe updates
-///   that trigger SwiftUI view refreshes.
-/// - **Lifecycle methods** (add, update, delete) are also isolated to `@MainActor` as they
-///   operate on or or are called from the UI layer.
-/// - **The class itself** remains non-isolated at the top level. This is intentional to allow
-///   the `deinit` method to safely access and modify internal state (like `listenerRegistration`)
-///   without being blocked by actor isolation requirements, which would otherwise cause
-///   build errors since `deinit` is inherently non-isolated.
 @Observable
 class TaskRepository {
+  private let logger = Logger(subsystem: "com.google.firebase.example.MakeItSo", category: "Database")
   @MainActor var tasks = [TaskItem]()
 
   @MainActor var user: User? = nil
@@ -30,7 +19,9 @@ class TaskRepository {
   private var currentListId: String?
 
   init() {
+    print("TaskRepository: Initializing")
     authStateListenerHandle = Auth.auth().addStateDidChangeListener { [weak self] auth, user in
+      print("TaskRepository: Auth state changed, user: \(user?.uid ?? "nil")")
       Task { @MainActor in
         guard let self = self else { return }
         self.user = user
@@ -63,7 +54,8 @@ class TaskRepository {
     currentUserId = userId
     currentListId = listId
 
-    print("Subscribing to tasks for user: \(userId)\(listId.map { " in list: \($0)" } ?? "")")
+    let listInfo = listId.map { " in list: \($0)" } ?? ""
+    logger.log("Subscribing to tasks for user: \(userId)\(listInfo)")
 
     var query: Query = db.collection("tasks")
 
@@ -78,23 +70,30 @@ class TaskRepository {
       .order(by: "dueDate")
 
     listenerRegistration = query.addSnapshotListener { [weak self] querySnapshot, error in
-      guard let documents = querySnapshot?.documents else {
-        print("No documents received or error: \(String(describing: error))")
+      guard let self = self else { return }
+      if let error = error {
+        self.logger.error("Error in snapshot listener: \(error.localizedDescription)")
         return
       }
-      print("Received \(documents.count) tasks")
+      guard let documents = querySnapshot?.documents else {
+        self.logger.log("No documents in snapshot")
+        return
+      }
+      self.logger.log("Received snapshot with \(documents.count) tasks. Source: \(querySnapshot?.metadata.hasPendingWrites == true ? "Local" : "Server")")
 
       let tasks = documents.compactMap { document -> TaskItem? in
         do {
-          return try document.data(as: TaskItem.self)
+          let task = try document.data(as: TaskItem.self)
+          return task
         } catch {
-          print("Error decoding task: \(error.localizedDescription)")
+          self.logger.error("Error decoding task \(document.documentID): \(error.localizedDescription)")
           return nil
         }
       }
 
       Task { @MainActor in
-        self?.tasks = tasks
+        print("TaskRepository: Updating tasks array with \(tasks.count) items")
+        self.tasks = tasks
       }
     }
   }
@@ -105,15 +104,27 @@ class TaskRepository {
   }
 
   @MainActor func addTask(_ task: TaskItem) async throws {
-    var newTask = task
-    if let user = user {
-      newTask.userId = user.uid
-    } else {
-      print("Warning: No logged in user, saving task without userId")
+    logger.log("Adding task: \(task.title)")
+
+    guard let uid = user?.uid else {
+      logger.error("Cannot add task: No user logged in")
+      return
     }
 
-    // listId is already on the taskItem if we're adding it from a specific list
-    let _ = try await db.collection("tasks").addDocument(from: newTask)
+    var data: [String: Any] = [
+      "title": task.title,
+      "isCompleted": task.isCompleted,
+      "priority": task.priority.rawValue,
+      "userId": uid,
+      "createdAt": FieldValue.serverTimestamp()
+    ]
+
+    if let description = task.description { data["description"] = description }
+    if let dueDate = task.dueDate { data["dueDate"] = Timestamp(date: dueDate) }
+    if let listId = task.listId { data["listId"] = listId }
+
+    let docRef = try await db.collection("tasks").addDocument(data: data)
+    logger.log("Task added with ID: \(docRef.documentID)")
   }
 
   @MainActor func updateTask(_ task: TaskItem) async throws {
