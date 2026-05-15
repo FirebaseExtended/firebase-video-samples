@@ -1,7 +1,3 @@
-# friendly-meals-web
+# FriendlyMeals – Firebase Web Samples
 
-To start the development server, run the following command:
-
-```bash
-npm run dev
-```
+This sample app has moved! You can find the codebase and setup instructions at the [new repository](https://github.com/FirebaseExtended/FriendlyMeals-web).
