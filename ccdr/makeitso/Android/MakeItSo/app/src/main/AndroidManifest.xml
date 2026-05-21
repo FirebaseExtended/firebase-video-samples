@@ -25,7 +25,7 @@
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="https" android:host="makeitso-share.web.app" android:pathPrefix="/join/" />
+                <data android:scheme="https" android:host="make-it-so-live-ccdr-01.web.app" android:pathPrefix="/join/" />
             </intent-filter>
         </activity>
     </application>

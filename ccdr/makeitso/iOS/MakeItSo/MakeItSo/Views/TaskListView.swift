@@ -34,7 +34,7 @@ struct TaskListView: View {
         }
         .navigationTitle(taskList?.title ?? "Tasks")
         .toolbar {
-          if let list = taskList, let listId = list.id, let token = list.shareToken, let url = URL(string: "https://makeitso-share.web.app/join/\(listId)?token=\(token)") {
+          if let list = taskList, let listId = list.id, let token = list.shareToken, let url = URL(string: "https://make-it-so-live-ccdr-01.web.app/join/\(listId)?token=\(token)") {
             ToolbarItem(placement: .primaryAction) {
               ShareLink(item: url, message: Text("Join my list: \(list.title)"))
                 .simultaneousGesture(TapGesture().onEnded {
@@ -80,7 +80,7 @@ struct TaskListView: View {
     }
     .onAppear {
       if let list = taskList, let listId = list.id, let token = list.shareToken {
-        let url = "https://makeitso-share.web.app/join/\(listId)?token=\(token)"
+        let url = "https://make-it-so-live-ccdr-01.web.app/join/\(listId)?token=\(token)"
         logger.log("SHARE_LINK_URL: \(url, privacy: .public)")
       }
     }

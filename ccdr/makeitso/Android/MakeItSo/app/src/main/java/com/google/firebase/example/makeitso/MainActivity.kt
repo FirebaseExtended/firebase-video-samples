@@ -135,7 +135,7 @@ class MainActivity : ComponentActivity() {
         android.util.Log.d("MainActivity", "handleIntent: action=${intent.action} data=${intent.data}")
         if (intent.action == Intent.ACTION_VIEW) {
             val data: Uri? = intent.data
-            if (data != null && data.host == "makeitso-share.web.app" && data.pathSegments.contains("join")) {
+            if (data != null && data.host == "make-it-so-live-ccdr-01.web.app" && data.pathSegments.contains("join")) {
                 val listId = data.pathSegments.lastOrNull()
                 val token = data.getQueryParameter("token")
                 android.util.Log.d("MainActivity", "handleIntent: listId=$listId token=$token")

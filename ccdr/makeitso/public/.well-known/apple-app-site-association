@@ -1,0 +1,11 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appID": "YGAZHQXHH4.com.google.firebase.example.MakeItSo",
+        "paths": [ "/join/*" ]
+      }
+    ]
+  }
+}

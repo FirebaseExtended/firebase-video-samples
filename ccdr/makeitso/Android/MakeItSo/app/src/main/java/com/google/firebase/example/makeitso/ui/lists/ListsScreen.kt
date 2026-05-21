@@ -100,7 +100,7 @@ fun ListsScreen(
                             val shareIntent = Intent(Intent.ACTION_SEND).apply {
                                 type = "text/plain"
                                 putExtra(Intent.EXTRA_SUBJECT, "Join my list")
-                                val url = "https://makeitso-share.web.app/join/${list.id}?token=$token"
+                                val url = "https://make-it-so-live-ccdr-01.web.app/join/${list.id}?token=$token"
                                 putExtra(Intent.EXTRA_TEXT, "Join my list: ${list.title}\n$url")
                             }
                             context.startActivity(Intent.createChooser(shareIntent, "Share List"))
