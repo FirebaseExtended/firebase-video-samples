@@ -29,16 +29,16 @@ struct UserProfileView: View {
 
         Section {
           if let user = user, user.isAnonymous {
-            Button("Link Email/Password Account") {
+            Button("Sign In") {
               isShowingAuthView = true
             }
           } else if user == nil {
-            Button("Sign In / Sign Up") {
+            Button("Sign In") {
               isShowingAuthView = true
             }
           }
 
-          if user != nil {
+          if let user = user, !user.isAnonymous {
             Button("Sign Out", role: .destructive) {
               do {
                 try AuthenticationService.shared.signOut()

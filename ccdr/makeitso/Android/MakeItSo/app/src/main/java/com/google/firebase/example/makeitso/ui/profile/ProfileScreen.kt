@@ -62,23 +62,16 @@ fun ProfileScreen(
                 }
             }
 
-            if (currentUser?.isAnonymous == true) {
+            if (currentUser?.isAnonymous == true || currentUser == null) {
                 Button(
                     onClick = openAuth,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text("Link Email/Password Account")
-                }
-            } else if (currentUser == null) {
-                Button(
-                    onClick = openAuth,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text("Sign In / Sign Up")
+                    Text("Sign In")
                 }
             }
 
-            if (currentUser != null) {
+            if (currentUser != null && !currentUser!!.isAnonymous) {
                 Button(
                     onClick = { viewModel.onSignOut(onBack) },
                     modifier = Modifier.fillMaxWidth(),

@@ -12,6 +12,10 @@ import kotlinx.serialization.Serializable
 @Serializable
 object AuthRoute
 
+enum class AuthMode {
+    LINK, SIGN_IN, SIGN_UP
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AuthScreen(
@@ -20,19 +24,19 @@ fun AuthScreen(
 ) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
-    var isSignUp by remember { mutableStateOf(false) }
-    val isLinking = viewModel.isAnonymous()
+    val isAnonymous = viewModel.isAnonymous()
+    var mode by remember { mutableStateOf(if (isAnonymous) AuthMode.LINK else AuthMode.SIGN_IN) }
+
+    val titleText = when (mode) {
+        AuthMode.LINK -> "Link Account"
+        AuthMode.SIGN_IN -> "Sign In"
+        AuthMode.SIGN_UP -> "Sign Up"
+    }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { 
-                    Text(
-                        if (isLinking) "Link Account" 
-                        else if (isSignUp) "Sign Up" 
-                        else "Sign In"
-                    ) 
-                }
+                title = { Text(titleText) }
             )
         }
     ) { paddingValues ->
@@ -60,31 +64,70 @@ fun AuthScreen(
 
             Button(
                 onClick = {
-                    if (isLinking) {
-                        viewModel.onLinkAccountClick(email, password, onComplete)
-                    } else if (isSignUp) {
-                        viewModel.onSignUpClick(email, password, onComplete)
-                    } else {
-                        viewModel.onSignInClick(email, password, onComplete)
+                    when (mode) {
+                        AuthMode.LINK -> viewModel.onLinkAccountClick(email, password, onComplete)
+                        AuthMode.SIGN_UP -> viewModel.onSignUpClick(email, password, onComplete)
+                        AuthMode.SIGN_IN -> viewModel.onSignInClick(email, password, onComplete)
                     }
                 },
                 modifier = Modifier.fillMaxWidth(),
                 enabled = email.isNotEmpty() && password.isNotEmpty()
             ) {
-                Text(
-                    if (isLinking) "Link Account" 
-                    else if (isSignUp) "Sign Up" 
-                    else "Sign In"
-                )
+                Text(titleText)
             }
 
-            if (!isLinking) {
+            if (isAnonymous) {
+                when (mode) {
+                    AuthMode.LINK -> {
+                        TextButton(
+                            onClick = { mode = AuthMode.SIGN_IN },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text("Already have an account? Sign In")
+                        }
+                    }
+                    AuthMode.SIGN_IN -> {
+                        Column {
+                            TextButton(
+                                onClick = { mode = AuthMode.SIGN_UP },
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Text("Don't have an account? Sign Up")
+                            }
+                            TextButton(
+                                onClick = { mode = AuthMode.LINK },
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Text("Link this session instead? Link Account")
+                            }
+                        }
+                    }
+                    AuthMode.SIGN_UP -> {
+                        Column {
+                            TextButton(
+                                onClick = { mode = AuthMode.SIGN_IN },
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Text("Already have an account? Sign In")
+                            }
+                            TextButton(
+                                onClick = { mode = AuthMode.LINK },
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Text("Link this session instead? Link Account")
+                            }
+                        }
+                    }
+                }
+            } else {
                 TextButton(
-                    onClick = { isSignUp = !isSignUp },
+                    onClick = { 
+                        mode = if (mode == AuthMode.SIGN_UP) AuthMode.SIGN_IN else AuthMode.SIGN_UP 
+                    },
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(
-                        if (isSignUp) "Already have an account? Sign In" 
+                        if (mode == AuthMode.SIGN_UP) "Already have an account? Sign In" 
                         else "Don't have an account? Sign Up"
                     )
                 }
