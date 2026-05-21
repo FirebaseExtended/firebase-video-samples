@@ -5,6 +5,11 @@ import OSLog
 private let logger = Logger(subsystem: "com.google.firebase.example.MakeItSo", category: "Sharing")
 
 struct TaskListView: View {
+  private struct SubscriptionKey: Equatable {
+    let userId: String?
+    let listId: String?
+  }
+
   var taskList: TaskList? = nil
   @State private var repository = TaskRepository()
   @State private var isPresentingAddTask = false
@@ -47,7 +52,7 @@ struct TaskListView: View {
         }
       }
     }
-    .task(id: repository.user) {
+    .task(id: SubscriptionKey(userId: repository.user?.uid, listId: taskList?.id)) {
       if let user = repository.user {
         print("TaskListView: Subscribing for user \(user.uid) and list \(taskList?.id ?? "nil")")
         repository.subscribe(userId: user.uid, listId: taskList?.id)
@@ -59,16 +64,10 @@ struct TaskListView: View {
       AddTaskView { task in
         var newTask = task
         newTask.listId = taskList?.id
-        // Optimistic update: Add locally first
-        repository.tasks.append(newTask)
         Task {
           do {
             try await repository.addTask(newTask)
           } catch {
-            // Rollback if the add fails
-            if let index = repository.tasks.firstIndex(where: { $0.title == newTask.title && $0.userId == nil }) {
-              repository.tasks.remove(at: index)
-            }
             showError(error)
           }
         }
