@@ -75,7 +75,7 @@ class NutritionViewModel {
 
     let ai = FirebaseAI.firebaseAI(backend: .googleAI())
     self.model = ai.generativeModel(
-      modelName: "gemini-3-pro-preview",
+      modelName: "gemini-3-flash-preview",
       generationConfig: generationConfig
     )
   }
