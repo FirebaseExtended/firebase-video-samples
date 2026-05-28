@@ -11,6 +11,7 @@ class TaskListRepository {
   private var db = Firestore.firestore()
   private var listenerRegistration: ListenerRegistration?
   private var authStateListenerHandle: AuthStateDidChangeListenerHandle?
+  private var currentUserId: String?
 
   init() {
     authStateListenerHandle = Auth.auth().addStateDidChangeListener { [weak self] auth, user in
@@ -35,26 +36,32 @@ class TaskListRepository {
   }
 
   @MainActor func subscribe(userId: String) {
-    if listenerRegistration == nil {
-      let query = db.collection("lists")
-        .whereFilter(Filter.orFilter([
-          Filter.whereField("userId", isEqualTo: userId),
-          Filter.whereField("sharedWith", arrayContains: userId)
-        ]))
+    if userId == currentUserId && listenerRegistration != nil {
+      return
+    }
 
-      listenerRegistration = query.addSnapshotListener { [weak self] querySnapshot, error in
-        if let error = error {
-          print("Error subscribing to lists: \(error.localizedDescription)")
-          return
-        }
+    unsubscribe()
 
-        guard let documents = querySnapshot?.documents else { return }
-        let groups = documents.compactMap { try? $0.data(as: TaskList.self) }
-          .sorted { $0.title < $1.title }
+    currentUserId = userId
 
-        Task { @MainActor in
-          self?.groups = groups
-        }
+    let query = db.collection("lists")
+      .whereFilter(Filter.orFilter([
+        Filter.whereField("userId", isEqualTo: userId),
+        Filter.whereField("sharedWith", arrayContains: userId)
+      ]))
+
+    listenerRegistration = query.addSnapshotListener { [weak self] querySnapshot, error in
+      if let error = error {
+        print("Error subscribing to lists: \(error.localizedDescription)")
+        return
+      }
+
+      guard let documents = querySnapshot?.documents else { return }
+      let groups = documents.compactMap { try? $0.data(as: TaskList.self) }
+        .sorted { $0.title < $1.title }
+
+      Task { @MainActor in
+        self?.groups = groups
       }
     }
   }
@@ -62,6 +69,7 @@ class TaskListRepository {
   func unsubscribe() {
     listenerRegistration?.remove()
     listenerRegistration = nil
+    currentUserId = nil
   }
 
   @MainActor func addList(_ list: TaskList) async throws {
