@@ -1,3 +1,4 @@
+import FirebaseCore
 import FirebaseAuth
 import SwiftUI
 import OSLog
@@ -34,9 +35,13 @@ struct TaskListView: View {
         }
         .navigationTitle(taskList?.title ?? "Tasks")
         .toolbar {
-          if let list = taskList, let listId = list.id, let token = list.shareToken, let url = URL(string: "https://make-it-so-live-ccdr-01.web.app/join/\(listId)?token=\(token)") {
+          if let list = taskList,
+             let listId = list.id,
+             let token = list.shareToken,
+             let projectId = FirebaseApp.app()?.options.projectID,
+             let url = URL(string: "https://\(projectId).web.app/join/\(listId)?token=\(token)") {
             ToolbarItem(placement: .primaryAction) {
-              ShareLink(item: url, message: Text("Join my list: \(list.title)"))
+              ShareLink(item: url.absoluteString)
                 .simultaneousGesture(TapGesture().onEnded {
                   logger.log("SHARE_LINK_URL: \(url.absoluteString, privacy: .public)")
                 })
@@ -79,8 +84,11 @@ struct TaskListView: View {
       Text(message)
     }
     .onAppear {
-      if let list = taskList, let listId = list.id, let token = list.shareToken {
-        let url = "https://make-it-so-live-ccdr-01.web.app/join/\(listId)?token=\(token)"
+      if let list = taskList,
+         let listId = list.id,
+         let token = list.shareToken,
+         let projectId = FirebaseApp.app()?.options.projectID {
+        let url = "https://\(projectId).web.app/join/\(listId)?token=\(token)"
         logger.log("SHARE_LINK_URL: \(url, privacy: .public)")
       }
     }
