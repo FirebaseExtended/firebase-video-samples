@@ -43,6 +43,7 @@ firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "fir
 firebase-auth = { module = "com.google.firebase:firebase-auth" }
 firebase-firestore = { module = "com.google.firebase:firebase-firestore" }
 firebase-functions = { module = "com.google.firebase:firebase-functions" }
+firebase-ai = { module = "com.google.firebase:firebase-ai" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

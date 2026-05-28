@@ -43,7 +43,11 @@ fun NewTaskScreen(
 ) {
     NewTaskScreenContent(
         navigateBack = navigateBack,
-        onSave = viewModel::saveTask
+        onSave = viewModel::saveTask,
+        isAnalyzing = viewModel.isAnalyzing.value,
+        generatedSubtasks = viewModel.generatedSubtasks,
+        onBreakdown = viewModel::breakDownTask,
+        onSaveMultiple = viewModel::saveMultipleTasks
     )
 }
 
@@ -51,7 +55,11 @@ fun NewTaskScreen(
 @Composable
 fun NewTaskScreenContent(
     navigateBack: () -> Unit = {},
-    onSave: (Task, () -> Unit) -> Unit = { _, _ -> }
+    onSave: (Task, () -> Unit) -> Unit = { _, _ -> },
+    isAnalyzing: Boolean = false,
+    generatedSubtasks: List<String> = emptyList(),
+    onBreakdown: (String) -> Unit = {},
+    onSaveMultiple: (List<Task>, () -> Unit) -> Unit = { _, _ -> }
 ) {
     var title by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
@@ -63,6 +71,13 @@ fun NewTaskScreenContent(
 
     val datePickerState = rememberDatePickerState()
     val timePickerState = rememberTimePickerState()
+
+    val selectedSuggestions = remember { mutableStateListOf<String>() }
+
+    LaunchedEffect(generatedSubtasks.size) {
+        selectedSuggestions.clear()
+        selectedSuggestions.addAll(generatedSubtasks)
+    }
 
     if (showDatePicker) {
         DatePickerDialog(
@@ -148,27 +163,53 @@ fun NewTaskScreenContent(
                 style = MaterialTheme.typography.labelMedium.copy(color = HighlightBlue, fontWeight = FontWeight.Bold)
             )
             Spacer(modifier = Modifier.height(8.dp))
-            TextField(
-                value = title,
-                onValueChange = { title = it },
-                placeholder = { 
-                    Text(
-                        "What needs to be done?", 
-                        style = MaterialTheme.typography.headlineMedium.copy(color = Color.Gray)
-                    ) 
-                },
-                textStyle = MaterialTheme.typography.headlineMedium.copy(
-                    color = if (isSystemInDarkTheme()) Color.White else DeepDark
-                ),
-                colors = TextFieldDefaults.colors(
-                    focusedContainerColor = Color.Transparent,
-                    unfocusedContainerColor = Color.Transparent,
-                    focusedIndicatorColor = Color(0xFF2B374A),
-                    unfocusedIndicatorColor = Color(0xFF2B374A),
-                    cursorColor = HighlightBlue
-                ),
-                modifier = Modifier.fillMaxWidth()
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                TextField(
+                    value = title,
+                    onValueChange = { title = it },
+                    placeholder = { 
+                        Text(
+                            "What needs to be done?", 
+                            style = MaterialTheme.typography.headlineMedium.copy(color = Color.Gray)
+                        ) 
+                    },
+                    textStyle = MaterialTheme.typography.headlineMedium.copy(
+                        color = if (isSystemInDarkTheme()) Color.White else DeepDark
+                    ),
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = Color.Transparent,
+                        unfocusedContainerColor = Color.Transparent,
+                        focusedIndicatorColor = Color(0xFF2B374A),
+                        unfocusedIndicatorColor = Color(0xFF2B374A),
+                        cursorColor = HighlightBlue
+                    ),
+                    modifier = Modifier.weight(1f)
+                )
+
+                if (title.isNotEmpty()) {
+                    IconButton(
+                        onClick = { onBreakdown(title) },
+                        enabled = !isAnalyzing
+                    ) {
+                        if (isAnalyzing) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(24.dp),
+                                strokeWidth = 2.dp,
+                                color = HighlightBlue
+                            )
+                        } else {
+                            Icon(
+                                imageVector = Icons.Default.Create,
+                                contentDescription = "AI Breakdown",
+                                tint = HighlightBlue
+                            )
+                        }
+                    }
+                }
+            }
 
             Spacer(modifier = Modifier.height(32.dp))
 
@@ -202,6 +243,58 @@ fun NewTaskScreenContent(
                     .fillMaxWidth()
                     .height(120.dp)
             )
+
+            if (generatedSubtasks.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(24.dp))
+                Card(
+                    colors = CardDefaults.cardColors(containerColor = Color(0xFF161F2C)),
+                    shape = RoundedCornerShape(16.dp),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Text(
+                            "AI SUGGESTED TASKS",
+                            style = MaterialTheme.typography.labelMedium.copy(
+                                color = HighlightBlue,
+                                fontWeight = FontWeight.Bold
+                            )
+                        )
+                        Spacer(modifier = Modifier.height(12.dp))
+                        generatedSubtasks.forEach { suggestion ->
+                            val isChecked = selectedSuggestions.contains(suggestion)
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .clickable {
+                                        if (isChecked) selectedSuggestions.remove(suggestion)
+                                        else selectedSuggestions.add(suggestion)
+                                    }
+                                    .padding(vertical = 8.dp, horizontal = 4.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Checkbox(
+                                    checked = isChecked,
+                                    onCheckedChange = { checked ->
+                                        if (checked == true) selectedSuggestions.add(suggestion)
+                                        else selectedSuggestions.remove(suggestion)
+                                    },
+                                    colors = CheckboxDefaults.colors(
+                                        checkedColor = HighlightBlue,
+                                        uncheckedColor = Color.Gray
+                                    )
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(
+                                    text = suggestion,
+                                    color = Color.White,
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
+                            }
+                        }
+                    }
+                }
+            }
 
             Spacer(modifier = Modifier.height(32.dp))
 
@@ -260,13 +353,25 @@ fun NewTaskScreenContent(
 
             Button(
                 onClick = {
-                    val task = Task(
-                        title = title,
-                        description = description,
-                        priority = selectedPriority,
-                        dueDate = dueDate
-                    )
-                    onSave(task, navigateBack)
+                    if (selectedSuggestions.isEmpty()) {
+                        val task = Task(
+                            title = title,
+                            description = description,
+                            priority = selectedPriority,
+                            dueDate = dueDate
+                        )
+                        onSave(task, navigateBack)
+                    } else {
+                        val tasksToSave = selectedSuggestions.map { taskTitle ->
+                            Task(
+                                title = taskTitle,
+                                description = "",
+                                priority = selectedPriority,
+                                dueDate = dueDate
+                            )
+                        }
+                        onSaveMultiple(tasksToSave, navigateBack)
+                    }
                 },
                 modifier = Modifier
                     .fillMaxWidth()
