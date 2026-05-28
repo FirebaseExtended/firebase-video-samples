@@ -14,6 +14,12 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.Create
+import androidx.compose.animation.core.*
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.material3.*
 import androidx.compose.ui.res.painterResource
 import com.google.firebase.example.makeitso.R
@@ -204,10 +210,35 @@ fun NewTaskScreenContent(
                                 color = HighlightBlue
                             )
                         } else {
+                            val infiniteTransition = rememberInfiniteTransition(label = "Sparkle")
+                            val animatedOffset by infiniteTransition.animateFloat(
+                                initialValue = 0f,
+                                targetValue = 100f,
+                                animationSpec = infiniteRepeatable(
+                                    animation = tween(durationMillis = 2000, easing = LinearEasing),
+                                    repeatMode = RepeatMode.Reverse
+                                ),
+                                label = "Offset"
+                            )
+                            val brush = Brush.linearGradient(
+                                colors = listOf(
+                                    Color(0xFF8B5CF6),
+                                    Color(0xFFEC4899),
+                                    Color(0xFF3B82F6),
+                                    Color(0xFF8B5CF6)
+                                ),
+                                start = Offset(0f, 0f),
+                                end = Offset(animatedOffset + 50f, animatedOffset + 50f)
+                            )
                             Icon(
                                 painter = painterResource(id = R.drawable.ic_sparkles),
                                 contentDescription = "AI Breakdown",
-                                tint = HighlightBlue
+                                modifier = Modifier
+                                    .graphicsLayer(alpha = 0.99f)
+                                    .drawWithContent {
+                                        drawContent()
+                                        drawRect(brush = brush, blendMode = BlendMode.SrcAtop)
+                                    }
                             )
                         }
                     }

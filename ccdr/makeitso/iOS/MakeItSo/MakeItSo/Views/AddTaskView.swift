@@ -13,6 +13,7 @@ struct AddTaskView: View {
   @State private var suggestedTasks: [String] = []
   @State private var selectedSuggestions: Set<String> = []
   @State private var isAnalyzing = false
+  @State private var animateGradient = false
   private let aiService = AITaskService()
 
   var body: some View {
@@ -29,7 +30,19 @@ struct AddTaskView: View {
                     .controlSize(.small)
                 } else {
                   Image(systemName: "sparkles")
-                    .foregroundStyle(.purple)
+                    .font(.title3)
+                    .foregroundStyle(
+                      LinearGradient(
+                        colors: [.purple, .pink, .blue, .purple],
+                        startPoint: animateGradient ? .topLeading : .bottomTrailing,
+                        endPoint: animateGradient ? .bottomTrailing : .topLeading
+                      )
+                    )
+                    .onAppear {
+                      withAnimation(.linear(duration: 2.0).repeatForever(autoreverses: true)) {
+                        animateGradient.toggle()
+                      }
+                    }
                 }
               }
               .disabled(isAnalyzing)
