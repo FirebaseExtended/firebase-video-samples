@@ -4,3 +4,11 @@ buildServer.json
 
 # Local build artifacts
 .build/
+
+# Firebase cache and CLI files
+.firebase/
+.antigravitycli/
+iOS/MakeItSo/.antigravitycli/
+scratch/
+screenshot.png
+
