@@ -16,7 +16,7 @@ navigationCompose = "2.9.6"
 constraintlayoutCompose = "1.1.1"
 kotlinxSerializationJson = "1.9.0"
 hiltAndroidCompiler = "2.57.2"
-firebaseBom = "34.9.0"
+firebaseBom = "34.13.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }

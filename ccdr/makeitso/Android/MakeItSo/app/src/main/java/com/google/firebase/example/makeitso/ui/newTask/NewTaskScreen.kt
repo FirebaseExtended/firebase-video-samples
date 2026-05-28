@@ -1,6 +1,7 @@
 package com.google.firebase.example.makeitso.ui.newTask
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -14,6 +15,8 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.Create
 import androidx.compose.material3.*
+import androidx.compose.ui.res.painterResource
+import com.google.firebase.example.makeitso.R
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -202,7 +205,7 @@ fun NewTaskScreenContent(
                             )
                         } else {
                             Icon(
-                                imageVector = Icons.Default.Create,
+                                painter = painterResource(id = R.drawable.ic_sparkles),
                                 contentDescription = "AI Breakdown",
                                 tint = HighlightBlue
                             )

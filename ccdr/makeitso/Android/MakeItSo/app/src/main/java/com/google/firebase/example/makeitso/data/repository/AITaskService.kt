@@ -1,12 +1,12 @@
 package com.google.firebase.example.makeitso.data.repository
 
 import com.google.firebase.Firebase
-import com.google.firebase.ai.GenerativeBackend
 import com.google.firebase.ai.ai
+import com.google.firebase.ai.type.GenerativeBackend
 import com.google.firebase.ai.type.generationConfig
 import com.google.firebase.ai.type.Schema
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.decodeFromString
+import kotlinx.serialization.decodeFromString
 import javax.inject.Inject
 
 class AITaskService @Inject constructor() {

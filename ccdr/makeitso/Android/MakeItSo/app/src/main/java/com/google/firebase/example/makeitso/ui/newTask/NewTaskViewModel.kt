@@ -25,7 +25,6 @@ class NewTaskViewModel @Inject constructor(
         private set
 
     val generatedSubtasks = mutableStateListOf<String>()
-        private set
 
     fun breakDownTask(title: String) {
         launchCatching {
