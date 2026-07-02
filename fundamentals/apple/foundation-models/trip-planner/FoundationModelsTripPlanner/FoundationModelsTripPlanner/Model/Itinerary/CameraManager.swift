@@ -52,6 +52,7 @@ final class CameraManager: NSObject, AVCaptureVideoDataOutputSampleBufferDelegat
         
         sessionQueue.async {
             self.session.beginConfiguration()
+            self.session.sessionPreset = .vga640x480
             
             if !self.setupVideoInput() {
                 self.session.commitConfiguration()

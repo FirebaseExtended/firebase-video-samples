@@ -71,7 +71,7 @@ actor AudioManager {
     private func installMicrophoneTap(on inputNode: AVAudioInputNode, format hwInputFormat: AVAudioFormat, converter: AVAudioConverter, continuation: AsyncStream<(Data, Float)>.Continuation) {
         let targetFormat = self.inputFormat
         
-        inputNode.installTap(onBus: 0, bufferSize: 4096, format: hwInputFormat) { buffer, time in
+        inputNode.installTap(onBus: 0, bufferSize: 16384, format: hwInputFormat) { buffer, time in
             // Calculate RMS from original float buffer before converting to Int16
             var rms: Float = 0
             if let channelData = buffer.floatChannelData?[0] {

@@ -56,7 +56,12 @@ final class LiveItineraryService {
             self.liveSession = session
             
             // 2. Start Hardware
-            try await mediaManager.startRecording(to: session, isMuted: isMicrophoneMuted, isPaused: isPaused, currentSpeaker: currentSpeaker) { [weak self] isUserSpeaking in
+            try await mediaManager.startRecording(
+                to: session,
+                isMuted: { [weak self] in self?.isMicrophoneMuted ?? false },
+                isPaused: { [weak self] in self?.isPaused ?? false },
+                currentSpeaker: { [weak self] in self?.currentSpeaker ?? .idle }
+            ) { [weak self] isUserSpeaking in
                 self?.updateSpeakerState(isUserSpeaking: isUserSpeaking)
             }
             
@@ -97,7 +102,7 @@ final class LiveItineraryService {
     
     func startVideoStreaming(from cameraManager: CameraManager) {
         guard let liveSession else { return }
-        mediaManager.startVideoStreaming(from: cameraManager, session: liveSession, isPaused: isPaused)
+        mediaManager.startVideoStreaming(from: cameraManager, session: liveSession, isPaused: { [weak self] in self?.isPaused ?? false })
     }
     
     func stopVideoStreaming(from cameraManager: CameraManager) {
@@ -165,7 +170,7 @@ final class LiveItineraryService {
     }
     
     private func initializeLiveSession(persona: String) async throws -> LiveSession {
-        let ai = FirebaseAI.firebaseAI(backend: .vertexAI(location: "us-central1"))
+        let ai = FirebaseAI.firebaseAI(backend: .vertexAI(location: "europe-west1"))
         
         let modifyItineraryTool = Tool.functionDeclarations([
             FunctionDeclaration(
@@ -272,10 +277,12 @@ final class LiveItineraryService {
         }
         
         if let userTx = content.inputAudioTranscription?.text {
+            print("RECEIVED USER TRANSCRIPT: \(userTx)")
             appendMessage(text: userTx, isUser: true)
         }
         
         if let aiTx = content.outputAudioTranscription?.text {
+            print("RECEIVED AI TRANSCRIPT: \(aiTx)")
             appendMessage(text: aiTx, isUser: false)
         }
     }
