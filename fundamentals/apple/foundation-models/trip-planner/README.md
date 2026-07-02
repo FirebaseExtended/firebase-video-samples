@@ -24,7 +24,7 @@ To run this sample app, you need to connect it to a Firebase project and configu
 ### Step 2: Register your iOS App with Firebase
 
 1. In the project overview of the Firebase console, click the **iOS+** icon to launch the setup assistant.
-2. Enter your app's **Bundle Identifier**: `com.example.apple-samplecode.FoundationModelsTripPlanner.peterfriese`.
+2. Enter your app's **Bundle Identifier**: `com.google.firebase.examples.foundationmodels.TripPlanner`.
 3. Click **Register app**.
 
 ### Step 3: Download and Add `GoogleService-Info.plist`

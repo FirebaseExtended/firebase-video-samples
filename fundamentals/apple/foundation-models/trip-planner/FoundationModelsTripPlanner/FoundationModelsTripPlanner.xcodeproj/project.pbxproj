@@ -23,7 +23,6 @@
 /* Begin PBXFileReference section */
 		5EE18ED9DD0EBE12A9EA0B91 /* LICENSE.txt */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; path = LICENSE.txt; sourceTree = "<group>"; };
 		9AFBAAF37D3D2CD5D83C356B /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
-		C2CF23B4E783FC5A6E4F1639 /* SampleCode.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = SampleCode.xcconfig; path = ../Configuration/SampleCode.xcconfig; sourceTree = "<group>"; };
 		D82EA0F52D5692FD00493877 /* FoundationModelsTripPlanner.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FoundationModelsTripPlanner.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -70,14 +69,6 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		331AAE968A03CD8D4B00A770 /* Configuration */ = {
-			isa = PBXGroup;
-			children = (
-				C2CF23B4E783FC5A6E4F1639 /* SampleCode.xcconfig */,
-			);
-			name = Configuration;
-			sourceTree = "<group>";
-		};
 		535B00A47148F2402431D659 /* LICENSE */ = {
 			isa = PBXGroup;
 			children = (
@@ -101,7 +92,6 @@
 				D82EA0F72D5692FD00493877 /* FoundationModelsTripPlanner */,
 				B9D942512DB17CDB0021CFA6 /* Frameworks */,
 				D82EA0F62D5692FD00493877 /* Products */,
-				331AAE968A03CD8D4B00A770 /* Configuration */,
 				535B00A47148F2402431D659 /* LICENSE */,
 			);
 			sourceTree = "<group>";
@@ -197,7 +187,6 @@
 /* Begin XCBuildConfiguration section */
 		D82EA0FF2D5692FE00493877 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = C2CF23B4E783FC5A6E4F1639 /* SampleCode.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -262,7 +251,6 @@
 		};
 		D82EA1002D5692FE00493877 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = C2CF23B4E783FC5A6E4F1639 /* SampleCode.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -319,7 +307,6 @@
 		};
 		D82EA1022D5692FE00493877 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = C2CF23B4E783FC5A6E4F1639 /* SampleCode.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -328,7 +315,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = YES;
-				DEVELOPMENT_TEAM = YGAZHQXHH4;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_INCOMING_NETWORK_CONNECTIONS = NO;
@@ -367,7 +354,7 @@
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 27.0;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.example.apple-samplecode.FoundationModelsTripPlanner.peterfriese";
+				PRODUCT_BUNDLE_IDENTIFIER = com.google.firebase.examples.foundationmodels.TripPlanner;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				REGISTER_APP_GROUPS = YES;
@@ -385,7 +372,6 @@
 		};
 		D82EA1032D5692FE00493877 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = C2CF23B4E783FC5A6E4F1639 /* SampleCode.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -394,7 +380,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = YES;
-				DEVELOPMENT_TEAM = YGAZHQXHH4;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_INCOMING_NETWORK_CONNECTIONS = NO;
@@ -433,7 +419,7 @@
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 27.0;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.example.apple-samplecode.FoundationModelsTripPlanner.peterfriese";
+				PRODUCT_BUNDLE_IDENTIFIER = com.google.firebase.examples.foundationmodels.TripPlanner;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				REGISTER_APP_GROUPS = YES;
