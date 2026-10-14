@@ -59,6 +59,8 @@ class _GroceryListScreenState extends State<GroceryListScreen> {
 
   List<GroceryItem> _groceries = const [];
   StreamSubscription<List<GroceryItem>>? _groceriesSub;
+  StreamSubscription<Object?>? _authSub;
+  String _subscribedUid = '';
 
   String get _userId =>
       widget.repositories.authRepository.currentUser?.uid ?? '';
@@ -66,20 +68,37 @@ class _GroceryListScreenState extends State<GroceryListScreen> {
   @override
   void initState() {
     super.initState();
-    _loadGroceries();
+    _loadGroceries(_userId);
+    _authSub = widget.repositories.authRepository.authStateChanges.listen(
+      (user) {
+        final uid = user?.uid ?? '';
+        if (uid != _subscribedUid) {
+          _loadGroceries(uid);
+        }
+      },
+    );
   }
 
   @override
   void dispose() {
+    _authSub?.cancel();
     _groceriesSub?.cancel();
     _inputController.dispose();
     _storeFinderState.dispose();
     super.dispose();
   }
 
-  void _loadGroceries() {
-    final uid = _userId;
-    if (uid.isEmpty) return;
+  void _loadGroceries(String uid) {
+    _groceriesSub?.cancel();
+    _subscribedUid = uid;
+    if (uid.isEmpty) {
+      if (mounted) {
+        setState(() {
+          _groceries = const [];
+        });
+      }
+      return;
+    }
 
     _groceriesSub = widget.repositories.databaseRepository
         .getGroceriesStream(uid)
@@ -155,7 +174,7 @@ class _GroceryListScreenState extends State<GroceryListScreen> {
       ),
       builder: (sheetContext) {
         return _StoreFinderBottomSheet(
-          uiStateenable: _storeFinderState,
+          uiStateListenable: _storeFinderState,
           onRetry: _fetchLocationAndStores,
         );
       },
@@ -455,17 +474,17 @@ class _GroceryCard extends StatelessWidget {
 
 class _StoreFinderBottomSheet extends StatelessWidget {
   const _StoreFinderBottomSheet({
-    required this.uiStateenable,
+    required this.uiStateListenable,
     required this.onRetry,
   });
 
-  final ValueListenable<StoreFinderUiState> uiStateenable;
+  final ValueListenable<StoreFinderUiState> uiStateListenable;
   final VoidCallback onRetry;
 
   @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder<StoreFinderUiState>(
-      valueListenable: uiStateenable,
+      valueListenable: uiStateListenable,
       builder: (context, uiState, _) {
         return ConstrainedBox(
           constraints: BoxConstraints(

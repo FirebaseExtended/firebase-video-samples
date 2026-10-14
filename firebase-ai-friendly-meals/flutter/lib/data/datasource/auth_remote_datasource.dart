@@ -9,6 +9,8 @@ class AuthRemoteDataSource {
 
   fb_auth.User? get currentUser => _auth.currentUser;
 
+  Stream<fb_auth.User?> get authStateChanges => _auth.authStateChanges();
+
   Future<AppUser> createAnonymousAccount() async {
     final authResult = await _auth.signInAnonymously();
     return AppUser(authId: authResult.user?.uid ?? '');

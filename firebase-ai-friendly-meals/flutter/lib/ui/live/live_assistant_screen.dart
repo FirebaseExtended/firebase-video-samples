@@ -178,13 +178,32 @@ class _LiveAssistantScreenState extends State<LiveAssistantScreen> {
       final yBytes = Uint8List.fromList(yPlane.bytes);
       final yRowStride = yPlane.bytesPerRow;
 
+      Uint8List? uBytes;
+      Uint8List? vBytes;
+      int uvRowStride = 0;
+      int uvPixelStride = 1;
+      if (image.planes.length >= 3) {
+        uBytes = Uint8List.fromList(image.planes[1].bytes);
+        vBytes = Uint8List.fromList(image.planes[2].bytes);
+        uvRowStride = image.planes[1].bytesPerRow;
+        uvPixelStride = image.planes[1].bytesPerPixel ?? 1;
+      }
+
+      final sensorOrientation =
+          _cameraController?.description.sensorOrientation ?? 0;
+
       return compute(
-        _encodeGrayscaleOrYuvFrame,
+        _encodeYuvFrame,
         _FrameData(
           width: width,
           height: height,
           yBytes: yBytes,
           yRowStride: yRowStride,
+          uBytes: uBytes,
+          vBytes: vBytes,
+          uvRowStride: uvRowStride,
+          uvPixelStride: uvPixelStride,
+          rotationDegrees: sensorOrientation,
         ),
       );
     } catch (e) {
@@ -193,16 +212,41 @@ class _LiveAssistantScreenState extends State<LiveAssistantScreen> {
     }
   }
 
-  static Uint8List _encodeGrayscaleOrYuvFrame(_FrameData data) {
-    final buffer = img.Image(width: data.width, height: data.height);
+  static Uint8List _encodeYuvFrame(_FrameData data) {
+    img.Image buffer = img.Image(width: data.width, height: data.height);
+    final hasChroma = data.uBytes != null && data.vBytes != null;
+
     for (int y = 0; y < data.height; y++) {
-      final rowOffset = y * data.yRowStride;
+      final yRowOffset = y * data.yRowStride;
+      final uvRowOffset = (y >> 1) * data.uvRowStride;
       for (int x = 0; x < data.width; x++) {
-        final index = rowOffset + x;
-        final lum = index < data.yBytes.length ? data.yBytes[index] : 0;
-        buffer.setPixelRgb(x, y, lum, lum, lum);
+        final yIndex = yRowOffset + x;
+        final yVal = yIndex < data.yBytes.length ? data.yBytes[yIndex] : 0;
+
+        if (!hasChroma) {
+          buffer.setPixelRgb(x, y, yVal, yVal, yVal);
+        } else {
+          final uvIndex = uvRowOffset + (x >> 1) * data.uvPixelStride;
+          final uVal =
+              (uvIndex < data.uBytes!.length ? data.uBytes![uvIndex] : 128) -
+                  128;
+          final vVal =
+              (uvIndex < data.vBytes!.length ? data.vBytes![uvIndex] : 128) -
+                  128;
+
+          final r = (yVal + 1.370705 * vVal).round().clamp(0, 255);
+          final g =
+              (yVal - 0.337633 * uVal - 0.698001 * vVal).round().clamp(0, 255);
+          final b = (yVal + 1.732446 * uVal).round().clamp(0, 255);
+          buffer.setPixelRgb(x, y, r, g, b);
+        }
       }
     }
+
+    if (data.rotationDegrees != 0 && data.rotationDegrees % 90 == 0) {
+      buffer = img.copyRotate(buffer, angle: data.rotationDegrees);
+    }
+
     return Uint8List.fromList(img.encodeJpg(buffer, quality: 80));
   }
 
@@ -234,6 +278,13 @@ class _LiveAssistantScreenState extends State<LiveAssistantScreen> {
       (response) async {
         final message = response.message;
         if (message is LiveServerContent) {
+          if (message.interrupted == true) {
+            _incomingAudioBuffer.clear();
+            _playbackQueue.clear();
+            await _audioComponent.stop();
+            _isPlayingAudio = false;
+            return;
+          }
           final parts = message.modelTurn?.parts ?? const [];
           for (final part in parts) {
             if (part is InlineDataPart &&
@@ -272,6 +323,8 @@ class _LiveAssistantScreenState extends State<LiveAssistantScreen> {
             encoder: AudioEncoder.pcm16bits,
             sampleRate: 16000,
             numChannels: 1,
+            echoCancel: true,
+            autoGain: true,
           ),
         );
         _micSubscription = micStream.listen((chunk) {
@@ -473,10 +526,20 @@ class _FrameData {
     required this.height,
     required this.yBytes,
     required this.yRowStride,
+    required this.uBytes,
+    required this.vBytes,
+    required this.uvRowStride,
+    required this.uvPixelStride,
+    required this.rotationDegrees,
   });
 
   final int width;
   final int height;
   final Uint8List yBytes;
   final int yRowStride;
+  final Uint8List? uBytes;
+  final Uint8List? vBytes;
+  final int uvRowStride;
+  final int uvPixelStride;
+  final int rotationDegrees;
 }

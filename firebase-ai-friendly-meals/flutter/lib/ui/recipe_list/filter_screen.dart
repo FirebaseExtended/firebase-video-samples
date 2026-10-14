@@ -209,32 +209,85 @@ class _FilterScreenState extends State<FilterScreen> {
                             children: [
                               Row(
                                 children: [
-                                  Radio<SortByFilter>(
-                                    value: SortByFilter.defaultSort,
-                                    activeColor: AppColors.teal,
+                                  InkWell(
+                                    borderRadius: BorderRadius.circular(8),
+                                    onTap: () => widget.controller
+                                        .updateSortBy(SortByFilter.defaultSort),
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(right: 8),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          const Radio<SortByFilter>(
+                                            value: SortByFilter.defaultSort,
+                                            activeColor: AppColors.teal,
+                                          ),
+                                          Text(SortByFilter.defaultSort.title),
+                                        ],
+                                      ),
+                                    ),
                                   ),
-                                  Text(SortByFilter.defaultSort.title),
-                                  const SizedBox(width: 24),
-                                  Radio<SortByFilter>(
-                                    value: SortByFilter.rating,
-                                    activeColor: AppColors.teal,
+                                  const SizedBox(width: 16),
+                                  InkWell(
+                                    borderRadius: BorderRadius.circular(8),
+                                    onTap: () => widget.controller
+                                        .updateSortBy(SortByFilter.rating),
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(right: 8),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          const Radio<SortByFilter>(
+                                            value: SortByFilter.rating,
+                                            activeColor: AppColors.teal,
+                                          ),
+                                          Text(SortByFilter.rating.title),
+                                        ],
+                                      ),
+                                    ),
                                   ),
-                                  Text(SortByFilter.rating.title),
                                 ],
                               ),
                               Row(
                                 children: [
-                                  Radio<SortByFilter>(
-                                    value: SortByFilter.alphabetical,
-                                    activeColor: AppColors.teal,
+                                  InkWell(
+                                    borderRadius: BorderRadius.circular(8),
+                                    onTap: () => widget.controller.updateSortBy(
+                                      SortByFilter.alphabetical,
+                                    ),
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(right: 8),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          const Radio<SortByFilter>(
+                                            value: SortByFilter.alphabetical,
+                                            activeColor: AppColors.teal,
+                                          ),
+                                          Text(SortByFilter.alphabetical.title),
+                                        ],
+                                      ),
+                                    ),
                                   ),
-                                  Text(SortByFilter.alphabetical.title),
-                                  const SizedBox(width: 24),
-                                  Radio<SortByFilter>(
-                                    value: SortByFilter.popularity,
-                                    activeColor: AppColors.teal,
+                                  const SizedBox(width: 16),
+                                  InkWell(
+                                    borderRadius: BorderRadius.circular(8),
+                                    onTap: () => widget.controller
+                                        .updateSortBy(SortByFilter.popularity),
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(right: 8),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          const Radio<SortByFilter>(
+                                            value: SortByFilter.popularity,
+                                            activeColor: AppColors.teal,
+                                          ),
+                                          Text(SortByFilter.popularity.title),
+                                        ],
+                                      ),
+                                    ),
                                   ),
-                                  Text(SortByFilter.popularity.title),
                                 ],
                               ),
                             ],

@@ -15,7 +15,7 @@ class StorageRemoteDataSource {
   Future<String> addImage(Uint8List imageBytes) async {
     final processedBytes = await compute(_scaleAndCompressImage, imageBytes);
     final randomId = _uuid.v4();
-    final imagesRef = _storageRef.child('images/$randomId.webp');
+    final imagesRef = _storageRef.child('images/$randomId.jpg');
     await imagesRef.putData(
       processedBytes,
       SettableMetadata(contentType: 'image/jpeg'),

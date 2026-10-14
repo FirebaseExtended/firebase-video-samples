@@ -83,17 +83,10 @@ class AIRemoteDataSource {
         ),
       );
 
-      final rawText = response.text;
-      if (rawText == null || rawText.trim().isEmpty) {
+      final decoded = _extractJsonObject(response.text);
+      if (decoded == null) {
         return const [];
       }
-
-      final cleanJson = rawText
-          .replaceAll('```json', '')
-          .replaceAll('```', '')
-          .trim();
-
-      final decoded = jsonDecode(cleanJson) as Map<String, dynamic>;
       return StoreFinderResult.fromJson(decoded).stores;
     } catch (e) {
       debugPrint('Error finding stores with these ingredients: $e');
@@ -133,16 +126,10 @@ class AIRemoteDataSource {
       inputs: inputs,
     );
 
-    final rawText = response.text;
-    if (rawText == null || rawText.trim().isEmpty) {
+    final decoded = _extractJsonObject(response.text);
+    if (decoded == null) {
       return null;
     }
-
-    final cleanJson = rawText
-        .replaceAll('```json', '')
-        .replaceAll('```', '')
-        .trim();
-    final decoded = jsonDecode(cleanJson) as Map<String, dynamic>;
     return RecipeSchema.fromJson(decoded);
   }
 
@@ -172,17 +159,24 @@ class AIRemoteDataSource {
       },
     );
 
-    final rawText = response.text;
+    final decoded = _extractJsonObject(response.text);
+    if (decoded == null) {
+      return null;
+    }
+    return MealSchema.fromJson(decoded);
+  }
+
+  Map<String, dynamic>? _extractJsonObject(String? rawText) {
     if (rawText == null || rawText.trim().isEmpty) {
       return null;
     }
-
-    final cleanJson = rawText
-        .replaceAll('```json', '')
-        .replaceAll('```', '')
-        .trim();
-    final decoded = jsonDecode(cleanJson) as Map<String, dynamic>;
-    return MealSchema.fromJson(decoded);
+    final start = rawText.indexOf('{');
+    final end = rawText.lastIndexOf('}');
+    if (start == -1 || end == -1 || end < start) {
+      return null;
+    }
+    final cleanJson = rawText.substring(start, end + 1);
+    return jsonDecode(cleanJson) as Map<String, dynamic>;
   }
 
   Future<String> craftRecipePairing(

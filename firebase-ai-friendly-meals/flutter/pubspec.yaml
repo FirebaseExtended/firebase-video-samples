@@ -1,11 +1,11 @@
-name: myapp
+name: friendly_meals
 description: "FriendlyMeals Flutter sample app."
 publish_to: 'none'
 
 version: 1.0.0+1
 
 environment:
-  sdk: ^3.8.0-278.1.beta
+  sdk: ^3.8.0
 
 dependencies:
   flutter:

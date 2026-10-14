@@ -1,4 +1,4 @@
-import 'package:myapp/data/model/recipe.dart';
+import '../model/recipe.dart';
 
 class RecipeSchema {
   final String title;

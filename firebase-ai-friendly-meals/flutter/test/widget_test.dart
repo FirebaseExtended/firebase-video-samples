@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:myapp/data/model/grocery_item.dart';
-import 'package:myapp/data/model/recipe.dart';
-import 'package:myapp/data/schema/meal_schema.dart';
-import 'package:myapp/data/schema/recipe_schema.dart';
-import 'package:myapp/data/schema/store_schema.dart';
-import 'package:myapp/ui/shared/bottom_nav_bar.dart';
-import 'package:myapp/ui/shared/rating_button.dart';
-import 'package:myapp/ui/theme/app_theme.dart';
+import 'package:friendly_meals/data/model/grocery_item.dart';
+import 'package:friendly_meals/data/model/recipe.dart';
+import 'package:friendly_meals/data/schema/meal_schema.dart';
+import 'package:friendly_meals/data/schema/recipe_schema.dart';
+import 'package:friendly_meals/data/schema/store_schema.dart';
+import 'package:friendly_meals/ui/shared/bottom_nav_bar.dart';
+import 'package:friendly_meals/ui/shared/rating_button.dart';
+import 'package:friendly_meals/ui/theme/app_theme.dart';
 
 void main() {
   testWidgets('BottomNavBar renders all 4 FriendlyMeals tabs and switches tabs',

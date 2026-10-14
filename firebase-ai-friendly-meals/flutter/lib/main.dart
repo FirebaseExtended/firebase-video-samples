@@ -30,6 +30,15 @@ Future<void> main() async {
 
   final repositories = AppRepositories.create(remoteConfigService);
 
+  if (repositories.authRepository.currentUser == null) {
+    try {
+      final user = await repositories.authRepository.createAnonymousAccount();
+      await repositories.databaseRepository.addUser(user);
+    } catch (e) {
+      debugPrint('Error creating anonymous guest user on startup: $e');
+    }
+  }
+
   runApp(FriendlyMealsApp(repositories: repositories));
 }
 
@@ -48,24 +57,6 @@ Future<void> _initializeAppCheck() async {
   }
 }
 
-sealed class _SubRoute {
-  const _SubRoute();
-}
-
-class _FilterSubRoute extends _SubRoute {
-  const _FilterSubRoute();
-}
-
-class _RecipeSubRoute extends _SubRoute {
-  const _RecipeSubRoute(this.recipeId);
-  final String recipeId;
-}
-
-class _LiveAssistantSubRoute extends _SubRoute {
-  const _LiveAssistantSubRoute(this.recipeId);
-  final String recipeId;
-}
-
 class FriendlyMealsApp extends StatefulWidget {
   const FriendlyMealsApp({
     super.key,
@@ -81,9 +72,9 @@ class FriendlyMealsApp extends StatefulWidget {
 class _FriendlyMealsAppState extends State<FriendlyMealsApp> {
   final GlobalKey<ScaffoldMessengerState> _scaffoldMessengerKey =
       GlobalKey<ScaffoldMessengerState>();
+  final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
 
   BottomNavTab _selectedTab = BottomNavTab.generate;
-  final List<_SubRoute> _subRouteStack = [];
   late final RecipeListController _recipeListController;
 
   @override
@@ -106,36 +97,49 @@ class _FriendlyMealsAppState extends State<FriendlyMealsApp> {
   }
 
   void _onTabSelected(BottomNavTab tab) {
+    _navigatorKey.currentState?.popUntil((route) => route.isFirst);
     setState(() {
       _selectedTab = tab;
-      _subRouteStack.clear();
     });
   }
 
   void _openRecipeScreen(String recipeId) {
-    setState(() {
-      _subRouteStack.add(_RecipeSubRoute(recipeId));
-    });
+    _navigatorKey.currentState?.push(
+      MaterialPageRoute<void>(
+        builder: (_) => RecipeScreen(
+          key: ValueKey('recipe_$recipeId'),
+          recipeId: recipeId,
+          repositories: widget.repositories,
+          navigateBack: () => _navigatorKey.currentState?.maybePop(),
+          navigateToLiveAssistant: _openLiveAssistantScreen,
+        ),
+      ),
+    );
   }
 
   void _openFilterScreen() {
-    setState(() {
-      _subRouteStack.add(const _FilterSubRoute());
-    });
+    _navigatorKey.currentState?.push(
+      MaterialPageRoute<void>(
+        builder: (_) => FilterScreen(
+          controller: _recipeListController,
+          navigateBack: () => _navigatorKey.currentState?.maybePop(),
+        ),
+      ),
+    );
   }
 
   void _openLiveAssistantScreen(String recipeId) {
-    setState(() {
-      _subRouteStack.add(_LiveAssistantSubRoute(recipeId));
-    });
-  }
-
-  void _popSubRoute() {
-    if (_subRouteStack.isNotEmpty) {
-      setState(() {
-        _subRouteStack.removeLast();
-      });
-    }
+    _navigatorKey.currentState?.push(
+      MaterialPageRoute<void>(
+        builder: (_) => LiveAssistantScreen(
+          key: ValueKey('live_$recipeId'),
+          recipeId: recipeId,
+          repositories: widget.repositories,
+          navigateBack: () => _navigatorKey.currentState?.maybePop(),
+          showError: () => _showError('Error loading camera'),
+        ),
+      ),
+    );
   }
 
   @override
@@ -144,14 +148,13 @@ class _FriendlyMealsAppState extends State<FriendlyMealsApp> {
       title: 'Friendly Meals',
       debugShowCheckedModeBanner: false,
       scaffoldMessengerKey: _scaffoldMessengerKey,
+      navigatorKey: _navigatorKey,
       theme: FriendlyMealsTheme.lightTheme,
       home: PopScope(
-        canPop: _subRouteStack.isEmpty && _selectedTab == BottomNavTab.generate,
+        canPop: _selectedTab == BottomNavTab.generate,
         onPopInvokedWithResult: (didPop, _) {
           if (didPop) return;
-          if (_subRouteStack.isNotEmpty) {
-            _popSubRoute();
-          } else if (_selectedTab != BottomNavTab.generate) {
+          if (_selectedTab != BottomNavTab.generate) {
             setState(() {
               _selectedTab = BottomNavTab.generate;
             });
@@ -163,59 +166,31 @@ class _FriendlyMealsAppState extends State<FriendlyMealsApp> {
             selectedTab: _selectedTab,
             onTabSelected: _onTabSelected,
           ),
-          body: _buildBody(),
+          body: IndexedStack(
+            index: _selectedTab.index,
+            children: [
+              ScanMealScreen(
+                repositories: widget.repositories,
+                showError: _showError,
+              ),
+              GenerateScreen(
+                repositories: widget.repositories,
+                openRecipeScreen: _openRecipeScreen,
+                showError: _showError,
+              ),
+              RecipeListScreen(
+                controller: _recipeListController,
+                openRecipeScreen: _openRecipeScreen,
+                openFilterScreen: _openFilterScreen,
+              ),
+              GroceryListScreen(
+                repositories: widget.repositories,
+                showError: _showError,
+              ),
+            ],
+          ),
         ),
       ),
-    );
-  }
-
-  Widget _buildBody() {
-    if (_subRouteStack.isNotEmpty) {
-      final topRoute = _subRouteStack.last;
-      return switch (topRoute) {
-        _FilterSubRoute() => FilterScreen(
-            controller: _recipeListController,
-            navigateBack: _popSubRoute,
-          ),
-        _RecipeSubRoute(:final recipeId) => RecipeScreen(
-            key: ValueKey('recipe_$recipeId'),
-            recipeId: recipeId,
-            repositories: widget.repositories,
-            navigateBack: _popSubRoute,
-            navigateToLiveAssistant: _openLiveAssistantScreen,
-          ),
-        _LiveAssistantSubRoute(:final recipeId) => LiveAssistantScreen(
-            key: ValueKey('live_$recipeId'),
-            recipeId: recipeId,
-            repositories: widget.repositories,
-            navigateBack: _popSubRoute,
-            showError: () => _showError('Error loading camera'),
-          ),
-      };
-    }
-
-    return IndexedStack(
-      index: _selectedTab.index,
-      children: [
-        ScanMealScreen(
-          repositories: widget.repositories,
-          showError: _showError,
-        ),
-        GenerateScreen(
-          repositories: widget.repositories,
-          openRecipeScreen: _openRecipeScreen,
-          showError: _showError,
-        ),
-        RecipeListScreen(
-          controller: _recipeListController,
-          openRecipeScreen: _openRecipeScreen,
-          openFilterScreen: _openFilterScreen,
-        ),
-        GroceryListScreen(
-          repositories: widget.repositories,
-          showError: _showError,
-        ),
-      ],
     );
   }
 }

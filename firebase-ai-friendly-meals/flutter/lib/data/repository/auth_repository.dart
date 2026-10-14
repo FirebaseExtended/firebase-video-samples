@@ -9,6 +9,9 @@ class AuthRepository {
 
   fb_auth.User? get currentUser => _authRemoteDataSource.currentUser;
 
+  Stream<fb_auth.User?> get authStateChanges =>
+      _authRemoteDataSource.authStateChanges;
+
   Future<AppUser> createAnonymousAccount() {
     return _authRemoteDataSource.createAnonymousAccount();
   }

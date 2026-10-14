@@ -3,8 +3,6 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 
 import '../../data/app_repositories.dart';
-import '../../data/model/recipe.dart';
-import '../../data/schema/recipe_schema.dart';
 import '../shared/camera_component.dart';
 import '../shared/loading_indicator.dart';
 import '../theme/app_theme.dart';
@@ -181,8 +179,7 @@ class _GenerateScreenState extends State<GenerateScreen> {
 
       final storedRecipeId =
           await widget.repositories.databaseRepository.addRecipe(
-        _toRecipe(
-          generatedRecipe,
+        generatedRecipe.toRecipe(
           authorId:
               widget.repositories.authRepository.currentUser?.uid ?? '',
           imageUri: recipeImageUri,
@@ -203,24 +200,6 @@ class _GenerateScreenState extends State<GenerateScreen> {
       });
       showError();
     }
-  }
-
-  Recipe _toRecipe(
-    RecipeSchema schema, {
-    required String authorId,
-    required String? imageUri,
-  }) {
-    return Recipe(
-      title: schema.title,
-      instructions: schema.instructions,
-      ingredients: schema.ingredients,
-      authorId: authorId,
-      tags: schema.tags,
-      prepTime: schema.prepTime,
-      cookTime: schema.cookTime,
-      servings: schema.servings,
-      imageUri: imageUri,
-    );
   }
 
   @override
