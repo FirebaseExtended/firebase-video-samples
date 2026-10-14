@@ -1,4 +1,4 @@
-package com.example.myapp
+package com.google.firebase.example.friendlymeals
 
 import io.flutter.embedding.android.FlutterActivity
 
